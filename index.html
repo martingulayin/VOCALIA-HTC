@@ -6,6 +6,7 @@
 <title>Portal · Vocalía Municipalidades "B"</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -150,6 +151,8 @@ main{flex:1;}
 .acceso-card.c-novedades{border-top-color:var(--red);}
 .acceso-card.c-jornadas{border-top-color:#1A5276;}
 .acceso-card.c-delegaciones{border-top-color:#6C3483;}
+.acceso-card.c-herramientas{border-top-color:#0E7490;}
+.acceso-card.c-vocalia{border-top-color:#4A5568;}
 .acceso-icon{font-size:1.4rem;margin-bottom:.5rem;}
 .acceso-title{font-size:.82rem;font-weight:700;color:var(--navy);margin-bottom:.25rem;}
 .acceso-desc{font-size:.68rem;color:var(--muted);line-height:1.4;}
@@ -485,12 +488,14 @@ main{flex:1;}
 }
 .tb-btn-sec:hover{color:#CBD5E0;border-color:rgba(255,255,255,.3);}
 
-@media(max-width:768px){
-  .topbar{padding:.8rem 1rem !important;}
-  .topbar [style*="font-size:2rem"]{font-size:1.3rem !important;}
-  .topbar [style*="font-size:.6rem"]{font-size:.52rem !important;}
+@media(max-width:1100px){
+  .topbar-titulo-principal{font-size:1.25rem !important;}
   #topbar-botones-pc{display:none !important;}
   #topbar-hamburger{display:block !important;}
+}
+@media(max-width:768px){
+  .topbar-titulo-principal{font-size:1.05rem !important;}
+  .topbar{padding:.6rem .9rem !important;}
 }
 #buscador-input::placeholder{color:#2A3A4A;}
 #buscador-input:focus::placeholder{color:#4A6A8A;}
@@ -548,10 +553,11 @@ main{flex:1;}
 @media(max-width:768px){
 
   /* Topbar */
-  .topbar{padding:.7rem 1rem;}
+  .topbar{padding:.55rem .9rem !important;}
   .topbar-logo{width:40px;height:40px;font-size:1.2rem;}
   .topbar-eyebrow{font-size:.52rem;}
-  .topbar-title{font-size:1.1rem;}
+  .topbar-titulo-principal{font-size:.95rem !important;letter-spacing:0 !important;}
+  .topbar-titulo-principal span{font-size:.95rem !important;}
   .user-chip{padding:.22rem .5rem;font-size:.62rem;}
   .role-badge{display:none;}
   .topbar-link{font-size:.6rem;padding:.22rem .45rem;}
@@ -723,9 +729,9 @@ main{flex:1;}
 /* Título principal portal (topbar) — Inter 900 */
 .topbar-titulo-principal {
   font-family:'Inter',sans-serif !important;
-  font-size:2.2rem !important;
+  font-size:1.6rem !important;
   font-weight:900 !important;
-  letter-spacing:-.03em !important;
+  letter-spacing:-.02em !important;
   color:#fff !important;
   line-height:1.05 !important;
 }
@@ -856,6 +862,16 @@ table td, table th { font-size:.88rem !important; }
       <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
     </div>
 
+    <!-- Recordarme -->
+    <div style="display:flex;align-items:flex-start;gap:.6rem;margin:.8rem 0 .2rem;">
+      <input type="checkbox" id="login-remember"
+        style="width:15px;height:15px;accent-color:var(--gold);margin-top:.1rem;cursor:pointer;flex-shrink:0;">
+      <div>
+        <label for="login-remember" style="font-size:.78rem;color:#CBD5E0;cursor:pointer;font-weight:500;">Mantener sesión iniciada</label>
+        <div style="font-size:.65rem;color:#4A5568;margin-top:.15rem;">No usar en dispositivos compartidos o públicos</div>
+      </div>
+    </div>
+
     <button class="login-btn" id="login-btn" onclick="doLogin()">Ingresar al portal</button>
     <div class="login-error" id="login-error"></div>
 
@@ -872,35 +888,35 @@ table td, table th { font-size:.88rem !important; }
 <div id="portal-wrap">
 
 <!-- TOPBAR -->
-<div class="topbar" style="padding:1.2rem 1.8rem;align-items:center;gap:2rem;">
+<div class="topbar" style="padding:.8rem 1.4rem;align-items:center;gap:1rem;flex-wrap:nowrap;">
 
-  <!-- Izquierda: título grande -->
-  <div style="flex-shrink:0;">
-    <div style="font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#4A6A8A;margin-bottom:.2rem;">H. Tribunal de Cuentas · Prov. de Buenos Aires</div>
+  <!-- Izquierda: título -->
+  <div style="flex-shrink:0;min-width:0;">
+    <div style="font-size:.55rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#4A6A8A;margin-bottom:.15rem;">H. Tribunal de Cuentas · Prov. de Buenos Aires</div>
     <div class="topbar-titulo-principal">Vocalía <span>Municipalidades "B"</span></div>
-    <div style="font-size:.65rem;color:#2A3A4A;margin-top:.15rem;letter-spacing:.04em;">Portal interno</div>
+    <div style="font-size:.6rem;color:#2A3A4A;margin-top:.1rem;">Portal interno</div>
   </div>
 
   <!-- Derecha PC: dos filas de botones -->
-  <div id="topbar-botones-pc" style="margin-left:auto;display:flex;flex-direction:column;gap:.45rem;align-items:flex-end;">
-    <div style="display:flex;align-items:center;gap:.4rem;">
+  <div id="topbar-botones-pc" style="margin-left:auto;display:flex;flex-direction:column;gap:.35rem;align-items:flex-end;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:.3rem;flex-wrap:nowrap;">
       <button class="tb-btn" onclick="switchTab('documentos')">📁 DOCS</button>
       <button class="tb-btn" onclick="abrirModalAviso()">📢 AVISOS</button>
       <button class="tb-btn" onclick="abrirModalActividad()">📋 ACTIVIDAD</button>
       <button class="tb-btn tb-btn-disabled" title="Disponible con Supabase">👤 USUARIOS</button>
-      <div style="width:1px;height:16px;background:rgba(255,255,255,.15);margin:0 .2rem;"></div>
-      <span style="font-size:.75rem;font-weight:700;color:var(--gold);" id="topbar-username">Demo</span>
+      <div style="width:1px;height:16px;background:rgba(255,255,255,.15);margin:0 .15rem;"></div>
+      <span style="font-size:.7rem;font-weight:700;color:var(--gold);" id="topbar-username">Demo</span>
       <span class="role-badge role-admin" id="topbar-role">Admin</span>
       <button class="tb-btn tb-btn-salir" onclick="doLogout()">SALIR</button>
     </div>
-    <div style="display:flex;align-items:center;gap:.4rem;">
+    <div style="display:flex;align-items:center;gap:.3rem;">
       <a href="https://www.htc.gba.gov.ar/autoridades" target="_blank" class="tb-btn-sec">👥 AUTORIDADES</a>
       <a href="https://www.htc.gba.gov.ar/actualidad" target="_blank" class="tb-btn-sec">📰 NOVEDADES HTC</a>
-      <button class="tb-btn-sec" onclick="document.getElementById('buscador-input').focus()">🔍 BUSCAR</button>
+      <button class="tb-btn-sec" onclick="activarBuscador()">🔍 BUSCAR</button>
     </div>
   </div>
 
-  <!-- Derecha Mobile: hamburguesa -->
+  <!-- Mobile: hamburguesa -->
   <button id="topbar-hamburger" onclick="toggleMenuMobile()" style="display:none;margin-left:auto;background:none;border:1.5px solid rgba(255,255,255,.2);border-radius:6px;color:#CBD5E0;font-size:1.2rem;padding:.35rem .55rem;cursor:pointer;">☰</button>
 </div>
 
@@ -916,7 +932,7 @@ table td, table th { font-size:.88rem !important; }
   <div style="display:flex;flex-wrap:wrap;gap:.4rem;padding-top:.4rem;border-top:1px solid rgba(255,255,255,.07);">
     <a href="https://www.htc.gba.gov.ar/autoridades" target="_blank" class="tb-btn-sec" onclick="cerrarMenuMobile()">👥 AUTORIDADES</a>
     <a href="https://www.htc.gba.gov.ar/actualidad" target="_blank" class="tb-btn-sec" onclick="cerrarMenuMobile()">📰 NOVEDADES HTC</a>
-    <button class="tb-btn-sec" onclick="document.getElementById('buscador-input').focus();cerrarMenuMobile()">🔍 BUSCAR</button>
+    <button class="tb-btn-sec" onclick="cerrarMenuMobile();setTimeout(activarBuscador,100)">🔍 BUSCAR</button>
   </div>
 </div>
 
@@ -949,11 +965,12 @@ table td, table th { font-size:.88rem !important; }
   <button class="tab-btn active" onclick="switchTab('inicio')" id="tab-inicio"><span class="tab-icon">🏠</span> Inicio</button>
   <button class="tab-btn" onclick="switchTab('vocalia')" id="tab-vocalia"><span class="tab-icon">🏛️</span> La Vocalía</button>
   <button class="tab-btn" onclick="switchTab('mensajes')" id="tab-mensajes"><span class="tab-icon">📣</span> Mensajes <span class="tab-badge" id="badge-mensajes">3</span></button>
-  <button class="tab-btn" onclick="switchTab('cronograma')" id="tab-cronograma"><span class="tab-icon">📅</span> Cronograma</button>
-  <button class="tab-btn" onclick="switchTab('documentos')" id="tab-documentos"><span class="tab-icon">📚</span> Biblioteca</button>
-  <button class="tab-btn" onclick="switchTab('capacitaciones')" id="tab-capacitaciones"><span class="tab-icon">🎓</span> Capacitaciones</button>
   <button class="tab-btn" onclick="switchTab('novedades')" id="tab-novedades"><span class="tab-icon">📰</span> Novedades</button>
-  <button class="tab-btn" onclick="switchTab('delegaciones')" id="tab-delegaciones"><span class="tab-icon">📍</span> Delegaciones</button>
+  <button class="tab-btn" onclick="switchTab('documentos')" id="tab-documentos"><span class="tab-icon">📚</span> Biblioteca</button>
+  <button class="tab-btn" onclick="switchTab('herramientas')" id="tab-herramientas"><span class="tab-icon">🛠️</span> Herramientas Digitales</button>
+  <button class="tab-btn" onclick="switchTab('delegaciones')" id="tab-delegaciones"><span class="tab-icon">🏢</span> Delegaciones y Sede Central</button>
+  <button class="tab-btn" onclick="switchTab('capacitaciones')" id="tab-capacitaciones"><span class="tab-icon">🎓</span> Capacitaciones</button>
+  <button class="tab-btn" onclick="switchTab('cronograma')" id="tab-cronograma"><span class="tab-icon">📅</span> Cronograma</button>
 </nav>
 
 <main>
@@ -962,41 +979,51 @@ table td, table th { font-size:.88rem !important; }
 <div id="panel-inicio" class="tab-panel active">
   <div class="inicio-body" style="padding:1.4rem 2rem;">
 
-    <!-- Accesos rápidos con jerarquía -->
+    <!-- Accesos rápidos — 2 columnas -->
     <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.2rem;margin-bottom:1.2rem;">
       <div class="section-label" style="margin-bottom:.8rem;">Accesos rápidos</div>
-      <div style="display:grid;grid-template-columns:1.6fr 1.6fr 1fr 1fr 1fr 1fr;gap:.6rem;align-items:stretch;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;">
 
-        <!-- Principales -->
-        <div class="acceso-card c-mensajes" onclick="switchTab('mensajes')" style="position:relative;padding:1rem;">
-          <span id="badge-inicio-msg" style="position:absolute;top:.5rem;right:.5rem;font-size:.58rem;font-weight:700;background:#C0392B;color:#fff;border-radius:10px;padding:.12rem .42rem;min-width:18px;text-align:center;">3</span>
-          <div class="acceso-icon" style="font-size:1.4rem;">📣</div>
-          <div class="acceso-title" style="font-size:.82rem;">Mensajes</div>
-          <div class="acceso-desc">Comunicados del área</div>
+        <div class="acceso-card c-mensajes" onclick="switchTab('mensajes')" style="position:relative;padding:1rem;display:flex;align-items:center;gap:.9rem;">
+          <span id="badge-inicio-msg" style="position:absolute;top:.5rem;right:.5rem;font-size:.58rem;font-weight:700;background:#C0392B;color:#fff;border-radius:10px;padding:.12rem .42rem;">3</span>
+          <div style="font-size:1.6rem;">📣</div>
+          <div><div class="acceso-title">Mensajes</div><div class="acceso-desc">Comunicados del área</div></div>
         </div>
-        <div class="acceso-card c-cronograma" onclick="switchTab('cronograma')" style="position:relative;padding:1rem;">
+
+        <div class="acceso-card c-novedades" onclick="switchTab('novedades')" style="padding:1rem;display:flex;align-items:center;gap:.9rem;">
+          <div style="font-size:1.6rem;">📰</div>
+          <div><div class="acceso-title">Novedades</div><div class="acceso-desc">Avisos institucionales</div></div>
+        </div>
+
+        <div class="acceso-card c-documentos" onclick="switchTab('documentos')" style="padding:1rem;display:flex;align-items:center;gap:.9rem;">
+          <div style="font-size:1.6rem;">📚</div>
+          <div><div class="acceso-title">Biblioteca</div><div class="acceso-desc">Documentos y normativa</div></div>
+        </div>
+
+        <div class="acceso-card c-herramientas" onclick="switchTab('herramientas')" style="padding:1rem;display:flex;align-items:center;gap:.9rem;">
+          <div style="font-size:1.6rem;">🛠️</div>
+          <div><div class="acceso-title">Herramientas Digitales</div><div class="acceso-desc">Links y recursos digitales</div></div>
+        </div>
+
+        <div class="acceso-card c-delegaciones" onclick="switchTab('delegaciones')" style="padding:1rem;display:flex;align-items:center;gap:.9rem;">
+          <div style="font-size:1.6rem;">📍</div>
+          <div><div class="acceso-title">Delegaciones y Sede Central</div><div class="acceso-desc">Zonales y Relatorías</div></div>
+        </div>
+
+        <div class="acceso-card c-capacitaciones" onclick="switchTab('capacitaciones')" style="padding:1rem;display:flex;align-items:center;gap:.9rem;">
+          <div style="font-size:1.6rem;">🎓</div>
+          <div><div class="acceso-title">Capacitaciones</div><div class="acceso-desc">Cursos y material</div></div>
+        </div>
+
+        <div class="acceso-card c-cronograma" onclick="switchTab('cronograma')" style="position:relative;padding:1rem;display:flex;align-items:center;gap:.9rem;">
           <span style="position:absolute;top:.5rem;right:.5rem;font-size:.58rem;font-weight:700;background:var(--gold);color:#0F2340;border-radius:10px;padding:.12rem .42rem;" id="badge-inicio-cron">4</span>
-          <div class="acceso-icon" style="font-size:1.4rem;">📅</div>
-          <div class="acceso-title" style="font-size:.82rem;">Cronograma</div>
-          <div class="acceso-desc">Eventos este mes</div>
+          <div style="font-size:1.6rem;">📅</div>
+          <div><div class="acceso-title">Cronograma</div><div class="acceso-desc">Eventos este mes</div></div>
         </div>
 
-        <!-- Secundarios -->
-        <div class="acceso-card c-documentos" onclick="switchTab('documentos')" style="padding:.8rem .6rem;text-align:center;">
-          <div class="acceso-icon">📚</div>
-          <div class="acceso-title">Biblioteca</div>
-        </div>
-        <div class="acceso-card c-delegaciones" onclick="switchTab('delegaciones')" style="padding:.8rem .6rem;text-align:center;">
-          <div class="acceso-icon">📍</div>
-          <div class="acceso-title">Delegaciones</div>
-        </div>
-        <div class="acceso-card c-capacitaciones" onclick="switchTab('capacitaciones')" style="padding:.8rem .6rem;text-align:center;">
-          <div class="acceso-icon">🎓</div>
-          <div class="acceso-title">Capacitaciones</div>
-        </div>
-        <div class="acceso-card c-novedades" onclick="switchTab('novedades')" style="padding:.8rem .6rem;text-align:center;">
-          <div class="acceso-icon">📰</div>
-          <div class="acceso-title">Novedades</div>
+        <div class="acceso-card c-vocalia" onclick="switchTab('vocalia')" style="padding:1rem;display:flex;align-items:center;gap:.9rem;">
+          <div style="font-size:1.6rem;">🏛️</div>
+          <div><div class="acceso-title">La Vocalía</div><div class="acceso-desc">Info institucional</div></div>
         </div>
 
       </div>
@@ -1078,7 +1105,18 @@ table td, table th { font-size:.88rem !important; }
   <div class="inicio-hero">
     <div class="inicio-eyebrow">Información institucional</div>
     <div class="inicio-title">La <span>Vocalía</span></div>
-    <div class="inicio-sub">Vocalía Municipalidades "B" · H. Tribunal de Cuentas de la Provincia de Buenos Aires</div>
+    <div class="inicio-sub" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+      <span>Vocalía Municipalidades "B" · H. Tribunal de Cuentas de la Provincia de Buenos Aires</span>
+      <a href="data:application/pdf;base64,JVBERi0xLjQKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgKG9wZW5zb3VyY2UpCjEgMCBvYmoKPDwKL0YxIDIgMCBSIC9GMiAzIDAgUgo+PgplbmRvYmoKMiAwIG9iago8PAovQmFzZUZvbnQgL0hlbHZldGljYSAvRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZyAvTmFtZSAvRjEgL1N1YnR5cGUgL1R5cGUxIC9UeXBlIC9Gb250Cj4+CmVuZG9iagozIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhLUJvbGQgL0VuY29kaW5nIC9XaW5BbnNpRW5jb2RpbmcgL05hbWUgL0YyIC9TdWJ0eXBlIC9UeXBlMSAvVHlwZSAvRm9udAo+PgplbmRvYmoKNCAwIG9iago8PAovQ29udGVudHMgOSAwIFIgL01lZGlhQm94IFsgMCAwIDU5NS4yNzU2IDg0MS44ODk4IF0gL1BhcmVudCA4IDAgUiAvUmVzb3VyY2VzIDw8Ci9Gb250IDEgMCBSIC9Qcm9jU2V0IFsgL1BERiAvVGV4dCAvSW1hZ2VCIC9JbWFnZUMgL0ltYWdlSSBdCj4+IC9Sb3RhdGUgMCAvVHJhbnMgPDwKCj4+IAogIC9UeXBlIC9QYWdlCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9Db250ZW50cyAxMCAwIFIgL01lZGlhQm94IFsgMCAwIDU5NS4yNzU2IDg0MS44ODk4IF0gL1BhcmVudCA4IDAgUiAvUmVzb3VyY2VzIDw8Ci9Gb250IDEgMCBSIC9Qcm9jU2V0IFsgL1BERiAvVGV4dCAvSW1hZ2VCIC9JbWFnZUMgL0ltYWdlSSBdCj4+IC9Sb3RhdGUgMCAvVHJhbnMgPDwKCj4+IAogIC9UeXBlIC9QYWdlCj4+CmVuZG9iago2IDAgb2JqCjw8Ci9QYWdlTW9kZSAvVXNlTm9uZSAvUGFnZXMgOCAwIFIgL1R5cGUgL0NhdGFsb2cKPj4KZW5kb2JqCjcgMCBvYmoKPDwKL0F1dGhvciAoSC4gVHJpYnVuYWwgZGUgQ3VlbnRhcyBQQkEpIC9DcmVhdGlvbkRhdGUgKEQ6MjAyNjA4MjgxOTU4MDMrMDAnMDAnKSAvQ3JlYXRvciAoXCh1bnNwZWNpZmllZFwpKSAvS2V5d29yZHMgKCkgL01vZERhdGUgKEQ6MjAyNjA4MjgxOTU4MDMrMDAnMDAnKSAvUHJvZHVjZXIgKFJlcG9ydExhYiBQREYgTGlicmFyeSAtIFwob3BlbnNvdXJjZVwpKSAKICAvU3ViamVjdCAoXCh1bnNwZWNpZmllZFwpKSAvVGl0bGUgKFF1aVwzNTFuZXMgU29tb3MgXDIwNCBWb2NhbFwzNTVhIE11bmljaXBhbGlkYWRlcyBCKSAvVHJhcHBlZCAvRmFsc2UKPj4KZW5kb2JqCjggMCBvYmoKPDwKL0NvdW50IDIgL0tpZHMgWyA0IDAgUiA1IDAgUiBdIC9UeXBlIC9QYWdlcwo+PgplbmRvYmoKOSAwIG9iago8PAovRmlsdGVyIFsgL0FTQ0lJODVEZWNvZGUgL0ZsYXRlRGVjb2RlIF0gL0xlbmd0aCAzMjI5Cj4+CnN0cmVhbQpHYXUwRmZsR2gsKDRGTTFUX2NkWmpmZiZBbFZqLk8uI0NqbSZtSz9NRm5sMyxCU0EncjwkOVIvcXMzRU1FNDw1JGRTc1tHK0k3QG9jPFtEZ0ImYUNcXkYrKkJjR280U08uOjQrYFhlImlRR15dZTJBajQrbl1uR3IrOm8kaFxGYkxAMS8jLSMoYmUrIlFYWG1LRDlLQmpUPUxZMiQvYkVDajsmN2NCMCdLNEolaTZXQl8wU1xRQT1AQF5vWTxeKjZEcCwmTGopY1xLaXNeImxec2FGYFReaCRVci0+K0xwTTlbVWVEWTQxVyZrcEk5QGldMDE/Om06K11pP00tZSomJXJMKyl0cT4qKzksZDA3bExAMTo7VWpNLEReN00sWCgjdFNoN08qNSRNailqODFyPSQoRkRjVDFBLTwvX1FdYUkhMj9tVmA6NmNNSXQtZlA6XW9qZiRVY0xoaWIsSipSNjQ2XD9iNWBWMlBcNSdoSFppIz43K0xpdSlGMm1cSWE1RU4wam9NPi5GLFdkVUhlZElLRzdcXGUqVi8oKGd0JFhSJWYrQzQsSFtDQXFXKSRJKnRCQVk9ZixQR1FdcVZNSm5qNSpMZV8iSGdWbj1pLzZkRUVKPy9vT2oxR1dpUyRXNC0pITJsSUhyXkhhakkpZi5ASGM3UFJHJVk+IlZYcnJaLFRBNCNsUS8ic188VTtoRGolNm1bOE5eIyVCX2ZlUzJYKV5YW09QTGBcVjRebjlALSNzbGFKJV1RPSVGKERfQj9ocEFwLkViSD9QP0U6WV51SUcoUj1vZEFkYDJPY01DJGB0Tk85SyNQcmJwcmgmQHNQQDNeay8rciUnN2hLIWAuZl9pOWMyX1gqWGtnIWFfRG4qZVY+R0QwJzwhZlxFLHFFTVNPOFB1KjYta0xXT0goYz4vXkddXWhUVGc9MlZPPkNHcT5lMVoxbiUyTTpALSVHdWJuaW11X2Y3Nl5GckVPMT4paHNvKWA3Y1w2TzBoOjcxSWtXXD9LYSspREpgOURtVmNbWW9OMlQsRV1ocGhcUV89QEBOUC1nYCZbJXBySy5bOG03bEZvTG5GWzxaISMnMipwTm1YT2guOD9HPilkJWJFNThtKktyK11mbGlvSzI5MltuPCwhMjVGMllVOXNCJCY9aDw5dSViRCNsImk3Um9sJD4mS05BJUowM15tLWg6bT1KM15bQChyYnJRZSVnWC5gWCR0XD91MlVvQCZKbVh0UkYkME08KHMzM3A4Km9pV2hrSUVhVmtyL2JyJmVrVFA2LkdCSmY9ISJoTG1iRi1zQmU8UU1cJkduU0wzUStATylPKlNQL0pFWyhXbkNFbDxVWiZaUUtGMV8lckRVdTNyWD9VPSFAT1xELTAhKDkxZVVyMT9FOXRHPEJZIzg3ZSdkN1s+O1RVcmIzPyshZExhZCtaYyhRJERUTFJIQURcWThmbiFQJFFcSjxebTVzOyg/WlRhcGNCK3E7YE85RkxeTlg8Z1YhdGdJUy5wV3JFbiNFLzVYalgxTlVdSipgNmQ0O19icmpnMXBnTDpDXjInXkFMRjZZbEhwVks2cktrS1RSTkUqPC4oXSk/bFVLWkYtXkVBaCdeVihNVVFCWDkkWl8xMk1qcURpcWJia1JfMSs9ZmQnNVwxTEVQTmFIV15KbGxKL2s6JDZMNzAzOz1PaVtpJ1NIKTVQZzcoakMsLkZ0XzdjNmMwMDEnWyxiYzpWXlVNZ2hmUVNTJDZIWCtLaU4jUl9DMkpzMCsiYD8iNk9xXXFidD0zLCxSMGc9SCxXSlllXi90cCtCNENXPEFNSXAlZyxsJzFIblQjT0QtTG1aIUE5dUNxVWJAN1QjczxwOiEhayQvQG9xPj9sX25rK05NMzgxPS4sKClbXSFTLFhQSUxKR1xvZlNDQzo5VG4zVzo7ZkwhYkAyVlNzLlxdTk1sU3NEPGU8aHBCXy1mXiMzLlN1a0gwYjZPJFJoczwsSDUyZU1kL3AsbC1vRENxPnRbN2o6UV5ZWko5RXQiR1dNMnRvT3UrRjMvVj1lVkdkYmlqWm50NW0kVlNcIWBKR3IxTVEyMj9ZMSRxM2gjLFVSQy1fUT9uUE1RLyFwU0o7M01faC4qcihGSDZWTjAoR0wvc08tXl1rLl0oIi5EITpzWFVZMUVZRj1UJEUlczFDY0w4b3N0OF1xcyQ2Oj9SQCwmJmk8STFDS0coKGllQG5ZXW5OIy88XlRBJ0YrTUQ6Mj9MMj5cOTskT0Y9dTZyI2dGY15BQVdFL2I1US5McHJhUWdpci43P3JQb0BwOlFMMidMJj9DQUgsYkIhNUNQMz9OQyVHSmtWTypcVS9ySTRkKSZZWWxFWFZxJ1ZNP0FQOFZkYl5NcklVRWAlZGVoL08lVWpHPmFkOE9xVzkkRGQoJDpiPT5hSkZcSWs9JCxcJmYxSSQobUAqXzUkQ2pcMGFUPj1CUSQiJVwuWyk9KkRMKlVZNnJuKjNnWG07dXFMWElmWm0vP1puIlpLM3VvJyZMPlU9UmQ+MEslNGxnYW9ZXl9CXz4kVXMqJXEwZyFKKEsvN1FUOj9fRFZlV0EoI3A0L0AnQSM3QE4mPlRMTHBPLyZEcFprRygta1U8U1BzNj5Ab25WLEptO1kyVWdtXTFYNTJaaW4kdEc7Rys2LTg7JjExL3NPQT1UNDJCSDAlVnFUSFtfbU5QKDJlS1EtUWNAJ1dUN0JfKmNEUCUrMko9RyNQN0hpVEBfcSYkIVA3OSZVTmJaJGQmUFxJLlxoMz8iTTg8YjVOTSpNaTg8JTdvW1E7UF50PE1xcjY7N3BLRlFNbG9BZHIlZFBTNiEuZ2RURSVUcmhDT2JsZW5vXTwxLEcoM1tTUUBVcE5FcVpodG07Tl8oX1RXWCZJc0xYWFhQJE51L2AqPm4nV24paEpNUlduTmRUVnVUWW9oOzFiaidyOSFWUS5TPlghP1VzND5VXFJGa3UpZ0cpblM5aF5dSEpEXEs+ajwoVDJfKUdpcWY4L0ZJKFUwb0ZOJCVwUFwkLiI6NC11SDlcM2NdRFBKQXFEbVspKC5zPC05W1BxdEdddChAPl5uTC9mMiVZdFtXJEJNRG1BWzA4bzFbRGAqTUdTIVdzNTYnUiNAOkxVbVs5aT9eJm9SQlZaWy4rPitTTkohZ0lJSjVqanNtcD9XaEVpP2FtKF9aM1lwQkEzOFJsRWJNcUo4Oi8rKF1zWD1qa0s6MipwK0VObytvcVlmcFhyIVJpZUhLTzNycm9KKWVqRitCNWhcPiciOzRxPlVwOCNwL1JoZj4+Z1kxKENBZylnXGlgc2VxKCVPbDNyWyUmdFAqWlNuITlcUGxiPkpnOFA3bzk2ISg1cEhjOVNHNiMzXW8vTi5WRVI+IUc+MiFuSHFfPzJkYmcraW1KcDEsUD4wOEsmXmdGZFInbWU+UilwVlwwJUhsSm9FM0E6Q0pGYmVPKC5gKGIhKnROWzlxWGA2M2YyPj1HO1YkTTRdZmFoLkIlUV1FalBSRDlVJVJRVURvSyhvNj9Ra1JnVGJLX0kqNWg/bjprcj9zaCk9ITtiR3BAYnFUUmtkJC0xQU4nZSNlREZmcFA9RjUtITMuampSVmlNbk8mVDwyV3VDUz9YR145SEBzInAlTVxRY3NlbFhdYjRXNUxEaCtgXClDW0wmKzpKZmNYQGJOVzpIaSVtI1NbQ2FoLG5tKyY7I3ROIjllVWNZZVFIbGc0TS9iMkI8QHFDYjldVXFxTEc6ZC1wOi8ucnFIMVhObWI9W0VlMGcubmlcSG09N0U9UGYkTCkkZmEyWlQ9M284ZFYpPnBtX1ZaYEpvWjkhdUYsaWZZNS8tLyFKX1s7Tkw2ZyZXaEosIVdua2EoSmRrI2RjXnVnZktIJVRydTZeJXVGXSNqNDo6JENmOzolOE1VOVFgSExUQjVfPVEwOWdRYj5tcixsNyYwOjxLMy5FUzQ8bGc3W01qYUg2Y1YxRW4sM207KVs+JmBlZ15bQSglcWknbTtSP11wRis+NT9cWUYwVjktWFBiZyVPKiZbXW5uIj9BdTxNVmxbLGMnWVJmcD0+LSxJTzJSZyFzS1A5WSIjPF4uXTc9XiRXcW4uXEQpQThPRzFsUD81RGtoYkFSXClwR2cuMF9hZkJeITtzaTIhZlpDZks8PTpeIzgyc0NWRi9PPGk8VjVfZzRwc1JTWHBSO2VUWiVTU00+J0tjTkhmLEtdOCNBX0JidWNAaThHKilUbjRSQj9iPVErMyc0aDNlMlIpSD87czk/YzhrJWloWj1AL34+ZW5kc3RyZWFtCmVuZG9iagoxMCAwIG9iago8PAovRmlsdGVyIFsgL0FTQ0lJODVEZWNvZGUgL0ZsYXRlRGVjb2RlIF0gL0xlbmd0aCAxNzk3Cj4+CnN0cmVhbQpHYXRtO2dOKSUsJjpPOlNtLFVhX2ZJLWIzXUtBZkRTI0BQWDh1dVZbKlBdQihYTUAxOCQ6cm1VXlYxKjQ3KWtEV1tOOkpVSlFWOTFoL2ZlIy48dFZYWDNZO2EwTmw2XElvKWRIPG5CVGJpa29MQGtHc2RnLWM/WnFgLWBcbExKLnNyOVIoT1tHJnJpKmc1KCYjb1YpbWIvLWxWUCExWFo/OyRwQD9wIkwuc0BaU00wTzhxTVkjWTVZITUsVzpEJ3A6alJLU3BeLCFWJVVVWV9kbDUwb0lKS04iU0FHMzM5UEJxWUZuZVNtUUxmYGojNyhqKHBiXE5wIWBtaiowWiZuN003UjJkIm5PbEUwWjJmdF1jX0kzSzQ1NkdgZWIlME0jJFlkNCwqYltfJnIiay1AXEwhOE09IlgsRyFcXmFpV1Y0M24yTjYsTTBYaWMiXCNvPi9kLjFqNmhSMDUvRV9daFBvKlhNWzBcMChLMyJfTiYlSUNkZ28iUCp0Tik+U1BXWFdbPW8/dCJTdTxtc2JYKipaaFtJUkhhQStiPTpdQ0g0X0cnXlxJQ0pnZlJQTkM8WWBdPyE0SEJdLDZOOWxOcHVHU1JONGNJQW81YEIlXlVvblU+ZGQ2OSx1ZzUyLStVLF9oYVB0VUNJTl1uWEUqZG1pR1JnaSE+MDlSdUU1Z1NzYWkpK1ZdKzdGLWdNM1djVSlOT0I9MEdcWD5dRXJkVSdEa1ZVWUBGOW1IYTFUQVdeTDNwN1hsKGNqXVllY08vP3MwUDoyRSZZVG4qMW04ZnVnKWhbYVMxK2QlMjA2dD5oLWVWSjllPFVYPGxrZDN0QyJlcVxhSy8qSzFlJV88MkskPkpfc10yOFVKPU1KZGEuWzZRPjU0V0hHMi1TcSExaVchbV5UbEUnRjRRbz5HR3VFRm8sM21IZj5OSWNfZVM1SydOXyhlcSpVZiImcSxSWlU5SVdqSFY3O2plRk85bSY4V2lOL1phW2tdNmA7PFw7YFIvWEZnQ2tPS0QlayovLnBIaWNLMTAnPTZnL1BgbWFoaFNCQylXZEBSZyR0SmdFWHFKWzVMZ2JyZWRNJEhfMGIvK0ZJNFMlb1IkWltybjhpZ2pfJzlyNlIoYiNIT3AlVm9eVSZUSjVjXFpuUE9nJShjO2kiMVw/S3Mtalo3QFdiJT4/OWUnTU4xRCFccDNjWisqWy9DK2VbbXVzZWdFZmwoXGpaaGo2aDFPa2JjJlBGMEJxTCg1TTtVXzFdUnFUUyFSKSFGUUBePE00Tl4zTWAxc1YwOj5EVFVHZlckU01OcmNjIW9qY0dbVSlAOCg/WUJdQV5KWHQmRUUibWZ0OWA7TmpaIiFEOjdzJURKQkRAKl10LkJSTHNbKDtaYig9SFlWY0FeVCU2SmlqQUU/LCQmX0IrNG4nTlo0aUwoWi1QJldiYGhWbyIuLXFNYWFNS0tAJSJBVyQ1V1IsSyhuaDYnKWMwS04iZ0swXydaLlRIYEI5XjUrIzZwWS9BRSpfSjJhXmZYWEA0L1w7W09CYUBSNm0wKVtKQio0LEFATmJeLjpqWVI0K0I4M09NUEgoVjIiIkJBJnE+T2RMLi5CW3MmUV44Q1MvKW82cTlpIjshW1xxYSgpaiVjc1QtUEdfNEtAZXMuTGBhL2ZLY19WUDsuJ2BAMlxOOD5pXDBmImM9KUp1MlEzNmdNakhDMldQNVliKnJyMmFgOUxpWkVsXG8xWionVm0uSGk+P1dQZk1cZjlwRUZURUI8IT41TTxXTHNYJ2lSSGIkSVE1OExqUCplbGREXjhwQEdMIjJwMCYqdFwyKyNaOEBAX0djUEtgYWBGQnEyKVU3UytlTFc0XF1WU2pPTmYuSUY0RidTN2MsVmpOJ2k5ckQ/UXA/NGglSExHM2A+STZGJG07QXI3cm1xXUswLG9tN0xYMGomMERYVUVXT28tQ1RNYTYqKzAnTkByZj5NYlI3OCkoIj9MKT4yU1Y2YGM3PlVYLT8nP1xlWlZyKjdgJVg4Q3FuZGk7JSlXVjhPcEhjNzdjZ3JBYlgxOERpWCVhcU4iRzxgSDBKay5YSWJfQmA7YmBJaS8yNi4rR3UkOzZWLiJmWzMjU2VuW3RKLiRYQFg9Z2FAUC5ZMThxdG5yYmZSV15DKWY4ZzZPV08udT5GVCQ1aHFGWWRxUldpXF1gdSMrSy9sPTNuVSldSCozSzgkcWM+cW8oWy5JYT4vOVBIWipuJ14kZWpVMyU3PD9XQ1xnWjY7TkREQ2shPjNzJ0pKQ2VdZDsxYS0xW2cwPTtmbkBuQGxQNTJOcUAzSGpbNDUuSTsub0ozMUFBZ2w4TzM7KTw+ZUdCXDhsSF1hRTdQcEA7aTlEMTtzWlhMS241cmVaRl0yOC9Yfj5lbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAxMQowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwNjEgMDAwMDAgbiAKMDAwMDAwMDEwMiAwMDAwMCBuIAowMDAwMDAwMjA5IDAwMDAwIG4gCjAwMDAwMDAzMjEgMDAwMDAgbiAKMDAwMDAwMDUyNCAwMDAwMCBuIAowMDAwMDAwNzI4IDAwMDAwIG4gCjAwMDAwMDA3OTYgMDAwMDAgbiAKMDAwMDAwMTEyNiAwMDAwMCBuIAowMDAwMDAxMTkxIDAwMDAwIG4gCjAwMDAwMDQ1MTEgMDAwMDAgbiAKdHJhaWxlcgo8PAovSUQgCls8YWU3YzI1ZWE2ODQ4OWFlOGFlYWVkYzMyYWIwYTdmYzE+PGFlN2MyNWVhNjg0ODlhZThhZWFlZGMzMmFiMGE3ZmMxPl0KJSBSZXBvcnRMYWIgZ2VuZXJhdGVkIFBERiBkb2N1bWVudCAtLSBkaWdlc3QgKG9wZW5zb3VyY2UpCgovSW5mbyA3IDAgUgovUm9vdCA2IDAgUgovU2l6ZSAxMQo+PgpzdGFydHhyZWYKNjQwMAolJUVPRgo=" download="Vocalia_Municipalidades_B_Quienes_Somos.pdf"
+        style="display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .9rem;
+        background:rgba(74,158,224,.15);border:1.5px solid rgba(74,158,224,.4);border-radius:6px;
+        color:var(--gold);text-decoration:none;font-size:.68rem;font-weight:700;
+        letter-spacing:.06em;text-transform:uppercase;transition:all .15s;white-space:nowrap;"
+        onmouseover="this.style.background='rgba(74,158,224,.25)'"
+        onmouseout="this.style.background='rgba(74,158,224,.15)'">
+        📄 Quiénes somos
+      </a>
+    </div>
   </div>
   <div class="seccion-wrap">
 
@@ -1430,77 +1468,133 @@ table td, table th { font-size:.88rem !important; }
   </div>
 </div>
 
-<!-- ══ DELEGACIONES ══ -->
+<!-- ══ DELEGACIONES Y SEDE CENTRAL ══ -->
 <div id="panel-delegaciones" class="tab-panel">
   <div class="seccion-wrap">
     <div class="seccion-header">
-      <div class="seccion-title">Delegaciones</div>
+      <div class="seccion-title">Delegaciones y Sede Central</div>
     </div>
 
-    <!-- Selector de delegación -->
-    <div style="display:flex;gap:.8rem;flex-wrap:wrap;align-items:center;margin-bottom:1.4rem;">
-      <label style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);">Seleccioná la delegación</label>
-      <select id="deleg-selector" onchange="switchDelegacion(this.value)"
-        style="flex:1;max-width:320px;padding:.55rem .9rem;font-size:.85rem;border:1.5px solid var(--gold);border-radius:6px;outline:none;color:var(--navy);font-family:'Inter',sans-serif;font-weight:600;background:#fff;">
-        <option value="">— Elegí una delegación —</option>
-        <option value="I">Nº I · La Plata</option>
-        <option value="II">Nº II · Quilmes</option>
-        <option value="VI">Nº VI · Morón</option>
-        <option value="VII">Nº VII · Vicente López</option>
-        <option value="X">Nº X · Mar del Plata</option>
-        <option value="XII">Nº XII · Pigüé</option>
-        <option value="XIII">Nº XIII · Azul</option>
-        <option value="XVII">Nº XVII · Zárate</option>
-        <option value="XVIII">Nº XVIII · Chascomús</option>
-        <option value="XX">Nº XX · Ituzaingó</option>
-      </select>
+    <!-- Subtabs principales -->
+    <div class="cap-subtabs">
+      <button class="cap-subtab active" id="deptab-zonales" onclick="switchDepTab('zonales')">📍 Delegaciones Zonales</button>
+      <button class="cap-subtab" id="deptab-sede" onclick="switchDepTab('sede')">🏢 Sede Central</button>
     </div>
 
-    <!-- Pantalla inicial -->
-    <div id="deleg-placeholder" style="text-align:center;padding:3rem 1rem;color:var(--muted);">
-      <div style="font-size:2.5rem;margin-bottom:.8rem;">📍</div>
-      <div style="font-size:.9rem;font-weight:600;color:var(--navy);margin-bottom:.3rem;">Seleccioná una delegación</div>
-      <div style="font-size:.8rem;">para ver su información, documentos y actividad.</div>
-    </div>
-
-    <!-- Panel de delegación seleccionada -->
-    <div id="deleg-panel" style="display:none;">
-
-      <!-- Header -->
-      <div style="background:var(--navy);border-radius:8px 8px 0 0;padding:1.1rem 1.4rem;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.8rem;" id="deleg-header">
+    <!-- ── Delegaciones Zonales ── -->
+    <div id="deppanel-zonales">
+      <div style="display:flex;gap:.8rem;flex-wrap:wrap;align-items:center;margin:1.2rem 0;">
+        <label style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);">Seleccioná la delegación</label>
+        <select id="deleg-selector" onchange="switchDelegacion(this.value)"
+          style="flex:1;max-width:320px;padding:.55rem .9rem;font-size:.85rem;border:1.5px solid var(--gold);border-radius:6px;outline:none;color:var(--navy);font-family:'Inter',sans-serif;font-weight:600;background:#fff;">
+          <option value="">— Elegí una delegación —</option>
+          <option value="I">Nº I · La Plata</option>
+          <option value="II">Nº II · Quilmes</option>
+          <option value="VI">Nº VI · Morón</option>
+          <option value="VII">Nº VII · Vicente López</option>
+          <option value="X">Nº X · Mar del Plata</option>
+          <option value="XII">Nº XII · Pigüé</option>
+          <option value="XIII">Nº XIII · Azul</option>
+          <option value="XVII">Nº XVII · Zárate</option>
+          <option value="XVIII">Nº XVIII · Chascomús</option>
+          <option value="XX">Nº XX · Ituzaingó</option>
+        </select>
       </div>
 
-      <!-- Subtabs -->
-      <div style="display:flex;border-bottom:1px solid var(--border);background:#FAFAFA;">
-        <button class="cap-subtab active" id="dltab-info" onclick="switchDelTab('info')">ℹ️ Información</button>
-        <button class="cap-subtab" id="dltab-docs" onclick="switchDelTab('docs')">📁 Documentos</button>
-        <button class="cap-subtab" id="dltab-actividad" onclick="switchDelTab('actividad')">📋 Actividad</button>
+      <div id="deleg-placeholder" style="text-align:center;padding:3rem 1rem;color:var(--muted);">
+        <div style="font-size:2.5rem;margin-bottom:.8rem;">📍</div>
+        <div style="font-size:.9rem;font-weight:600;color:var(--navy);margin-bottom:.3rem;">Seleccioná una delegación</div>
+        <div style="font-size:.8rem;">para ver su información, documentos y actividad.</div>
       </div>
 
-      <!-- Info -->
-      <div id="dlpanel-info" style="background:var(--white);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:1.2rem 1.4rem;">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1rem;" id="deleg-info-grid"></div>
-      </div>
-
-      <!-- Docs -->
-      <div id="dlpanel-docs" style="display:none;background:var(--white);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:1.2rem 1.4rem;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.6rem;">
-          <div style="font-size:.75rem;color:var(--muted);">Documentos cargados por la delegación</div>
-          <button class="btn-accion" onclick="abrirSubirDocDeleg()" style="font-size:.7rem;padding:.4rem .9rem;">+ Subir documento</button>
+      <div id="deleg-panel" style="display:none;">
+        <div style="background:var(--navy);border-radius:8px 8px 0 0;padding:1.1rem 1.4rem;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.8rem;" id="deleg-header"></div>
+        <div style="display:flex;border-bottom:1px solid var(--border);background:#FAFAFA;">
+          <button class="cap-subtab active" id="dltab-info" onclick="switchDelTab('info')">ℹ️ Información</button>
+          <button class="cap-subtab" id="dltab-docs" onclick="switchDelTab('docs')">📁 Documentos</button>
+          <button class="cap-subtab" id="dltab-actividad" onclick="switchDelTab('actividad')">📋 Actividad</button>
         </div>
-        <div id="deleg-docs-lista"></div>
-      </div>
-
-      <!-- Actividad -->
-      <div id="dlpanel-actividad" style="display:none;background:var(--white);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:1.2rem 1.4rem;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.6rem;">
-          <div style="font-size:.75rem;color:var(--muted);">Registros de actividad — reuniones, visitas y eventos de la delegación</div>
-          <button class="btn-accion" onclick="abrirModal('modal-actividad-deleg')" style="font-size:.7rem;padding:.4rem .9rem;">+ Registrar</button>
+        <div id="dlpanel-info" style="background:var(--white);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:1.2rem 1.4rem;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;" id="deleg-info-grid"></div>
         </div>
-        <div id="deleg-actividad-lista"></div>
+        <div id="dlpanel-docs" style="display:none;background:var(--white);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:1.2rem 1.4rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.6rem;">
+            <div style="font-size:.75rem;color:var(--muted);">Documentos cargados por la delegación</div>
+            <button class="btn-accion" onclick="abrirSubirDocDeleg()" style="font-size:.7rem;padding:.4rem .9rem;">+ Subir documento</button>
+          </div>
+          <div id="deleg-docs-lista"></div>
+        </div>
+        <div id="dlpanel-actividad" style="display:none;background:var(--white);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:1.2rem 1.4rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.6rem;">
+            <div style="font-size:.75rem;color:var(--muted);">Registros de actividad de la delegación</div>
+            <button class="btn-accion" onclick="abrirModal('modal-actividad-deleg')" style="font-size:.7rem;padding:.4rem .9rem;">+ Registrar</button>
+          </div>
+          <div id="deleg-actividad-lista"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sede Central ── -->
+    <div id="deppanel-sede" style="display:none;">
+      <div style="margin:1.2rem 0 1rem;">
+        <div style="display:flex;gap:.8rem;flex-wrap:wrap;align-items:center;">
+          <label style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);">Seleccioná la Relatoría</label>
+          <select id="sede-selector" onchange="switchRelatoria(this.value)"
+            style="flex:1;max-width:320px;padding:.55rem .9rem;font-size:.85rem;border:1.5px solid var(--gold);border-radius:6px;outline:none;color:var(--navy);font-family:'Inter',sans-serif;font-weight:600;background:#fff;">
+            <option value="">— Elegí una Relatoría —</option>
+            <option value="R1">Relatoría 1</option>
+            <option value="R2">Relatoría 2</option>
+            <option value="R3">Relatoría 3</option>
+            <option value="R4">Relatoría 4</option>
+            <option value="R5">Relatoría 5</option>
+          </select>
+        </div>
       </div>
 
+      <div id="sede-placeholder" style="text-align:center;padding:3rem 1rem;color:var(--muted);">
+        <div style="font-size:2.5rem;margin-bottom:.8rem;">🏢</div>
+        <div style="font-size:.9rem;font-weight:600;color:var(--navy);margin-bottom:.3rem;">Seleccioná una Relatoría</div>
+        <div style="font-size:.8rem;">para ver su información, documentos y actividad.</div>
+      </div>
+
+      <div id="sede-panel" style="display:none;">
+        <div style="background:var(--navy);border-radius:8px 8px 0 0;padding:1.1rem 1.4rem;" id="sede-header"></div>
+        <div style="display:flex;border-bottom:1px solid var(--border);background:#FAFAFA;">
+          <button class="cap-subtab active" id="sltab-info" onclick="switchSedeTab('info')">ℹ️ Información</button>
+          <button class="cap-subtab" id="sltab-docs" onclick="switchSedeTab('docs')">📁 Documentos</button>
+          <button class="cap-subtab" id="sltab-actividad" onclick="switchSedeTab('actividad')">📋 Actividad</button>
+        </div>
+        <div id="slpanel-info" style="background:var(--white);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:1.2rem 1.4rem;">
+          <div id="sede-info-grid"></div>
+        </div>
+        <div id="slpanel-docs" style="display:none;background:var(--white);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:1.2rem 1.4rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.6rem;">
+            <div style="font-size:.75rem;color:var(--muted);">Documentos de la Relatoría</div>
+            <button class="btn-accion" onclick="abrirSubirDocSede()" style="font-size:.7rem;padding:.4rem .9rem;">+ Subir documento</button>
+          </div>
+          <div id="sede-docs-lista"></div>
+        </div>
+        <div id="slpanel-actividad" style="display:none;background:var(--white);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:1.2rem 1.4rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.6rem;">
+            <div style="font-size:.75rem;color:var(--muted);">Actividad de la Relatoría</div>
+            <button class="btn-accion" onclick="abrirModal('modal-actividad-sede')" style="font-size:.7rem;padding:.4rem .9rem;">+ Registrar</button>
+          </div>
+          <div id="sede-actividad-lista"></div>
+        </div>
+      </div>
     </div>
+
+  </div>
+</div>
+
+<!-- ══ HERRAMIENTAS DIGITALES ══ -->
+<div id="panel-herramientas" class="tab-panel">
+  <div class="seccion-wrap">
+    <div class="seccion-header">
+      <div class="seccion-title">Herramientas Digitales</div>
+      <button class="btn-accion" onclick="abrirModal('modal-herramienta')">+ Agregar</button>
+    </div>
+    <div id="herramientas-lista" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;"></div>
   </div>
 </div>
 
@@ -1756,6 +1850,71 @@ table td, table th { font-size:.88rem !important; }
   <div class="ev-panel-footer" id="ep-footer-edit" style="display:none;">
     <button class="btn-danger" onclick="cancelarEdicion()">Cancelar</button>
     <button class="btn-accion" style="flex:1;" onclick="guardarEdicion()">Guardar cambios</button>
+  </div>
+</div>
+
+<!-- ══ MODAL HERRAMIENTA DIGITAL ══ -->
+<div class="modal-overlay" id="modal-herramienta">
+  <div class="modal-box" style="max-width:500px;">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-herramienta-titulo">Nueva herramienta digital</div>
+      <button class="modal-close" onclick="cerrarModal('modal-herramienta')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field"><label>Nombre</label><input type="text" id="h-nombre" placeholder="Ej: Asistente Virtual HTC"></div>
+      <div class="form-field"><label>Tipo</label>
+        <select id="h-tipo">
+          <option value="asistente">🤖 Asistente Virtual / IA</option>
+          <option value="documento">📄 Documento descargable</option>
+          <option value="aplicacion">💻 Aplicación web</option>
+          <option value="planilla">📊 Planilla / Template</option>
+          <option value="video">🎬 Video / Tutorial</option>
+          <option value="otro">🔗 Otro enlace</option>
+        </select>
+      </div>
+      <div class="form-field"><label>Descripción</label><textarea id="h-desc" rows="3" placeholder="Describí brevemente para qué sirve esta herramienta…"></textarea></div>
+      <div class="form-field"><label>Link / URL</label><input type="url" id="h-link" placeholder="https://…"></div>
+      <div class="form-field"><label>Acción del botón</label>
+        <select id="h-accion">
+          <option value="abrir">↗ Abrir en nueva pestaña</option>
+          <option value="descargar">⬇ Descargar</option>
+        </select>
+      </div>
+      <div class="form-msg" id="h-msg"></div>
+      <input type="hidden" id="h-edit-idx" value="">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-accion sec" onclick="cerrarModal('modal-herramienta');document.getElementById('h-edit-idx').value='';document.getElementById('modal-herramienta-titulo').textContent='Nueva herramienta digital';">Cancelar</button>
+      <button class="btn-accion" onclick="guardarHerramienta()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL ACTIVIDAD SEDE CENTRAL ══ -->
+<div class="modal-overlay" id="modal-actividad-sede">
+  <div class="modal-box" style="max-width:460px;">
+    <div class="modal-head">
+      <div class="modal-title">Registrar actividad</div>
+      <button class="modal-close" onclick="cerrarModal('modal-actividad-sede')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field"><label>Fecha</label><input type="date" id="sa-fecha"></div>
+        <div class="form-field"><label>Tipo</label>
+          <select id="sa-tipo">
+            <option value="reunion">Reunión</option>
+            <option value="capacitacion">Capacitación</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field"><label>Descripción</label><textarea id="sa-desc" rows="3" placeholder="Descripción de la actividad…"></textarea></div>
+      <div class="form-msg" id="sa-msg"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-accion sec" onclick="cerrarModal('modal-actividad-sede')">Cancelar</button>
+      <button class="btn-accion" onclick="guardarActividadSede()">Guardar</button>
+    </div>
   </div>
 </div>
 
@@ -2109,10 +2268,10 @@ let NOVEDADES = [
 ];
 
 // ══ LOGIN ══════════════════════════════════════════════════════════════════
-// — Cuando tengas Supabase, reemplazá esta función por la integración real —
-const SUPA_URL = 'TU_SUPABASE_URL';   // TODO: reemplazar
-const SUPA_KEY = 'TU_SUPABASE_KEY';   // TODO: reemplazar
-const SUPABASE_LISTO = false;          // ← cambiá a true cuando configures Supabase
+// ══ SUPABASE CLIENT ════════════════════════════════════════════════════════
+const { createClient } = supabase;
+const sb = createClient(SUPA_URL, SUPA_KEY);
+let usuarioActual = null;
 
 function mostrarPortal() {
   document.getElementById('login-overlay').classList.add('hidden');
@@ -2120,37 +2279,49 @@ function mostrarPortal() {
 }
 
 async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass  = document.getElementById('login-pass').value;
-  const btn   = document.getElementById('login-btn');
-  const err   = document.getElementById('login-error');
+  const email    = document.getElementById('login-email').value.trim();
+  const pass     = document.getElementById('login-pass').value;
+  const remember = document.getElementById('login-remember').checked;
+  const btn      = document.getElementById('login-btn');
+  const err      = document.getElementById('login-error');
   err.classList.remove('show');
-
   if(!email || !pass) { err.textContent = 'Completá email y contraseña.'; err.classList.add('show'); return; }
-
   btn.disabled = true; btn.textContent = 'Ingresando…';
-
-  if(SUPABASE_LISTO) {
-    // — Integración real con Supabase —
-    // const { createClient } = supabase;
-    // const sb = createClient(SUPA_URL, SUPA_KEY);
-    // const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-    // if(error) { btn.disabled=false; btn.textContent='Ingresar al portal'; err.textContent='Credenciales incorrectas.'; err.classList.add('show'); return; }
-    // mostrarPortal();
-  } else {
-    // — Modo demo: cualquier email/contraseña ingresa —
-    setTimeout(() => { mostrarPortal(); }, 600);
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if(error) {
+    btn.disabled = false; btn.textContent = 'Ingresar al portal';
+    err.textContent = 'Email o contraseña incorrectos.'; err.classList.add('show');
+    return;
   }
+  usuarioActual = data.user;
+  const { data: perfil } = await sb.from('perfiles').select('*').eq('id', data.user.id).single();
+  const nombre = perfil?.nombre || email.split('@')[0];
+  const rol    = perfil?.rol || 'usuario';
+  document.getElementById('topbar-username').textContent = nombre;
+  document.getElementById('topbar-role').textContent = rol.toUpperCase();
+  if(!remember) window.addEventListener('beforeunload', () => sb.auth.signOut());
+  mostrarPortal();
+  await cargarTodosLosDatos();
 }
 
-// Enter en los campos
+// Enter en los campos + verificar sesión activa al cargar
 document.addEventListener('DOMContentLoaded', () => {
   ['login-email','login-pass'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
   });
-  // Ocultar portal hasta login — usando clases en lugar de selectores múltiples
   document.getElementById('portal-wrap').style.display = 'none';
+  // Verificar si ya hay sesión activa (Recordarme)
+  sb.auth.getSession().then(async ({ data: { session } }) => {
+    if(session) {
+      usuarioActual = session.user;
+      const { data: perfil } = await sb.from('perfiles').select('*').eq('id', session.user.id).single();
+      document.getElementById('topbar-username').textContent = perfil?.nombre || session.user.email.split('@')[0];
+      document.getElementById('topbar-role').textContent = (perfil?.rol || 'usuario').toUpperCase();
+      mostrarPortal();
+      await cargarTodosLosDatos();
+    }
+  });
 });
 
 // ══ BIENVENIDA ════════════════════════════════════════════════════════════
@@ -2164,10 +2335,64 @@ function norm(str) {
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 }
 
+function activarBuscador() {
+  const input = document.getElementById('buscador-input');
+  input.focus();
+  input.select();
+  // Si ya tiene texto, buscar; si no, mostrar sugerencias
+  const q = input.value.trim();
+  if(q.length >= 2) mostrarResultados(q);
+  else mostrarSugerencias();
+  document.getElementById('buscador-esc').style.display = 'inline';
+}
+
+function mostrarSugerencias() {
+  // Muestra los últimos mensajes, próximos eventos y normativa destacada
+  const inner = document.getElementById('buscador-inner');
+  const res   = document.getElementById('buscador-resultados');
+  let html = '';
+  // Tip de uso
+  html += `<div style="padding:.5rem 1.2rem .3rem;font-size:.65rem;color:#4A6A8A;letter-spacing:.06em;">💡 Escribí para buscar en mensajes, documentos, normativa, novedades, capacitaciones y cronograma</div>`;
+  // Últimos mensajes
+  if(MENSAJES.length) {
+    html += `<div class="busq-grupo"><div class="busq-grupo-titulo">Últimos mensajes</div>`;
+    html += MENSAJES.slice(0,2).map((m,i)=>{
+      window._busqAcciones = window._busqAcciones||[];
+      const idx = window._busqAcciones.length;
+      window._busqAcciones.push(()=>{switchTab('mensajes');cerrarBuscador();});
+      return `<div class="busq-item" onclick="window._busqAcciones[${idx}]()">
+        <span class="busq-item-icon">📣</span>
+        <div class="busq-item-info"><div class="busq-item-titulo">${m.titulo}</div><div class="busq-item-meta">${m.fecha}</div></div>
+        <span class="busq-item-tag busq-tag-mensaje">mensaje</span>
+      </div>`;
+    }).join('');
+    html += '</div>';
+  }
+  // Próximos eventos
+  const hoyD = new Date(); hoyD.setHours(0,0,0,0);
+  const proximos = REUNIONES.filter(r=>new Date(r.fecha+'T12:00:00')>=hoyD).sort((a,b)=>a.fecha.localeCompare(b.fecha)).slice(0,2);
+  if(proximos.length) {
+    html += `<div class="busq-grupo"><div class="busq-grupo-titulo">Próximos eventos</div>`;
+    html += proximos.map(ev=>{
+      const idx = window._busqAcciones.length;
+      window._busqAcciones.push(()=>{switchTab('cronograma');cerrarBuscador();});
+      return `<div class="busq-item" onclick="window._busqAcciones[${idx}]()">
+        <span class="busq-item-icon">📅</span>
+        <div class="busq-item-info"><div class="busq-item-titulo">${ev.asunto}</div><div class="busq-item-meta">${ev.fecha}</div></div>
+        <span class="busq-item-tag busq-tag-evento">evento</span>
+      </div>`;
+    }).join('');
+    html += '</div>';
+  }
+  inner.innerHTML = html;
+  res.style.display = 'block';
+}
+
 function abrirBuscador() {
   document.getElementById('buscador-esc').style.display = 'inline';
   const q = document.getElementById('buscador-input').value.trim();
   if(q.length >= 2) mostrarResultados(q);
+  else mostrarSugerencias();
 }
 
 function cerrarBuscador() {
@@ -2366,8 +2591,9 @@ function publicarAviso() {
   setTimeout(()=>{ cerrarModal('modal-aviso-global'); limpiar(['aviso-titulo','aviso-contenido']); setMsg('aviso-msg','',''); },1100);
 }
 
-function doLogout() {
+async function doLogout() {
   if(!confirm('¿Cerrás sesión?')) return;
+  await sb.auth.signOut();
   document.getElementById('portal-wrap').style.display = 'none';
   document.getElementById('login-overlay').classList.remove('hidden');
   document.getElementById('login-email').value = '';
@@ -2375,6 +2601,74 @@ function doLogout() {
   document.getElementById('login-btn').disabled = false;
   document.getElementById('login-btn').textContent = 'Ingresar al portal';
   document.getElementById('login-error').classList.remove('show');
+  usuarioActual = null;
+}
+
+// ══ CARGA DE DATOS DESDE SUPABASE ══════════════════════════════════════════
+async function cargarTodosLosDatos() {
+  await Promise.all([
+    cargarMensajes(),
+    cargarNovedades(),
+    cargarEventos(),
+    cargarHerramientas(),
+  ]);
+  renderWidgetsInicio();
+}
+
+async function cargarMensajes() {
+  const { data, error } = await sb.from('mensajes')
+    .select('*, respuestas(*)').order('created_at', { ascending: false });
+  if(error || !data) return;
+  MENSAJES = data.map(m => ({
+    id: m.id, autor: m.autor_nombre, cargo: m.cargo||'',
+    nivel: m.nivel, titulo: m.titulo, cuerpo: m.cuerpo,
+    fecha: new Date(m.created_at).toLocaleDateString('es-AR'),
+  }));
+  data.forEach(m => {
+    if(m.respuestas?.length) {
+      RESPUESTAS[m.id] = m.respuestas.map(r => ({
+        autor: r.autor_nombre, texto: r.texto,
+        fecha: new Date(r.created_at).toLocaleDateString('es-AR'),
+        hora:  new Date(r.created_at).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}),
+      }));
+    }
+  });
+  renderMensajes();
+  document.getElementById('badge-mensajes').textContent = MENSAJES.length;
+}
+
+async function cargarNovedades() {
+  const { data, error } = await sb.from('novedades')
+    .select('*').order('created_at', { ascending: false });
+  if(error || !data) return;
+  NOVEDADES = data.map(n => ({
+    id: n.id, titulo: n.titulo, texto: n.texto, cat: n.cat,
+    fecha: new Date(n.created_at).toLocaleDateString('es-AR'),
+  }));
+  renderNovedades();
+}
+
+async function cargarEventos() {
+  const { data, error } = await sb.from('eventos')
+    .select('*').order('fecha', { ascending: true });
+  if(error || !data) return;
+  REUNIONES = data.map(e => ({
+    id: e.id, asunto: e.asunto, tipo: e.tipo, fecha: e.fecha,
+    hora_inicio: e.hora_inicio, hora_fin: e.hora_fin,
+    municipio: e.municipio, quien: e.quien, notas: e.notas,
+  }));
+  renderCalendario();
+}
+
+async function cargarHerramientas() {
+  const { data, error } = await sb.from('herramientas')
+    .select('*').order('created_at', { ascending: false });
+  if(error || !data) return;
+  HERRAMIENTAS = data.map(h => ({
+    id: h.id, nombre: h.nombre, tipo: h.tipo, desc: h.descripcion,
+    link: h.link, accion: h.accion, actualizado: h.actualizado,
+  }));
+  renderHerramientas();
 }
 
 // ══ WIDGETS DE INICIO ══════════════════════════════════════════════════════
@@ -2434,6 +2728,94 @@ function switchTab(tab) {
 }
 
 // ══ RENDER MENSAJES ════════════════════════════════════════════════════════
+// ── Respuestas por mensaje ──
+const RESPUESTAS = {}; // { msg_id: [{autor, texto, fecha, hora}] }
+
+function getUserName() {
+  return document.getElementById('topbar-username')?.textContent?.trim() || 'Usuario';
+}
+
+function renderRespuestas(msgId) {
+  const resp = RESPUESTAS[msgId] || [];
+  if(!resp.length) return '';
+  return `<div style="margin-top:.8rem;padding:.7rem .9rem;background:var(--cream);border-radius:6px;border-left:2px solid var(--gold);">
+    <div style="font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;">
+      💬 ${resp.length} respuesta${resp.length>1?'s':''}
+    </div>
+    ${resp.map((r,i)=>`
+      <div style="display:flex;gap:.6rem;margin-bottom:.55rem;align-items:flex-start;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--gold);flex-shrink:0;">${r.autor.charAt(0).toUpperCase()}</div>
+        <div style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:6px;padding:.5rem .7rem;">
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;">
+            <span style="font-size:.75rem;font-weight:700;color:var(--navy);">${r.autor}</span>
+            <span style="font-size:.6rem;color:var(--muted);">${r.fecha} ${r.hora}</span>
+          </div>
+          <div style="font-size:.8rem;color:var(--text);line-height:1.55;">${r.texto}</div>
+        </div>
+      </div>`).join('')}
+  </div>`;
+}
+
+function toggleRespuesta(msgId) {
+  const form = document.getElementById('resp-form-'+msgId);
+  if(!form) return;
+  const visible = form.style.display !== 'none';
+  form.style.display = visible ? 'none' : 'block';
+  if(!visible) {
+    const ta = document.getElementById('resp-text-'+msgId);
+    if(ta) { ta.focus(); ta.placeholder = `Respondé como ${getUserName()}…`; }
+  }
+}
+
+async function enviarRespuesta(msgId) {
+  const ta = document.getElementById('resp-text-'+msgId);
+  if(!ta || !ta.value.trim()) return;
+  const texto = ta.value.trim();
+  if(!RESPUESTAS[msgId]) RESPUESTAS[msgId] = [];
+  if(SUPABASE_LISTO) {
+    const { error } = await sb.from('respuestas').insert({
+      mensaje_id: msgId, texto,
+      autor_nombre: getUserName(),
+      autor_id: usuarioActual?.id,
+    });
+    if(!error) {
+      RESPUESTAS[msgId].push({ autor: getUserName(), texto, fecha: hoy(), hora: new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) });
+    }
+  } else {
+    RESPUESTAS[msgId].push({ autor: getUserName(), texto, fecha: hoy(), hora: new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) });
+  }
+  ta.value = '';
+  document.getElementById('resp-form-'+msgId).style.display = 'none';
+  renderMensajes();
+}
+
+async function guardarMensaje() {
+  const autor  = document.getElementById('m-autor').value.trim();
+  const titulo = document.getElementById('m-titulo').value.trim();
+  const nivel  = document.getElementById('m-nivel').value;
+  const cuerpo = document.getElementById('m-cuerpo').value.trim();
+  if(!titulo||!cuerpo){ setMsg('m-msg','Completá título y contenido.','err'); return; }
+  const editIdx = document.getElementById('m-edit-idx').value;
+  if(editIdx !== '') {
+    const m = MENSAJES[parseInt(editIdx)];
+    if(m.id && SUPABASE_LISTO) await sb.from('mensajes').update({ titulo, nivel, cuerpo }).eq('id', m.id);
+    MENSAJES[parseInt(editIdx)] = { ...m, autor: autor||getUserName(), titulo, nivel, cuerpo };
+    setMsg('m-msg','✅ Mensaje actualizado.','ok');
+  } else {
+    if(SUPABASE_LISTO) {
+      const { data } = await sb.from('mensajes').insert({
+        autor_nombre: autor||getUserName(), cargo: document.getElementById('topbar-role')?.textContent||'',
+        nivel, titulo, cuerpo, autor_id: usuarioActual?.id,
+      }).select().single();
+      if(data) MENSAJES.unshift({ id:data.id, autor:data.autor_nombre, cargo:data.cargo||'', nivel, titulo, cuerpo, fecha: hoy() });
+    } else {
+      MENSAJES.unshift({ id: Date.now(), autor: autor||'Autoridad', cargo:'Vocalía Municipalidades "B"', nivel, titulo, cuerpo, fecha: hoy() });
+    }
+    setMsg('m-msg','✅ Mensaje publicado.','ok');
+  }
+  setTimeout(()=>{ cerrarModal('modal-mensaje'); renderMensajes(); limpiar(['m-autor','m-titulo','m-cuerpo']); document.getElementById('m-edit-idx').value=''; setMsg('m-msg','',''); },1100);
+}
+
 function renderMensajes() {
   const nivelCfg = {
     urgente:    { cls:'nb-urgente',    badge:'🔴 Urgente' },
@@ -2442,6 +2824,8 @@ function renderMensajes() {
   };
   document.getElementById('msg-list').innerHTML = MENSAJES.map((m,idx) => {
     const nv = nivelCfg[m.nivel]||nivelCfg.informativo;
+    const msgId = m.id || idx;
+    const nResp = (RESPUESTAS[msgId]||[]).length;
     return `<div class="msg-card nv-${m.nivel}">
       <div class="msg-header">
         <div class="msg-avatar">🎙️</div>
@@ -2454,30 +2838,38 @@ function renderMensajes() {
       </div>
       <div class="msg-titulo">${m.titulo}</div>
       <div class="msg-cuerpo">${m.cuerpo}</div>
-      <div style="display:flex;gap:.5rem;margin-top:.8rem;padding-top:.6rem;border-top:1px solid var(--border);">
+
+      ${renderRespuestas(msgId)}
+
+      <!-- Form de respuesta (oculto por defecto) -->
+      <div id="resp-form-${msgId}" style="display:none;margin-top:.7rem;">
+        <div style="display:flex;gap:.5rem;align-items:flex-start;">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--gold);flex-shrink:0;">${getUserName().charAt(0).toUpperCase()}</div>
+          <div style="flex:1;">
+            <textarea id="resp-text-${msgId}" rows="2"
+              placeholder="Escribí tu respuesta…"
+              style="width:100%;padding:.5rem .7rem;font-family:'Inter',sans-serif;font-size:.82rem;border:1.5px solid var(--gold);border-radius:6px;outline:none;resize:vertical;color:var(--text);"
+              onkeydown="if(event.ctrlKey&&event.key==='Enter')enviarRespuesta(${msgId})"></textarea>
+            <div style="display:flex;align-items:center;gap:.5rem;margin-top:.35rem;">
+              <button onclick="enviarRespuesta(${msgId})" class="btn-accion" style="font-size:.7rem;padding:.35rem .8rem;">Enviar</button>
+              <button onclick="toggleRespuesta(${msgId})" style="background:none;border:none;font-size:.7rem;color:var(--muted);cursor:pointer;">Cancelar</button>
+              <span style="font-size:.62rem;color:var(--muted);margin-left:auto;">Ctrl+Enter para enviar</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones del mensaje -->
+      <div style="display:flex;gap:.5rem;margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--border);align-items:center;flex-wrap:wrap;">
+        <button onclick="toggleRespuesta(${msgId})" style="display:inline-flex;align-items:center;gap:.3rem;background:none;border:1px solid var(--border);border-radius:4px;padding:.22rem .6rem;font-size:.65rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:all .15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+          💬 Responder${nResp>0?' ('+nResp+')':''}
+        </button>
         <button onclick="editarMensaje(${idx})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.22rem .6rem;font-size:.65rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:all .15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">✏️ Editar</button>
         <button onclick="eliminarMensaje(${idx})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.22rem .6rem;font-size:.65rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:all .15s;" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">🗑 Eliminar</button>
       </div>
     </div>`;
   }).join('') || '<div class="lista-empty">No hay mensajes publicados.</div>';
   document.getElementById('badge-mensajes').textContent = MENSAJES.length;
-}
-
-function guardarMensaje() {
-  const autor  = document.getElementById('m-autor').value.trim();
-  const titulo = document.getElementById('m-titulo').value.trim();
-  const nivel  = document.getElementById('m-nivel').value;
-  const cuerpo = document.getElementById('m-cuerpo').value.trim();
-  if(!titulo||!cuerpo){ setMsg('m-msg','Completá título y contenido.','err'); return; }
-  const editIdx = document.getElementById('m-edit-idx').value;
-  if(editIdx !== '') {
-    MENSAJES[parseInt(editIdx)] = { ...MENSAJES[parseInt(editIdx)], autor: autor||'Autoridad', titulo, nivel, cuerpo };
-    setMsg('m-msg','✅ Mensaje actualizado.','ok');
-  } else {
-    MENSAJES.unshift({ id: Date.now(), autor: autor||'Autoridad', cargo:'Vocalía Municipalidades "B"', nivel, titulo, cuerpo, fecha: hoy() });
-    setMsg('m-msg','✅ Mensaje publicado.','ok');
-  }
-  setTimeout(()=>{ cerrarModal('modal-mensaje'); renderMensajes(); limpiar(['m-autor','m-titulo','m-cuerpo']); document.getElementById('m-edit-idx').value=''; setMsg('m-msg','',''); },1100);
 }
 
 function editarMensaje(idx) {
@@ -2628,7 +3020,13 @@ function renderCalendario() {
     const esHoy = d===hoyD.getDate()&&mo===hoyD.getMonth()&&y===hoyD.getFullYear();
     const fStr  = `${y}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const evs   = REUNIONES.filter(r=>r.fecha===fStr);
-    html += `<div class="cal-cell${esHoy?' hoy':''}${evs.length?' tiene-eventos':''}">
+    // En mobile el click va en la celda entera si hay eventos
+    const cellClick = evs.length === 1
+      ? `onclick="abrirPanelEvento(${REUNIONES.indexOf(evs[0])})"` 
+      : evs.length > 1 
+        ? `onclick="abrirPanelDia('${fStr}')"` 
+        : '';
+    html += `<div class="cal-cell${esHoy?' hoy':''}${evs.length?' tiene-eventos':''}" ${cellClick} style="${evs.length?'cursor:pointer;':''}">
       <div class="cal-num">${d}</div>`;
     evs.forEach(ev=>{
       const idx = REUNIONES.indexOf(ev);
@@ -2636,7 +3034,7 @@ function renderCalendario() {
       const cfg = TIPO_CFG[ev.tipo]||TIPO_CFG.reunion;
       const hora = ev.hora_inicio ? ev.hora_inicio.slice(0,5)+' · ' : '';
       const tooltip = [ev.asunto, ev.municipio, ev.quien].filter(Boolean).join(' · ');
-      html += `<span class="cal-ev ${cls}" title="${tooltip}" onclick="abrirPanelEvento(${idx})">
+      html += `<span class="cal-ev ${cls}" title="${tooltip}" onclick="event.stopPropagation();abrirPanelEvento(${idx})">
         <span style="display:block;font-size:.54rem;opacity:.75;margin-bottom:.05rem;">${cfg.icon} ${cfg.label}</span>
         <span style="display:block;">${hora}${ev.asunto}</span>
       </span>`;
@@ -2647,6 +3045,45 @@ function renderCalendario() {
   for(let i=1;i<=resto;i++) html+=`<div class="cal-cell otro-mes"><div class="cal-num">${i}</div></div>`;
   document.getElementById('cal-body').innerHTML = html;
 }
+function abrirPanelDia(fStr) {
+  // Si hay múltiples eventos en un día, mostrar el primero y el panel lateral
+  // con lista de todos los eventos de ese día
+  const evsDia = REUNIONES.map((ev,idx)=>({ev,idx})).filter(({ev})=>ev.fecha===fStr);
+  if(!evsDia.length) return;
+  if(evsDia.length === 1) { abrirPanelEvento(evsDia[0].idx); return; }
+  // Mostrar panel con lista de eventos del día
+  const panel = document.getElementById('svg-info-panel') || document.createElement('div');
+  const f = new Date(fStr+'T12:00:00');
+  const fechaLabel = f.toLocaleDateString('es-AR',{weekday:'long',day:'2-digit',month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+  // Abrir panel lateral con lista
+  eventoActivoIdx = evsDia[0].idx; // default al primero
+  // Construir HTML del panel con lista de eventos
+  const inner = document.getElementById('ep-view');
+  const panelEl = document.getElementById('ev-panel');
+  const overlay = document.getElementById('ev-panel-overlay');
+  document.getElementById('ep-tipo-label').textContent = `📅 ${fechaLabel}`;
+  document.getElementById('ep-titulo').textContent = `${evsDia.length} eventos este día`;
+  if(inner) inner.innerHTML = evsDia.map(({ev,idx})=>{
+    const cfg = TIPO_CFG[ev.tipo]||TIPO_CFG.reunion;
+    return `<div onclick="abrirPanelEvento(${idx})" style="display:flex;gap:.7rem;align-items:flex-start;padding:.65rem .5rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;" onmouseover="this.style.background='#FAFAFA'" onmouseout="this.style.background='transparent'">
+      <span style="font-size:1rem;">${cfg.icon}</span>
+      <div>
+        <div style="font-size:.75rem;font-weight:600;color:var(--navy);">${ev.asunto}</div>
+        <div style="font-size:.65rem;color:var(--muted);">${cfg.label}${ev.hora_inicio?' · '+ev.hora_inicio.slice(0,5)+' hs.':''}</div>
+      </div>
+      <span style="margin-left:auto;font-size:.7rem;color:var(--gold);">→</span>
+    </div>`;
+  }).join('');
+  // Ocultar footer de edición
+  document.getElementById('ep-footer-view').style.display = 'none';
+  document.getElementById('ep-footer-edit').style.display = 'none';
+  // Agregar botón cerrar
+  document.getElementById('ep-footer-view').style.display = 'flex';
+  cancelarEdicion();
+  overlay.classList.add('open');
+  panelEl.classList.add('open');
+}
+
 function cambiarMes(d){ calFecha=new Date(calFecha.getFullYear(),calFecha.getMonth()+d,1); renderCalendario(); }
 function irHoy(){ calFecha=new Date(); renderCalendario(); }
 
@@ -2696,6 +3133,193 @@ function guardarReunion() {
 }
 
 // ══ DOCUMENTOS — SUBTABS ══════════════════════════════════════════════════
+// ══ SUBTABS PRINCIPALES DELEGACIONES / SEDE ═══════════════════════════════
+function switchDepTab(tab) {
+  ['zonales','sede'].forEach(t => {
+    document.getElementById('deppanel-'+t).style.display = t===tab ? 'block' : 'none';
+    document.getElementById('deptab-'+t).classList.toggle('active', t===tab);
+  });
+  if(tab==='sede') { document.getElementById('sede-selector').value=''; document.getElementById('sede-placeholder').style.display='block'; document.getElementById('sede-panel').style.display='none'; }
+}
+
+// ══ SEDE CENTRAL — RELATORÍAS ══════════════════════════════════════════════
+const RELATORIAS = {
+  R1:{ nombre:'Relatoría 1', responsable:'', tel:'', mail:'', desc:'Municipios y entes a cargo de la Relatoría 1.' },
+  R2:{ nombre:'Relatoría 2', responsable:'', tel:'', mail:'', desc:'Municipios y entes a cargo de la Relatoría 2.' },
+  R3:{ nombre:'Relatoría 3', responsable:'', tel:'', mail:'', desc:'Municipios y entes a cargo de la Relatoría 3.' },
+  R4:{ nombre:'Relatoría 4', responsable:'', tel:'', mail:'', desc:'Municipios y entes a cargo de la Relatoría 4.' },
+  R5:{ nombre:'Relatoría 5', responsable:'', tel:'', mail:'', desc:'Municipios y entes a cargo de la Relatoría 5.' },
+};
+const SEDE_DOCS = { R1:[], R2:[], R3:[], R4:[], R5:[] };
+const SEDE_ACT  = { R1:[], R2:[], R3:[], R4:[], R5:[] };
+let sedeActual = null;
+
+function switchRelatoria(nro) {
+  if(!nro){ document.getElementById('sede-placeholder').style.display='block'; document.getElementById('sede-panel').style.display='none'; return; }
+  sedeActual = nro;
+  document.getElementById('sede-placeholder').style.display='none';
+  document.getElementById('sede-panel').style.display='block';
+  const r = RELATORIAS[nro];
+  document.getElementById('sede-header').innerHTML = `
+    <div style="display:flex;align-items:center;gap:.8rem;">
+      <div style="font-size:1.8rem;">🏢</div>
+      <div>
+        <div style="font-size:.58rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:.2rem;">Sede Central · Vocalía Municipalidades "B"</div>
+        <div style="font-size:1.1rem;font-weight:700;color:#fff;">${r.nombre}</div>
+      </div>
+    </div>`;
+  document.getElementById('sede-info-grid').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
+      <div style="background:var(--cream);border-radius:6px;padding:.8rem 1rem;">
+        <div style="font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;">Descripción</div>
+        <div style="font-size:.85rem;color:var(--navy);">${r.desc}</div>
+      </div>
+      <div style="background:var(--cream);border-radius:6px;padding:.8rem 1rem;">
+        <div style="font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;">Responsable</div>
+        <div style="font-size:.85rem;color:var(--navy);">${r.responsable||'<span style="color:var(--muted);font-style:italic;">Sin asignar</span>'}</div>
+      </div>
+    </div>`;
+  switchSedeTab('info');
+  renderDocsSedeR();
+  renderActividadSedeR();
+}
+
+function switchSedeTab(tab) {
+  ['info','docs','actividad'].forEach(t => {
+    document.getElementById('slpanel-'+t).style.display = t===tab ? 'block' : 'none';
+    document.getElementById('sltab-'+t).classList.toggle('active', t===tab);
+  });
+}
+
+function renderDocsSedeR() {
+  const lista = document.getElementById('sede-docs-lista');
+  const docs = SEDE_DOCS[sedeActual]||[];
+  if(!docs.length){ lista.innerHTML='<div class="docs-empty">No hay documentos cargados.</div>'; return; }
+  lista.innerHTML = docs.map((d,i)=>`
+    <div class="doc-item">
+      <span class="doc-icon">📄</span>
+      <div class="doc-info"><div class="doc-name">${d.titulo}</div><div class="doc-meta">${d.fecha}</div></div>
+      ${d.link?`<a href="${d.link}" target="_blank" class="doc-dl">↗ Abrir</a>`:''}
+      <button class="doc-del" onclick="eliminarDocSede(${i})">🗑</button>
+    </div>`).join('');
+}
+
+function renderActividadSedeR() {
+  const lista = document.getElementById('sede-actividad-lista');
+  const acts = SEDE_ACT[sedeActual]||[];
+  if(!acts.length){ lista.innerHTML='<div class="docs-empty">No hay actividad registrada.</div>'; return; }
+  lista.innerHTML = acts.map((a,i)=>`
+    <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.65rem 0;border-bottom:1px solid var(--border);">
+      <div style="flex-shrink:0;font-size:.72rem;font-weight:700;color:var(--gold);min-width:80px;">${a.fecha}</div>
+      <div style="flex:1;"><div style="font-size:.8rem;font-weight:600;color:var(--navy);">${a.desc}</div></div>
+      <button class="doc-del" onclick="eliminarActSede(${i})">🗑</button>
+    </div>`).join('');
+}
+
+function abrirSubirDocSede() {
+  document.getElementById('sa-fecha').value = new Date().toISOString().split('T')[0];
+  abrirModal('modal-actividad-sede');
+}
+
+function guardarActividadSede() {
+  const desc  = document.getElementById('sa-desc').value.trim();
+  const fecha = document.getElementById('sa-fecha').value;
+  if(!desc||!fecha){ setMsg('sa-msg','Completá fecha y descripción.','err'); return; }
+  SEDE_ACT[sedeActual].unshift({ fecha, desc, tipo:document.getElementById('sa-tipo').value });
+  setMsg('sa-msg','✅ Actividad registrada.','ok');
+  setTimeout(()=>{ cerrarModal('modal-actividad-sede'); renderActividadSedeR(); limpiar(['sa-desc']); setMsg('sa-msg','',''); },1000);
+}
+
+function eliminarDocSede(idx){ if(!confirm('¿Eliminás?')) return; SEDE_DOCS[sedeActual].splice(idx,1); renderDocsSedeR(); }
+function eliminarActSede(idx){ if(!confirm('¿Eliminás?')) return; SEDE_ACT[sedeActual].splice(idx,1); renderActividadSedeR(); }
+
+// ══ HERRAMIENTAS DIGITALES ════════════════════════════════════════════════
+const TIPO_HERR = {
+  asistente: { icon:'🤖', label:'Asistente IA' },
+  documento:  { icon:'📄', label:'Documento' },
+  aplicacion: { icon:'💻', label:'Aplicación' },
+  planilla:   { icon:'📊', label:'Planilla' },
+  video:      { icon:'🎬', label:'Video' },
+  otro:       { icon:'🔗', label:'Enlace' },
+};
+
+let HERRAMIENTAS = [
+  {
+    id:1, nombre:'Asistente Virtual HTC', tipo:'asistente',
+    desc:'NotebookLM entrenado con normativa del HTC. Consultá sobre LOM, Decreto 2980, Reglamento de Contabilidad y más.',
+    link:'https://notebook.google.com/notebook/62c30537-996d-47b7-933b-0b960f071c6d',
+    accion:'abrir', actualizado:'28/08/2026'
+  },
+];
+
+function renderHerramientas() {
+  const cont = document.getElementById('herramientas-lista');
+  if(!cont) return;
+  if(!HERRAMIENTAS.length) {
+    cont.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--muted);font-style:italic;">No hay herramientas cargadas aún.</div>';
+    return;
+  }
+  cont.innerHTML = HERRAMIENTAS.map((h,idx) => {
+    const t = TIPO_HERR[h.tipo]||TIPO_HERR.otro;
+    return `<div style="background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .15s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'">
+      <!-- Header card -->
+      <div style="background:var(--navy);padding:1rem 1.2rem;display:flex;align-items:center;gap:.8rem;">
+        <div style="font-size:1.8rem;">${t.icon}</div>
+        <div style="flex:1;">
+          <div style="font-size:.88rem;font-weight:700;color:#fff;">${h.nombre}</div>
+          <div style="font-size:.6rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-top:.15rem;">${t.label}</div>
+        </div>
+      </div>
+      <!-- Cuerpo -->
+      <div style="padding:1rem 1.2rem;flex:1;">
+        <div style="font-size:.8rem;color:var(--text);line-height:1.65;margin-bottom:.8rem;">${h.desc}</div>
+        <div style="font-size:.62rem;color:var(--muted);">🕐 Última actualización: <strong>${h.actualizado}</strong></div>
+      </div>
+      <!-- Footer card -->
+      <div style="padding:.75rem 1.2rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:.5rem;">
+        <div style="display:flex;gap:.4rem;">
+          <button onclick="editarHerramienta(${idx})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.22rem .55rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">✏️ Editar</button>
+          <button onclick="eliminarHerramienta(${idx})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.22rem .55rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">🗑 Eliminar</button>
+        </div>
+        ${h.link ? `<a href="${h.link}" target="${h.accion==='abrir'?'_blank':'_self'}" ${h.accion==='descargar'?'download':''} class="btn-accion" style="font-size:.72rem;padding:.4rem .9rem;">${h.accion==='descargar'?'⬇ Descargar':'↗ Abrir'}</a>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function guardarHerramienta() {
+  const nombre = document.getElementById('h-nombre').value.trim();
+  const desc   = document.getElementById('h-desc').value.trim();
+  const link   = document.getElementById('h-link').value.trim();
+  if(!nombre){ setMsg('h-msg','Ingresá el nombre.','err'); return; }
+  const editIdx = document.getElementById('h-edit-idx').value;
+  const nueva = {
+    id: Date.now(), nombre, tipo: document.getElementById('h-tipo').value,
+    desc, link, accion: document.getElementById('h-accion').value,
+    actualizado: hoy()
+  };
+  if(editIdx !== '') { HERRAMIENTAS[parseInt(editIdx)] = { ...HERRAMIENTAS[parseInt(editIdx)], ...nueva }; setMsg('h-msg','✅ Actualizada.','ok'); }
+  else { HERRAMIENTAS.unshift(nueva); setMsg('h-msg','✅ Herramienta agregada.','ok'); }
+  setTimeout(()=>{ cerrarModal('modal-herramienta'); renderHerramientas(); limpiar(['h-nombre','h-desc','h-link']); document.getElementById('h-edit-idx').value=''; document.getElementById('modal-herramienta-titulo').textContent='Nueva herramienta digital'; setMsg('h-msg','',''); },1000);
+}
+
+function editarHerramienta(idx) {
+  const h = HERRAMIENTAS[idx];
+  document.getElementById('h-nombre').value = h.nombre;
+  document.getElementById('h-tipo').value   = h.tipo;
+  document.getElementById('h-desc').value   = h.desc;
+  document.getElementById('h-link').value   = h.link||'';
+  document.getElementById('h-accion').value = h.accion||'abrir';
+  document.getElementById('h-edit-idx').value = idx;
+  document.getElementById('modal-herramienta-titulo').textContent = 'Editar herramienta';
+  abrirModal('modal-herramienta');
+}
+
+function eliminarHerramienta(idx) {
+  if(!confirm(`¿Eliminás "${HERRAMIENTAS[idx].nombre}"?`)) return;
+  HERRAMIENTAS.splice(idx,1); renderHerramientas();
+}
+
 // ══ DELEGACIONES — REPOSITORIO ════════════════════════════════════════════
 let delegActual = null;
 const DELEG_DOCS = {};
@@ -3449,6 +4073,7 @@ renderDelegaciones();
 renderEstudios('');
 initDeleg();
 renderWidgetsInicio();
+renderHerramientas();
 document.getElementById('da-fecha').value = new Date().toISOString().split('T')[0];
 // Inicializar modal evento
 document.getElementById('r-fecha').value = new Date().toISOString().split('T')[0];
