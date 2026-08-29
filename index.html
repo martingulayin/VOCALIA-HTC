@@ -875,11 +875,6 @@ table td, table th { font-size:.88rem !important; }
     <button class="login-btn" id="login-btn" onclick="doLogin()">Ingresar al portal</button>
     <div class="login-error" id="login-error"></div>
 
-    <div class="login-nota">
-      🔧 Autenticación pendiente de configuración con Supabase.<br>
-      Por ahora ingresá con cualquier dato para continuar.
-    </div>
-
     <div class="login-footer">Acceso restringido a personal autorizado · v2.0</div>
   </div>
 </div>
@@ -2267,8 +2262,10 @@ let NOVEDADES = [
   { titulo:'Actualización del sistema de gestión documental', cat:'general', texto:'A partir del lunes 1° de septiembre el sistema de gestión documental incorporará nuevas funcionalidades para el registro y seguimiento de expedientes. Se realizará una breve capacitación el viernes 29/08 a las 11 hs.', fecha:'18/08/2026' },
 ];
 
-// ══ LOGIN ══════════════════════════════════════════════════════════════════
 // ══ SUPABASE CLIENT ════════════════════════════════════════════════════════
+const SUPA_URL = 'https://yvsaxtiivngfzrqoscbu.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2c2F4dGlpdm5nZnpycW9zY2J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5MTYzMDEsImV4cCI6MjEwMzQ5MjMwMX0.jiwlkqAiMDQ-HizycB4HP8OWlSUWQ3lYwN4wRQSkMr8';
+const SUPABASE_LISTO = true;
 const { createClient } = supabase;
 const sb = createClient(SUPA_URL, SUPA_KEY);
 let usuarioActual = null;
