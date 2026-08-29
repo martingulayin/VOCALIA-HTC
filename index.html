@@ -898,9 +898,9 @@ table td, table th { font-size:.88rem !important; }
       <button class="tb-btn" onclick="switchTab('documentos')">📁 DOCS</button>
       <button class="tb-btn" onclick="abrirModalAviso()">📢 AVISOS</button>
       <button class="tb-btn" onclick="abrirModalActividad()">📋 ACTIVIDAD</button>
-      <button class="tb-btn tb-btn-disabled" title="Disponible con Supabase">👤 USUARIOS</button>
+      <button class="tb-btn" id="btn-usuarios" onclick="abrirPanelUsuarios()" style="display:none;">👤 USUARIOS</button>
       <div style="width:1px;height:16px;background:rgba(255,255,255,.15);margin:0 .15rem;"></div>
-      <span style="font-size:.7rem;font-weight:700;color:var(--gold);" id="topbar-username">Demo</span>
+      <span style="font-size:.7rem;font-weight:700;color:var(--gold);cursor:pointer;" id="topbar-username" onclick="abrirPerfil()">Demo</span>
       <span class="role-badge role-admin" id="topbar-role">Admin</span>
       <button class="tb-btn tb-btn-salir" onclick="doLogout()">SALIR</button>
     </div>
@@ -1661,6 +1661,82 @@ table td, table th { font-size:.88rem !important; }
   </div>
 </div>
 
+<!-- ══ MODAL PANEL USUARIOS (admin) ══ -->
+<div class="modal-overlay" id="modal-usuarios">
+  <div class="modal-box" style="max-width:680px;">
+    <div class="modal-head">
+      <div class="modal-title">👤 Gestión de usuarios</div>
+      <button class="modal-close" onclick="cerrarModal('modal-usuarios')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:0;">
+      <div style="padding:.8rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap;">
+        <div style="font-size:.75rem;color:var(--muted);">Usuarios registrados en el portal</div>
+        <button class="btn-accion" onclick="abrirModalNuevoUsuario()" style="font-size:.72rem;padding:.4rem .9rem;">+ Nuevo usuario</button>
+      </div>
+      <div id="usuarios-lista" style="max-height:420px;overflow-y:auto;padding:.5rem 0;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-accion sec" onclick="cerrarModal('modal-usuarios')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL NUEVO / EDITAR USUARIO ══ -->
+<div class="modal-overlay" id="modal-nuevo-usuario">
+  <div class="modal-box" style="max-width:460px;">
+    <div class="modal-head">
+      <div class="modal-title" id="nuevo-usuario-titulo">Nuevo usuario</div>
+      <button class="modal-close" onclick="cerrarModal('modal-nuevo-usuario')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field"><label>Nombre completo</label><input type="text" id="nu-nombre" placeholder="Ej: María González"></div>
+      <div class="form-field"><label>Email</label><input type="email" id="nu-email" placeholder="usuario@htc.gba.gov.ar"></div>
+      <div class="form-field"><label>Contraseña</label><input type="password" id="nu-pass" placeholder="Mínimo 8 caracteres"></div>
+      <div class="form-field"><label>Rol</label>
+        <select id="nu-rol">
+          <option value="usuario">Usuario</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
+      <div class="form-msg" id="nu-msg"></div>
+      <input type="hidden" id="nu-edit-id" value="">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-accion sec" onclick="cerrarModal('modal-nuevo-usuario')">Cancelar</button>
+      <button class="btn-accion" onclick="guardarUsuario()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL PERFIL PROPIO ══ -->
+<div class="modal-overlay" id="modal-perfil">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-head">
+      <div class="modal-title">Mi perfil</div>
+      <button class="modal-close" onclick="cerrarModal('modal-perfil')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Avatar -->
+      <div style="text-align:center;margin-bottom:1.2rem;">
+        <div id="perfil-avatar" style="width:64px;height:64px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;color:var(--gold);margin:0 auto .6rem;border:2px solid var(--gold);"></div>
+        <div id="perfil-nombre-display" style="font-size:1rem;font-weight:700;color:var(--navy);"></div>
+        <div id="perfil-rol-display" style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;"></div>
+      </div>
+      <div class="form-field"><label>Nombre</label><input type="text" id="perfil-nombre" placeholder="Tu nombre"></div>
+      <div style="border-top:1px solid var(--border);padding-top:1rem;margin-top:.5rem;">
+        <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.7rem;">Cambiar contraseña</div>
+        <div class="form-field"><label>Nueva contraseña</label><input type="password" id="perfil-pass" placeholder="Mínimo 8 caracteres"></div>
+        <div class="form-field"><label>Confirmar contraseña</label><input type="password" id="perfil-pass2" placeholder="Repetí la contraseña"></div>
+      </div>
+      <div class="form-msg" id="perfil-msg"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-accion sec" onclick="cerrarModal('modal-perfil')">Cancelar</button>
+      <button class="btn-accion" onclick="guardarPerfil()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ MODAL ACTIVIDAD ══ -->
 <div class="modal-overlay" id="modal-actividad">
   <div class="modal-box" style="max-width:580px;">
@@ -2292,12 +2368,28 @@ async function doLogin() {
   }
   usuarioActual = data.user;
   const { data: perfil } = await sb.from('perfiles').select('*').eq('id', data.user.id).single();
+
+  // Verificar si el usuario está activo
+  if(perfil && !perfil.activo) {
+    btn.disabled = false; btn.textContent = 'Ingresar al portal';
+    err.textContent = 'Tu cuenta está desactivada. Contactá al administrador.'; err.classList.add('show');
+    await sb.auth.signOut();
+    return;
+  }
+
+  perfilActual = perfil;
+  rolActual = perfil?.rol || 'usuario';
   const nombre = perfil?.nombre || email.split('@')[0];
-  const rol    = perfil?.rol || 'usuario';
   document.getElementById('topbar-username').textContent = nombre;
-  document.getElementById('topbar-role').textContent = rol.toUpperCase();
+  document.getElementById('topbar-role').textContent = rolActual.toUpperCase();
+
+  // Actualizar último acceso
+  await sb.from('perfiles').update({ ultimo_acceso: new Date().toISOString() }).eq('id', data.user.id);
+
   if(!remember) window.addEventListener('beforeunload', () => sb.auth.signOut());
   mostrarPortal();
+  aplicarPermisos();
+  await logAct('login', 'acceso', `Ingresó al portal`);
   await cargarTodosLosDatos();
 }
 
@@ -2313,9 +2405,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if(session) {
       usuarioActual = session.user;
       const { data: perfil } = await sb.from('perfiles').select('*').eq('id', session.user.id).single();
+      if(perfil && !perfil.activo) { await sb.auth.signOut(); return; }
+      perfilActual = perfil;
+      rolActual = perfil?.rol || 'usuario';
       document.getElementById('topbar-username').textContent = perfil?.nombre || session.user.email.split('@')[0];
-      document.getElementById('topbar-role').textContent = (perfil?.rol || 'usuario').toUpperCase();
+      document.getElementById('topbar-role').textContent = rolActual.toUpperCase();
+      await sb.from('perfiles').update({ ultimo_acceso: new Date().toISOString() }).eq('id', session.user.id);
       mostrarPortal();
+      aplicarPermisos();
       await cargarTodosLosDatos();
     }
   });
@@ -2534,8 +2631,221 @@ function cerrarMenuMobile() {
   document.getElementById('menu-mobile').style.display = 'none';
 }
 
-// ══ ACTIVIDAD GLOBAL ══════════════════════════════════════════════════════
-let ACTIVIDAD_LOG = [];
+// ══ SISTEMA DE USUARIOS Y PERMISOS ════════════════════════════════════════
+let rolActual = 'usuario';
+let perfilActual = null;
+
+function esAdmin() { return rolActual === 'admin'; }
+
+function aplicarPermisos() {
+  // Mostrar/ocultar botones según rol
+  const btnUsuarios = document.getElementById('btn-usuarios');
+  if(btnUsuarios) btnUsuarios.style.display = esAdmin() ? 'inline-flex' : 'none';
+
+  // Ocultar botón ACTIVIDAD para no-admins
+  const btns = document.querySelectorAll('.tb-btn');
+  btns.forEach(b => {
+    if(b.textContent.includes('ACTIVIDAD') && !esAdmin()) b.style.display = 'none';
+  });
+
+  // Ocultar botones de eliminar contenido ajeno
+  document.querySelectorAll('.btn-eliminar-otro').forEach(b => {
+    if(!esAdmin()) b.style.display = 'none';
+  });
+}
+
+// ══ LOG DE ACTIVIDAD ═══════════════════════════════════════════════════════
+async function logAct(accion, seccion, detalle) {
+  if(!SUPABASE_LISTO || !usuarioActual) return;
+  try {
+    await sb.from('actividad_log').insert({
+      usuario_id: usuarioActual.id,
+      usuario_nombre: perfilActual?.nombre || usuarioActual.email,
+      accion, seccion, detalle,
+    });
+  } catch(e) { console.log('Log error:', e); }
+}
+
+// ══ GESTIÓN DE USUARIOS (admin) ════════════════════════════════════════════
+async function abrirPanelUsuarios() {
+  if(!esAdmin()) return;
+  abrirModal('modal-usuarios');
+  await cargarUsuarios();
+}
+
+async function cargarUsuarios() {
+  const lista = document.getElementById('usuarios-lista');
+  lista.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--muted);font-size:.8rem;">Cargando…</div>';
+  const { data, error } = await sb.from('perfiles').select('*').order('created_at', { ascending: false });
+  if(error || !data) { lista.innerHTML = '<div style="padding:1rem;color:var(--red);">Error al cargar usuarios.</div>'; return; }
+  lista.innerHTML = data.map(u => `
+    <div style="display:flex;align-items:center;gap:.8rem;padding:.7rem 1.2rem;border-bottom:1px solid var(--border);">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:var(--gold);flex-shrink:0;">${(u.nombre||'?').charAt(0).toUpperCase()}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:.82rem;font-weight:600;color:var(--navy);">${u.nombre||'Sin nombre'}</div>
+        <div style="font-size:.68rem;color:var(--muted);">${u.id === usuarioActual?.id ? '(vos) · ' : ''}${u.rol.toUpperCase()} · Último acceso: ${u.ultimo_acceso ? new Date(u.ultimo_acceso).toLocaleDateString('es-AR') : 'Nunca'}</div>
+      </div>
+      <div style="display:flex;gap:.35rem;align-items:center;">
+        <span style="font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:4px;${u.activo ? 'background:rgba(30,107,82,.12);color:#1E6B52;' : 'background:rgba(192,57,43,.12);color:#C0392B;'}">${u.activo ? 'Activo' : 'Inactivo'}</span>
+        ${u.id !== usuarioActual?.id ? `
+          <button onclick="toggleActivoUsuario('${u.id}',${u.activo})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.18rem .45rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;">${u.activo ? 'Desactivar' : 'Activar'}</button>
+          <button onclick="editarUsuario('${u.id}','${u.nombre||''}','${u.rol}')" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.18rem .45rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;">✏️</button>
+        ` : '<span style="font-size:.65rem;color:var(--muted);">(tu cuenta)</span>'}
+      </div>
+    </div>`).join('');
+}
+
+function abrirModalNuevoUsuario() {
+  document.getElementById('nuevo-usuario-titulo').textContent = 'Nuevo usuario';
+  document.getElementById('nu-edit-id').value = '';
+  limpiar(['nu-nombre','nu-email','nu-pass']);
+  document.getElementById('nu-rol').value = 'usuario';
+  document.getElementById('nu-pass').style.display = 'block';
+  document.querySelector('#modal-nuevo-usuario label[for="nu-pass"]') && (document.getElementById('nu-pass').parentElement.style.display = 'block');
+  cerrarModal('modal-usuarios');
+  abrirModal('modal-nuevo-usuario');
+}
+
+function editarUsuario(id, nombre, rol) {
+  document.getElementById('nuevo-usuario-titulo').textContent = 'Editar usuario';
+  document.getElementById('nu-edit-id').value = id;
+  document.getElementById('nu-nombre').value = nombre;
+  document.getElementById('nu-rol').value = rol;
+  document.getElementById('nu-email').value = '';
+  document.getElementById('nu-email').disabled = true;
+  document.getElementById('nu-pass').value = '';
+  cerrarModal('modal-usuarios');
+  abrirModal('modal-nuevo-usuario');
+}
+
+async function guardarUsuario() {
+  const nombre = document.getElementById('nu-nombre').value.trim();
+  const email  = document.getElementById('nu-email').value.trim();
+  const pass   = document.getElementById('nu-pass').value;
+  const rol    = document.getElementById('nu-rol').value;
+  const editId = document.getElementById('nu-edit-idx')?.value || document.getElementById('nu-edit-id').value;
+
+  if(!nombre){ setMsg('nu-msg','Ingresá el nombre.','err'); return; }
+
+  if(editId) {
+    // Editar — solo nombre y rol
+    const { error } = await sb.from('perfiles').update({ nombre, rol }).eq('id', editId);
+    if(error){ setMsg('nu-msg','Error al actualizar.','err'); return; }
+    await logAct('editar', 'usuarios', `Usuario ${nombre} actualizado`);
+    setMsg('nu-msg','✅ Usuario actualizado.','ok');
+  } else {
+    // Crear nuevo usuario via Supabase Admin API (desde el cliente con service key no se puede)
+    // Usamos signUp para crear el usuario
+    if(!email || !pass){ setMsg('nu-msg','Completá email y contraseña.','err'); return; }
+    if(pass.length < 8){ setMsg('nu-msg','La contraseña debe tener al menos 8 caracteres.','err'); return; }
+    const { data, error } = await sb.auth.admin?.createUser({
+      email, password: pass,
+      user_metadata: { nombre, rol },
+      email_confirm: true,
+    }) || { error: { message: 'No disponible desde el cliente' } };
+    if(error) {
+      // Alternativa: usar inviteUserByEmail
+      const { error: invErr } = await sb.auth.admin?.inviteUserByEmail(email, { data: { nombre, rol } }) || {};
+      if(invErr){ setMsg('nu-msg','Creá el usuario desde el panel de Supabase → Authentication → Users.','err'); return; }
+    }
+    await logAct('crear', 'usuarios', `Nuevo usuario ${nombre} (${email})`);
+    setMsg('nu-msg','✅ Usuario creado.','ok');
+  }
+  setTimeout(()=>{ cerrarModal('modal-nuevo-usuario'); abrirModal('modal-usuarios'); cargarUsuarios(); document.getElementById('nu-email').disabled = false; setMsg('nu-msg','',''); },1100);
+}
+
+async function toggleActivoUsuario(uid, activo) {
+  const { error } = await sb.from('perfiles').update({ activo: !activo }).eq('id', uid);
+  if(!error) {
+    await logAct(activo ? 'desactivar' : 'activar', 'usuarios', `Usuario ${uid}`);
+    await cargarUsuarios();
+  }
+}
+
+// ══ PERFIL PROPIO ══════════════════════════════════════════════════════════
+async function abrirPerfil() {
+  if(!usuarioActual) return;
+  const nombre = perfilActual?.nombre || usuarioActual.email.split('@')[0];
+  const rol    = perfilActual?.rol || 'usuario';
+  document.getElementById('perfil-avatar').textContent = nombre.charAt(0).toUpperCase();
+  document.getElementById('perfil-nombre-display').textContent = nombre;
+  document.getElementById('perfil-rol-display').textContent = rol === 'admin' ? 'Administrador' : 'Usuario';
+  document.getElementById('perfil-nombre').value = nombre;
+  document.getElementById('perfil-pass').value = '';
+  document.getElementById('perfil-pass2').value = '';
+  abrirModal('modal-perfil');
+}
+
+async function guardarPerfil() {
+  const nombre = document.getElementById('perfil-nombre').value.trim();
+  const pass   = document.getElementById('perfil-pass').value;
+  const pass2  = document.getElementById('perfil-pass2').value;
+  if(!nombre){ setMsg('perfil-msg','Ingresá tu nombre.','err'); return; }
+  if(pass && pass !== pass2){ setMsg('perfil-msg','Las contraseñas no coinciden.','err'); return; }
+  if(pass && pass.length < 8){ setMsg('perfil-msg','La contraseña debe tener al menos 8 caracteres.','err'); return; }
+
+  // Actualizar nombre en perfiles
+  const { error } = await sb.from('perfiles').update({ nombre }).eq('id', usuarioActual.id);
+  if(error){ setMsg('perfil-msg','Error al guardar.','err'); return; }
+
+  // Actualizar contraseña si se ingresó
+  if(pass) {
+    const { error: passErr } = await sb.auth.updateUser({ password: pass });
+    if(passErr){ setMsg('perfil-msg','Nombre guardado. Error al cambiar contraseña.','err'); return; }
+  }
+
+  // Actualizar UI
+  document.getElementById('topbar-username').textContent = nombre;
+  if(perfilActual) perfilActual.nombre = nombre;
+  await logAct('editar', 'perfil', 'Actualizó su perfil');
+  setMsg('perfil-msg','✅ Perfil actualizado.','ok');
+  setTimeout(()=>{ cerrarModal('modal-perfil'); setMsg('perfil-msg','',''); },1100);
+}
+
+// ══ ACTIVIDAD GLOBAL MEJORADA ══════════════════════════════════════════════
+async function abrirModalActividad() {
+  abrirModal('modal-actividad');
+  const lista = document.getElementById('actividad-lista');
+  lista.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--muted);font-size:.8rem;">Cargando…</div>';
+
+  if(!SUPABASE_LISTO || !esAdmin()) {
+    // Para no-admin: mostrar solo actividad local
+    if(!ACTIVIDAD_LOG.length) {
+      lista.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--muted);font-size:.82rem;font-style:italic;">No hay actividad registrada aún.</div>';
+      return;
+    }
+    const iconos = { mensaje:'📣', novedad:'📰', capacitacion:'🎓', evento:'📅', documento:'📁', aviso:'📢', delegacion:'📍', perfil:'👤' };
+    lista.innerHTML = ACTIVIDAD_LOG.map(a => `
+      <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.65rem 1.2rem;border-bottom:1px solid var(--border);">
+        <div style="font-size:1rem;flex-shrink:0;">${iconos[a.seccion]||'📋'}</div>
+        <div style="flex:1;"><div style="font-size:.8rem;font-weight:600;color:var(--navy);">${a.accion}</div><div style="font-size:.7rem;color:var(--muted);">${a.detalle}</div></div>
+        <div style="font-size:.62rem;color:var(--muted);text-align:right;"><div>${a.fecha}</div><div>${a.hora}</div></div>
+      </div>`).join('');
+    return;
+  }
+
+  // Admin: cargar desde Supabase
+  const { data, error } = await sb.from('actividad_log')
+    .select('*').order('created_at', { ascending: false }).limit(100);
+  if(error || !data){ lista.innerHTML = '<div style="padding:1rem;color:var(--red);">Error al cargar.</div>'; return; }
+  if(!data.length){ lista.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--muted);font-size:.82rem;font-style:italic;">No hay actividad registrada aún.</div>'; return; }
+
+  const iconos = { crear:'➕', editar:'✏️', eliminar:'🗑️', descargar:'⬇️', login:'🔑', logout:'🚪', login_fallido:'⚠️', activar:'✅', desactivar:'❌' };
+  lista.innerHTML = data.map(a => `
+    <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.65rem 1.2rem;border-bottom:1px solid var(--border);">
+      <div style="font-size:1rem;flex-shrink:0;">${iconos[a.accion]||'📋'}</div>
+      <div style="flex:1;">
+        <div style="font-size:.8rem;font-weight:600;color:var(--navy);">${a.usuario_nombre||'Sistema'} · <span style="font-weight:400;color:var(--muted);">${a.seccion}</span></div>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:.1rem;">${a.detalle||''}</div>
+      </div>
+      <div style="font-size:.62rem;color:var(--muted);text-align:right;white-space:nowrap;">
+        <div>${new Date(a.created_at).toLocaleDateString('es-AR')}</div>
+        <div>${new Date(a.created_at).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ══ ACTIVIDAD GLOBAL LOCAL (fallback) ══════════════════════════════════════
 
 function logActividad(accion, detalle, seccion) {
   ACTIVIDAD_LOG.unshift({
