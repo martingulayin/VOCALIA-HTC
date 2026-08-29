@@ -2918,8 +2918,23 @@ async function cargarTodosLosDatos() {
     cargarNovedades(),
     cargarEventos(),
     cargarHerramientas(),
+    cargarDocs(),
   ]);
   renderWidgetsInicio();
+}
+
+async function cargarDocs() {
+  const { data, error } = await sb.from('documentos')
+    .select('*, perfiles(nombre)')
+    .order('created_at', { ascending: false });
+  if(error || !data) return;
+  DOCS = data.map(d => ({
+    id: d.id, nombre: d.nombre, tipo: d.tipo,
+    size: d.size||'—', fecha: new Date(d.created_at).toLocaleDateString('es-AR'),
+    autor: d.perfiles?.nombre || 'Usuario',
+    storagePath: d.link || '',
+  }));
+  renderDocs();
 }
 
 async function cargarMensajes() {
@@ -3882,30 +3897,104 @@ function renderDocs() {
       <span class="doc-icon">${iconDoc(d.nombre)}</span>
       <div class="doc-info">
         <div class="doc-name" title="${d.nombre}">${d.nombre}</div>
-        <div class="doc-meta">${d.size} · ${d.fecha} · ${d.autor}</div>
+        <div class="doc-meta">${d.size} · ${d.fecha} · ${d.autor||''}</div>
       </div>
-      <button class="doc-dl" onclick="alert('(Demo) Descarga: ${d.nombre}')">↓ Bajar</button>
-      <button class="doc-del" onclick="eliminarDoc('${d.nombre}')" title="Eliminar">🗑</button>
+      ${d.storagePath || d.downloadUrl
+        ? `<button class="doc-dl" onclick="descargarDoc('${d.storagePath||''}','${d.nombre}')">↓ Bajar</button>`
+        : d.link ? `<a href="${d.link}" target="_blank" class="doc-dl">↗ Abrir</a>` : ''
+      }
+      <button class="doc-del" onclick="eliminarDoc('${d.id||d.nombre}','${d.storagePath||''}')" title="Eliminar">🗑</button>
     </div>`).join('')||'<div class="docs-empty">No hay documentos cargados.</div>';
 }
-function eliminarDoc(nombre){
-  if(!confirm('¿Eliminás "'+nombre+'"?')) return;
-  DOCS = DOCS.filter(d=>d.nombre!==nombre); renderDocs();
+
+async function descargarDoc(storagePath, nombre) {
+  if(!storagePath || !SUPABASE_LISTO) return;
+  const { data, error } = await sb.storage.from('documentos Vocalia').createSignedUrl(storagePath, 60);
+  if(error || !data) { alert('Error al generar el link de descarga.'); return; }
+  const a = document.createElement('a');
+  a.href = data.signedUrl; a.download = nombre; a.click();
+  await logAct('descargar', 'documentos', `Descargó: ${nombre}`);
 }
-function simularUpload(file){
+
+async function eliminarDoc(idOrNombre, storagePath){
+  if(!confirm('¿Eliminás este documento?')) return;
+  if(SUPABASE_LISTO && storagePath) {
+    await sb.storage.from('documentos Vocalia').remove([storagePath]);
+    await sb.from('documentos').delete().eq('link', storagePath);
+    await logAct('eliminar', 'documentos', `Eliminó: ${idOrNombre}`);
+  }
+  DOCS = DOCS.filter(d => (d.id||d.nombre) !== idOrNombre);
+  renderDocs();
+}
+async function simularUpload(file){
   if(!file) return;
-  const prog=document.getElementById('docs-progress'), bar=document.getElementById('docs-progress-bar');
-  const stat=document.getElementById('docs-status');
-  prog.classList.add('show'); bar.style.width='0%'; stat.textContent='Subiendo…'; stat.style.color='#718096';
-  let p=0;
-  const t=setInterval(()=>{ p=Math.min(p+12,100); bar.style.width=p+'%'; if(p===100){ clearInterval(t); } },150);
-  setTimeout(()=>{
+  const prog = document.getElementById('docs-progress');
+  const bar  = document.getElementById('docs-progress-bar');
+  const stat = document.getElementById('docs-status');
+  prog.classList.add('show'); bar.style.width='0%';
+  stat.textContent='Subiendo…'; stat.style.color='#718096';
+
+  if(SUPABASE_LISTO) {
+    // Subida real a Supabase Storage
+    bar.style.width='30%';
+    const filePath = `${Date.now()}_${file.name}`;
+    const { data, error } = await sb.storage
+      .from('documentos Vocalia')
+      .upload(filePath, file, { cacheControl:'3600', upsert:false });
+
+    if(error) {
+      stat.textContent = '❌ Error al subir: ' + error.message;
+      stat.style.color = '#C0392B';
+      setTimeout(()=>{ prog.classList.remove('show'); bar.style.width='0%'; stat.textContent=''; },3000);
+      return;
+    }
+
+    bar.style.width='70%';
+
+    // Obtener URL de descarga
+    const { data: urlData } = sb.storage.from('documentos Vocalia').getPublicUrl(filePath);
+    const { data: signedData } = await sb.storage.from('documentos Vocalia').createSignedUrl(filePath, 3600);
+    const downloadUrl = signedData?.signedUrl || '';
+
+    bar.style.width='90%';
+
+    // Guardar en tabla documentos
+    const ext = file.name.split('.').pop().toLowerCase();
+    const { data: docData } = await sb.from('documentos').insert({
+      nombre: file.name, tipo: ext,
+      size: (file.size/1024).toFixed(0)+' KB',
+      link: filePath, // guardamos el path en storage
+      autor_id: usuarioActual?.id,
+    }).select().single();
+
+    if(docData) {
+      DOCS.unshift({
+        id: docData.id,
+        nombre: file.name, tipo: ext,
+        size: (file.size/1024).toFixed(0)+' KB',
+        fecha: hoy(),
+        autor: perfilActual?.nombre || 'Usuario',
+        storagePath: filePath,
+        downloadUrl,
+      });
+    }
+
+    bar.style.width='100%';
+    stat.textContent='✅ Archivo subido correctamente.'; stat.style.color='#059669';
+    await logAct('subir', 'documentos', `Subió: ${file.name}`);
+
+  } else {
+    // Demo
+    let p = 0;
+    const t = setInterval(()=>{ p=Math.min(p+12,100); bar.style.width=p+'%'; if(p===100) clearInterval(t); },150);
+    await new Promise(r=>setTimeout(r,1800));
     const ext = file.name.split('.').pop().toLowerCase();
     DOCS.unshift({ nombre:file.name, tipo:ext, size:(file.size/1024).toFixed(0)+' KB', fecha:hoy(), autor:'Demo' });
     stat.textContent='✅ Archivo subido correctamente.'; stat.style.color='#059669';
-    renderDocs();
-    setTimeout(()=>{ prog.classList.remove('show'); bar.style.width='0%'; stat.textContent=''; },2000);
-  },1800);
+  }
+
+  renderDocs();
+  setTimeout(()=>{ prog.classList.remove('show'); bar.style.width='0%'; stat.textContent=''; },2000);
   document.getElementById('docs-file-input').value='';
 }
 
