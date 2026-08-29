@@ -3909,11 +3909,32 @@ function renderDocs() {
 
 async function descargarDoc(storagePath, nombre) {
   if(!storagePath || !SUPABASE_LISTO) return;
-  const { data, error } = await sb.storage.from('documentos Vocalia').createSignedUrl(storagePath, 60);
-  if(error || !data) { alert('Error al generar el link de descarga.'); return; }
-  const a = document.createElement('a');
-  a.href = data.signedUrl; a.download = nombre; a.click();
-  await logAct('descargar', 'documentos', `Descargó: ${nombre}`);
+  try {
+    const { data, error } = await sb.storage
+      .from('documentos Vocalia')
+      .download(storagePath);
+    if(error || !data) { 
+      // Intentar con signed URL como fallback
+      const { data: signed } = await sb.storage.from('documentos Vocalia').createSignedUrl(storagePath, 300);
+      if(signed?.signedUrl) {
+        window.open(signed.signedUrl, '_blank');
+      } else {
+        alert('Error al descargar el archivo.');
+      }
+      return;
+    }
+    // Crear blob y descargar
+    const url = URL.createObjectURL(data);
+    const a = document.createElement('a');
+    a.href = url; a.download = nombre; 
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    await logAct('descargar', 'documentos', `Descargó: ${nombre}`);
+  } catch(e) {
+    alert('Error al descargar: ' + e.message);
+  }
 }
 
 async function eliminarDoc(idOrNombre, storagePath){
