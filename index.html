@@ -2881,10 +2881,9 @@ function publicarAviso() {
   const nivel    = document.getElementById('aviso-nivel').value;
   if(!titulo||!contenido){ setMsg('aviso-msg','Completá título y contenido.','err'); return; }
   const banner = document.getElementById('aviso-banner');
-  document.getElementById('banner-titulo').textContent = titulo + ' — ';
-  document.getElementById('banner-texto').textContent  = contenido;
+  banner.querySelector('.banner-titulo').textContent = titulo + ' — ';
+  banner.querySelector('.banner-texto').textContent  = contenido;
   banner.className = 'show nivel-' + nivel;
-  logActividad('Aviso publicado', titulo, 'aviso');
   setMsg('aviso-msg','✅ Aviso publicado en el banner.','ok');
   setTimeout(()=>{ cerrarModal('modal-aviso-global'); limpiar(['aviso-titulo','aviso-contenido']); setMsg('aviso-msg','',''); },1100);
 }
