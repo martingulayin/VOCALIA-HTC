@@ -3101,8 +3101,11 @@ function toggleRespuesta(msgId) {
   }
 }
 
-async function enviarRespuesta(msgId) {
-  const ta = document.getElementById('resp-text-'+msgId);
+async function enviarRespuestaIdx(domIdx) {
+  const m = MENSAJES[domIdx];
+  if(!m) return;
+  const msgId = m.id || domIdx;
+  const ta = document.getElementById('resp-text-'+domIdx);
   if(!ta || !ta.value.trim()) return;
   const texto = ta.value.trim();
   if(!RESPUESTAS[msgId]) RESPUESTAS[msgId] = [];
@@ -3114,13 +3117,21 @@ async function enviarRespuesta(msgId) {
     });
     if(!error) {
       RESPUESTAS[msgId].push({ autor: getUserName(), texto, fecha: hoy(), hora: new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) });
+    } else {
+      console.error('Error respuesta:', error);
     }
   } else {
     RESPUESTAS[msgId].push({ autor: getUserName(), texto, fecha: hoy(), hora: new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) });
   }
   ta.value = '';
-  document.getElementById('resp-form-'+msgId).style.display = 'none';
+  document.getElementById('resp-form-'+domIdx).style.display = 'none';
   renderMensajes();
+}
+
+async function enviarRespuesta(msgId) {
+  // Buscar el índice por id
+  const idx = MENSAJES.findIndex(m => (m.id||m) === msgId);
+  if(idx >= 0) enviarRespuestaIdx(idx);
 }
 
 async function guardarMensaje() {
@@ -3159,6 +3170,7 @@ function renderMensajes() {
   document.getElementById('msg-list').innerHTML = MENSAJES.map((m,idx) => {
     const nv = nivelCfg[m.nivel]||nivelCfg.informativo;
     const msgId = m.id || idx;
+    const domId = idx; // usar índice numérico para el DOM
     const nResp = (RESPUESTAS[msgId]||[]).length;
     return `<div class="msg-card nv-${m.nivel}">
       <div class="msg-header">
@@ -3176,17 +3188,17 @@ function renderMensajes() {
       ${renderRespuestas(msgId)}
 
       <!-- Form de respuesta (oculto por defecto) -->
-      <div id="resp-form-${msgId}" style="display:none;margin-top:.7rem;">
+      <div id="resp-form-${domId}" style="display:none;margin-top:.7rem;">
         <div style="display:flex;gap:.5rem;align-items:flex-start;">
           <div style="width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--gold);flex-shrink:0;">${getUserName().charAt(0).toUpperCase()}</div>
           <div style="flex:1;">
-            <textarea id="resp-text-${msgId}" rows="2"
+            <textarea id="resp-text-${domId}" rows="2"
               placeholder="Escribí tu respuesta…"
               style="width:100%;padding:.5rem .7rem;font-family:'Inter',sans-serif;font-size:.82rem;border:1.5px solid var(--gold);border-radius:6px;outline:none;resize:vertical;color:var(--text);"
-              onkeydown="if(event.ctrlKey&&event.key==='Enter')enviarRespuesta(${msgId})"></textarea>
+              onkeydown="if(event.ctrlKey&&event.key==='Enter')enviarRespuestaIdx(${domId})"></textarea>
             <div style="display:flex;align-items:center;gap:.5rem;margin-top:.35rem;">
-              <button onclick="enviarRespuesta(${msgId})" class="btn-accion" style="font-size:.7rem;padding:.35rem .8rem;">Enviar</button>
-              <button onclick="toggleRespuesta(${msgId})" style="background:none;border:none;font-size:.7rem;color:var(--muted);cursor:pointer;">Cancelar</button>
+              <button onclick="enviarRespuestaIdx(${domId})" class="btn-accion" style="font-size:.7rem;padding:.35rem .8rem;">Enviar</button>
+              <button onclick="toggleRespuesta(${domId})" style="background:none;border:none;font-size:.7rem;color:var(--muted);cursor:pointer;">Cancelar</button>
               <span style="font-size:.62rem;color:var(--muted);margin-left:auto;">Ctrl+Enter para enviar</span>
             </div>
           </div>
@@ -3195,7 +3207,7 @@ function renderMensajes() {
 
       <!-- Acciones del mensaje -->
       <div style="display:flex;gap:.5rem;margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--border);align-items:center;flex-wrap:wrap;">
-        <button onclick="toggleRespuesta(${msgId})" style="display:inline-flex;align-items:center;gap:.3rem;background:none;border:1px solid var(--border);border-radius:4px;padding:.22rem .6rem;font-size:.65rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:all .15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+        <button onclick="toggleRespuesta(${domId})" style="display:inline-flex;align-items:center;gap:.3rem;background:none;border:1px solid var(--border);border-radius:4px;padding:.22rem .6rem;font-size:.65rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:all .15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
           💬 Responder${nResp>0?' ('+nResp+')':''}
         </button>
         <button onclick="editarMensaje(${idx})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.22rem .6rem;font-size:.65rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:all .15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">✏️ Editar</button>
