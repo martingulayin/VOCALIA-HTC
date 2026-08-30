@@ -4249,12 +4249,20 @@ async function descargarDoc(storagePath, nombre) {
 
 async function eliminarDoc(idOrNombre, storagePath){
   if(!confirm('¿Eliminás este documento?')) return;
-  if(SUPABASE_LISTO && storagePath) {
-    await sb.storage.from('documentos Vocalia').remove([storagePath]);
-    await sb.from('documentos').delete().eq('link', storagePath);
-    await logAct('eliminar', 'documentos', `Eliminó: ${idOrNombre}`);
+  const nombre = DOCS.find(d => (d.id||d.nombre) === idOrNombre)?.nombre || idOrNombre;
+  if(SUPABASE_LISTO) {
+    if(storagePath) {
+      await sb.storage.from('documentos Vocalia').remove([storagePath]);
+      await sb.from('documentos').delete().eq('link', storagePath);
+    } else if(idOrNombre) {
+      await sb.from('documentos').delete().eq('id', idOrNombre);
+    }
+    await logAct('eliminar', 'documentos', `Eliminó: ${nombre}`);
   }
-  DOCS = DOCS.filter(d => (d.id||d.nombre) !== idOrNombre);
+  DOCS = DOCS.filter(d => {
+    if(storagePath) return d.storagePath !== storagePath;
+    return (d.id||d.nombre) !== idOrNombre;
+  });
   renderDocs();
 }
 async function simularUpload(file){
