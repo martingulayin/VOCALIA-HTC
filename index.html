@@ -2343,7 +2343,13 @@ const SUPA_URL = 'https://yvsaxtiivngfzrqoscbu.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2c2F4dGlpdm5nZnpycW9zY2J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5MTYzMDEsImV4cCI6MjEwMzQ5MjMwMX0.jiwlkqAiMDQ-HizycB4HP8OWlSUWQ3lYwN4wRQSkMr8';
 const SUPABASE_LISTO = true;
 const { createClient } = supabase;
-const sb = createClient(SUPA_URL, SUPA_KEY);
+const sb = createClient(SUPA_URL, SUPA_KEY, {
+  auth: {
+    persistSession: true,       // Guardar sesión en localStorage
+    autoRefreshToken: true,     // Renovar token automáticamente
+    storageKey: 'vocalia-htc',  // Clave única para este portal
+  }
+});
 let usuarioActual = null;
 
 function mostrarPortal() {
@@ -2386,7 +2392,10 @@ async function doLogin() {
   // Actualizar último acceso
   await sb.from('perfiles').update({ ultimo_acceso: new Date().toISOString() }).eq('id', data.user.id);
 
-  if(!remember) window.addEventListener('beforeunload', () => sb.auth.signOut());
+  if(!remember) {
+    // Sin recordarme: sesión dura hasta cerrar el navegador (no F5)
+    // Supabase maneja esto con persistSession
+  }
   mostrarPortal();
   aplicarPermisos();
   await logAct('login', 'acceso', `Ingresó al portal`);
