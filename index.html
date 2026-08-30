@@ -2932,8 +2932,24 @@ async function cargarTodosLosDatos() {
     cargarEventos(),
     cargarHerramientas(),
     cargarDocs(),
+    cargarNormativaDB(),
+    cargarCapacitacionesDB(),
   ]);
   renderWidgetsInicio();
+}
+
+async function cargarNormativaDB() {
+  const { data, error } = await sb.from('normativa').select('*').order('created_at', { ascending: false });
+  if(error || !data || !data.length) return;
+  NORMATIVA = data.map(n => ({ id:n.id, titulo:n.titulo, anio:n.anio, cat:n.cat, desc:n.descripcion, link:n.link }));
+  if(typeof renderNormativa === 'function') renderNormativa();
+}
+
+async function cargarCapacitacionesDB() {
+  const { data, error } = await sb.from('capacitaciones').select('*').order('fecha', { ascending: false });
+  if(error || !data || !data.length) return;
+  CAPS = data.map(c => ({ id:c.id, titulo:c.titulo, fecha:c.fecha, modalidad:c.modalidad, desc:c.descripcion, area:c.area }));
+  if(typeof renderCaps === 'function') renderCaps();
 }
 
 async function cargarDocs() {
@@ -3005,6 +3021,237 @@ async function cargarHerramientas() {
   }));
   renderHerramientas();
 }
+
+// ══ SUPABASE OVERRIDES — conectar todas las funciones a la base de datos ══
+
+// EVENTOS
+eliminarEvento = async function() {
+  if(eventoActivoIdx === null) return;
+  const ev = REUNIONES[eventoActivoIdx];
+  if(!confirm(`¿Eliminás el evento "${ev.asunto}"?`)) return;
+  if(SUPABASE_LISTO && ev.id) {
+    await sb.from('eventos').delete().eq('id', ev.id);
+    await logAct('eliminar', 'evento', `Eliminó: ${ev.asunto}`);
+  }
+  REUNIONES.splice(eventoActivoIdx, 1);
+  cerrarPanelEvento(); renderCalendario();
+};
+
+guardarEdicion = async function() {
+  if(eventoActivoIdx === null) return;
+  const fecha  = document.getElementById('ep-edit-fecha').value;
+  const asunto = document.getElementById('ep-edit-asunto').value.trim();
+  if(!fecha||!asunto){ setMsg('ep-edit-msg','Completá fecha y descripción.','err'); return; }
+  const cambios = {
+    tipo: document.getElementById('ep-edit-tipo').value, fecha,
+    hora_inicio: document.getElementById('ep-edit-hora-ini').value||null,
+    hora_fin:    document.getElementById('ep-edit-hora-fin').value||null,
+    asunto, municipio: document.getElementById('ep-edit-municipio').value.trim()||null,
+    notas: document.getElementById('ep-edit-convocados').value.trim()||null,
+  };
+  if(SUPABASE_LISTO && REUNIONES[eventoActivoIdx].id) {
+    await sb.from('eventos').update(cambios).eq('id', REUNIONES[eventoActivoIdx].id);
+    await logAct('editar','evento',`Editó: ${asunto}`);
+  }
+  REUNIONES[eventoActivoIdx] = { ...REUNIONES[eventoActivoIdx], ...cambios };
+  setMsg('ep-edit-msg','✅ Cambios guardados.','ok');
+  setTimeout(()=>{ cerrarPanelEvento(); renderCalendario(); },900);
+};
+
+// SEDE CENTRAL
+guardarActividadSede = async function() {
+  const desc  = document.getElementById('sa-desc').value.trim();
+  const fecha = document.getElementById('sa-fecha').value;
+  const tipo  = document.getElementById('sa-tipo').value;
+  if(!desc||!fecha){ setMsg('sa-msg','Completá fecha y descripción.','err'); return; }
+  if(SUPABASE_LISTO) {
+    await sb.from('sede_actividad').insert({
+      relatoria: sedeActual, fecha, tipo, desc, autor_id: usuarioActual?.id
+    });
+    await logAct('crear','sede_actividad',`Relatoría ${sedeActual}: ${desc}`);
+  }
+  SEDE_ACT[sedeActual].unshift({ fecha, desc, tipo });
+  setMsg('sa-msg','✅ Actividad registrada.','ok');
+  setTimeout(()=>{ cerrarModal('modal-actividad-sede'); renderActividadSedeR(); limpiar(['sa-desc']); setMsg('sa-msg','',''); },1000);
+};
+
+eliminarDocSede = async function(idx) {
+  if(!confirm('¿Eliminás?')) return;
+  const doc = SEDE_DOCS[sedeActual][idx];
+  if(SUPABASE_LISTO && doc.id) await sb.from('sede_docs').delete().eq('id', doc.id);
+  SEDE_DOCS[sedeActual].splice(idx,1); renderDocsSedeR();
+};
+
+eliminarActSede = async function(idx) {
+  if(!confirm('¿Eliminás?')) return;
+  const act = SEDE_ACT[sedeActual][idx];
+  if(SUPABASE_LISTO && act.id) await sb.from('sede_actividad').delete().eq('id', act.id);
+  SEDE_ACT[sedeActual].splice(idx,1); renderActividadSedeR();
+};
+
+// DELEGACIONES
+guardarDocDeleg = async function() {
+  const titulo = document.getElementById('dd-titulo').value.trim();
+  const link   = document.getElementById('dd-link').value.trim();
+  const desc   = document.getElementById('dd-desc').value.trim();
+  const tipo   = document.getElementById('dd-tipo').value;
+  if(!titulo){ setMsg('dd-msg','Ingresá el título.','err'); return; }
+  if(SUPABASE_LISTO) {
+    const { data } = await sb.from('delegacion_docs').insert({
+      delegacion_nro: delegActual, titulo, tipo, link, descripcion: desc, autor_id: usuarioActual?.id
+    }).select().single();
+    if(data) DELEG_DOCS[delegActual].unshift({ id:data.id, titulo, tipo, link, desc, fecha: hoy() });
+    await logAct('crear','delegacion_docs',`Delegación ${delegActual}: ${titulo}`);
+  } else {
+    DELEG_DOCS[delegActual].unshift({ titulo, tipo, link, desc, fecha: hoy() });
+  }
+  setMsg('dd-msg','✅ Documento cargado.','ok');
+  setTimeout(()=>{ cerrarModal('modal-doc-deleg'); renderDocsDeleg(); limpiar(['dd-titulo','dd-link','dd-desc']); setMsg('dd-msg','',''); },1000);
+};
+
+eliminarDocDeleg = async function(idx) {
+  if(!confirm('¿Eliminás?')) return;
+  const doc = DELEG_DOCS[delegActual][idx];
+  if(SUPABASE_LISTO && doc.id) await sb.from('delegacion_docs').delete().eq('id', doc.id);
+  DELEG_DOCS[delegActual].splice(idx,1); renderDocsDeleg();
+};
+
+guardarActividadDeleg = async function() {
+  const desc      = document.getElementById('da-desc').value.trim();
+  const fecha     = document.getElementById('da-fecha').value;
+  const tipo      = document.getElementById('da-tipo').value;
+  const municipio = document.getElementById('da-municipio').value.trim();
+  if(!desc||!fecha){ setMsg('da-msg','Completá fecha y descripción.','err'); return; }
+  if(SUPABASE_LISTO) {
+    const { data } = await sb.from('delegacion_actividad').insert({
+      delegacion_nro: delegActual, fecha, tipo, desc, municipio: municipio||null, autor_id: usuarioActual?.id
+    }).select().single();
+    if(data) DELEG_ACT[delegActual].unshift({ id:data.id, fecha, tipo, desc, municipio });
+    await logAct('crear','delegacion_actividad',`Delegación ${delegActual}: ${desc}`);
+  } else {
+    DELEG_ACT[delegActual].unshift({ fecha, tipo, desc, municipio });
+  }
+  setMsg('da-msg','✅ Actividad registrada.','ok');
+  setTimeout(()=>{ cerrarModal('modal-actividad-deleg'); renderActividadDeleg(); limpiar(['da-desc','da-municipio']); setMsg('da-msg','',''); },1000);
+};
+
+eliminarActDeleg = async function(idx) {
+  if(!confirm('¿Eliminás?')) return;
+  const act = DELEG_ACT[delegActual][idx];
+  if(SUPABASE_LISTO && act.id) await sb.from('delegacion_actividad').delete().eq('id', act.id);
+  DELEG_ACT[delegActual].splice(idx,1); renderActividadDeleg();
+};
+
+// BIBLIOTECA — PAPELES
+guardarPapel = async function() {
+  const titulo = document.getElementById('p-titulo').value.trim();
+  const link   = document.getElementById('p-link').value.trim();
+  const desc   = document.getElementById('p-desc').value.trim();
+  const tipo   = document.getElementById('p-tipo').value;
+  const anio   = document.getElementById('p-anio').value;
+  const ref    = document.getElementById('p-ref').value.trim();
+  if(!titulo){ setMsg('p-msg','Ingresá el título.','err'); return; }
+  if(SUPABASE_LISTO) {
+    const { data } = await sb.from('papeles').insert({
+      titulo, tipo, anio, ref, link, descripcion: desc, autor_id: usuarioActual?.id
+    }).select().single();
+    if(data) PAPELES.unshift({ id:data.id, titulo, tipo, anio, ref, link, desc });
+    await logAct('crear','papeles',`Nuevo papel: ${titulo}`);
+  } else {
+    PAPELES.unshift({ titulo, tipo, anio, ref, link, desc });
+  }
+  setMsg('p-msg','✅ Papel cargado.','ok');
+  setTimeout(()=>{ cerrarModal('modal-papel'); renderPapeles(); limpiar(['p-titulo','p-link','p-desc','p-ref']); setMsg('p-msg','',''); },1000);
+};
+
+eliminarPapel = async function(idx) {
+  if(!confirm('¿Eliminás?')) return;
+  if(SUPABASE_LISTO && PAPELES[idx].id) await sb.from('papeles').delete().eq('id', PAPELES[idx].id);
+  PAPELES.splice(idx,1); renderPapeles();
+};
+
+// BIBLIOTECA — NORMATIVA
+guardarNormativa = async function() {
+  const titulo = document.getElementById('nr-titulo').value.trim();
+  const anio   = document.getElementById('nr-anio').value;
+  const cat    = document.getElementById('nr-cat').value;
+  const desc   = document.getElementById('nr-desc').value.trim();
+  const link   = document.getElementById('nr-link').value.trim();
+  if(!titulo){ setMsg('nr-msg','Ingresá el título.','err'); return; }
+  if(SUPABASE_LISTO) {
+    const { data } = await sb.from('normativa').insert({
+      titulo, anio: anio||null, cat, descripcion: desc, link
+    }).select().single();
+    if(data) NORMATIVA.unshift({ id:data.id, titulo, anio, cat, desc, link });
+    await logAct('crear','normativa',`Nueva normativa: ${titulo}`);
+  } else {
+    NORMATIVA.unshift({ id: Date.now(), titulo, anio, cat, desc, link });
+  }
+  setMsg('nr-msg','✅ Normativa agregada.','ok');
+  setTimeout(()=>{ cerrarModal('modal-normativa'); renderNormativa(); limpiar(['nr-titulo','nr-anio','nr-desc','nr-link']); setMsg('nr-msg','',''); },1000);
+};
+
+eliminarNormativa = async function(id) {
+  if(!confirm('¿Eliminás esta normativa?')) return;
+  if(SUPABASE_LISTO) await sb.from('normativa').delete().eq('id', id);
+  NORMATIVA = NORMATIVA.filter(n => n.id !== id); renderNormativa();
+};
+
+// CAPACITACIONES
+guardarCapacitacion = async function() {
+  const titulo    = document.getElementById('c-titulo').value.trim();
+  const fecha     = document.getElementById('c-fecha').value;
+  const modalidad = document.getElementById('c-modalidad').value;
+  const desc      = document.getElementById('c-desc').value.trim();
+  const area      = document.getElementById('c-area').value.trim();
+  if(!titulo||!fecha){ setMsg('c-msg','Completá título y fecha.','err'); return; }
+  const editIdx = document.getElementById('c-edit-idx').value;
+  if(SUPABASE_LISTO) {
+    if(editIdx !== '') {
+      const c = CAPS[parseInt(editIdx)];
+      await sb.from('capacitaciones').update({ titulo, fecha, modalidad, descripcion: desc, area }).eq('id', c.id);
+      CAPS[parseInt(editIdx)] = { ...c, titulo, fecha, modalidad, desc, area };
+    } else {
+      const { data } = await sb.from('capacitaciones').insert({
+        titulo, fecha, modalidad, descripcion: desc, area
+      }).select().single();
+      if(data) CAPS.unshift({ id:data.id, titulo, fecha, modalidad, desc, area });
+      await logAct('crear','capacitaciones',`Nueva cap: ${titulo}`);
+    }
+  } else {
+    if(editIdx !== '') CAPS[parseInt(editIdx)] = { ...CAPS[parseInt(editIdx)], titulo, fecha, modalidad, desc, area };
+    else CAPS.unshift({ id: Date.now(), titulo, fecha, modalidad, desc, area });
+  }
+  setMsg('c-msg','✅ Guardada.','ok');
+  setTimeout(()=>{ cerrarModal('modal-capacitacion'); renderCaps(); limpiar(['c-titulo','c-fecha','c-desc','c-area']); document.getElementById('c-edit-idx').value=''; document.querySelector('#modal-capacitacion .modal-title').textContent='Nueva capacitación'; setMsg('c-msg','',''); },1100);
+};
+
+eliminarCap = async function(idx) {
+  if(!confirm(`¿Eliminás "${CAPS[idx].titulo}"?`)) return;
+  if(SUPABASE_LISTO && CAPS[idx].id) await sb.from('capacitaciones').delete().eq('id', CAPS[idx].id);
+  CAPS.splice(idx,1); renderCaps();
+};
+
+// MATERIAL CAPACITACIONES
+guardarMaterial = async function() {
+  const titulo = document.getElementById('mat-titulo').value.trim();
+  const link   = document.getElementById('mat-link').value.trim();
+  const tipo   = document.getElementById('mat-tipo').value;
+  const desc   = document.getElementById('mat-desc').value.trim();
+  if(!titulo||!link){ setMsg('mat-msg','Completá título y link.','err'); return; }
+  const capId = document.getElementById('mat-cap').value || 'general';
+  MATERIAL.push({ id: Date.now(), titulo, link, tipo, desc, cap: capId });
+  setMsg('mat-msg','✅ Material cargado.','ok');
+  setTimeout(()=>{ cerrarModal('modal-material'); renderMaterial(); poblarFiltroMat(); limpiar(['mat-titulo','mat-link','mat-desc']); setMsg('mat-msg','',''); },1000);
+};
+
+eliminarMaterial = async function(id) {
+  if(!confirm('¿Eliminás este material?')) return;
+  MATERIAL = MATERIAL.filter(m => m.id !== id);
+  renderMaterial(); poblarFiltroMat();
+};
+
+// ══ FIN SUPABASE OVERRIDES ══════════════════════════════════════════════
 
 // ══ WIDGETS DE INICIO ══════════════════════════════════════════════════════
 function renderWidgetsInicio() {
@@ -3232,8 +3479,12 @@ function editarMensaje(idx) {
   abrirModal('modal-mensaje');
 }
 
-function eliminarMensaje(idx) {
+async function eliminarMensaje(idx) {
   if(!confirm(`¿Eliminás "${MENSAJES[idx].titulo}"?`)) return;
+  if(SUPABASE_LISTO && MENSAJES[idx].id) {
+    await sb.from('mensajes').delete().eq('id', MENSAJES[idx].id);
+    await logAct('eliminar', 'mensajes', `Eliminó: ${MENSAJES[idx].titulo}`);
+  }
   MENSAJES.splice(idx,1);
   renderMensajes();
 }
@@ -3463,20 +3714,29 @@ function actualizarFormEvento() {
   document.getElementById('r-hora-fin').closest('.form-field').style.display = esVenc ? 'none' : 'block';
 }
 
-function guardarReunion() {
+async function guardarReunion() {
   const fecha  = document.getElementById('r-fecha').value;
   const asunto = document.getElementById('r-asunto').value.trim();
   if(!fecha||!asunto){ setMsg('r-msg','Completá fecha y descripción.','err'); return; }
-  REUNIONES.push({
+  const nuevo = {
     fecha,
-    hora_inicio: document.getElementById('r-hora-ini').value,
-    hora_fin:    document.getElementById('r-hora-fin').value,
+    hora_inicio: document.getElementById('r-hora-ini').value || null,
+    hora_fin:    document.getElementById('r-hora-fin').value || null,
     tipo:        document.getElementById('r-tipo').value,
     asunto,
-    municipio:   document.getElementById('r-municipio').value.trim(),
-    convocados:  document.getElementById('r-convocados').value.trim(),
-    quien:       'Demo'
-  });
+    municipio:   document.getElementById('r-municipio').value.trim() || null,
+    quien:       getUserName(),
+    notas:       document.getElementById('r-convocados').value.trim() || null,
+  };
+  if(SUPABASE_LISTO) {
+    const { data } = await sb.from('eventos').insert({
+      ...nuevo, autor_id: usuarioActual?.id
+    }).select().single();
+    if(data) REUNIONES.push({ ...nuevo, id: data.id });
+    await logAct('crear', 'evento', `Nuevo evento: ${asunto}`);
+  } else {
+    REUNIONES.push(nuevo);
+  }
   setMsg('r-msg','✅ Evento registrado.','ok');
   setTimeout(()=>{ cerrarModal('modal-reunion'); renderCalendario(); limpiar(['r-fecha','r-hora-ini','r-hora-fin','r-asunto','r-municipio','r-convocados']); setMsg('r-msg','',''); },1100);
 }
@@ -3636,19 +3896,38 @@ function renderHerramientas() {
   }).join('');
 }
 
-function guardarHerramienta() {
+async function guardarHerramienta() {
   const nombre = document.getElementById('h-nombre').value.trim();
   const desc   = document.getElementById('h-desc').value.trim();
   const link   = document.getElementById('h-link').value.trim();
+  const tipo   = document.getElementById('h-tipo').value;
+  const accion = document.getElementById('h-accion').value;
   if(!nombre){ setMsg('h-msg','Ingresá el nombre.','err'); return; }
   const editIdx = document.getElementById('h-edit-idx').value;
-  const nueva = {
-    id: Date.now(), nombre, tipo: document.getElementById('h-tipo').value,
-    desc, link, accion: document.getElementById('h-accion').value,
-    actualizado: hoy()
-  };
-  if(editIdx !== '') { HERRAMIENTAS[parseInt(editIdx)] = { ...HERRAMIENTAS[parseInt(editIdx)], ...nueva }; setMsg('h-msg','✅ Actualizada.','ok'); }
-  else { HERRAMIENTAS.unshift(nueva); setMsg('h-msg','✅ Herramienta agregada.','ok'); }
+
+  if(SUPABASE_LISTO) {
+    if(editIdx !== '') {
+      const h = HERRAMIENTAS[parseInt(editIdx)];
+      await sb.from('herramientas').update({
+        nombre, tipo, descripcion: desc, link, accion,
+        actualizado: new Date().toISOString().split('T')[0],
+      }).eq('id', h.id);
+      setMsg('h-msg','✅ Actualizada.','ok');
+    } else {
+      const { data } = await sb.from('herramientas').insert({
+        nombre, tipo, descripcion: desc, link, accion,
+        actualizado: new Date().toISOString().split('T')[0],
+        autor_id: usuarioActual?.id,
+      }).select().single();
+      if(data) HERRAMIENTAS.unshift({ id:data.id, nombre, tipo, desc, link, accion, actualizado: data.actualizado });
+      setMsg('h-msg','✅ Herramienta agregada.','ok');
+    }
+  } else {
+    const nueva = { id: Date.now(), nombre, tipo, desc, link, accion, actualizado: hoy() };
+    if(editIdx !== '') HERRAMIENTAS[parseInt(editIdx)] = { ...HERRAMIENTAS[parseInt(editIdx)], ...nueva };
+    else HERRAMIENTAS.unshift(nueva);
+    setMsg('h-msg','✅ Herramienta agregada.','ok');
+  }
   setTimeout(()=>{ cerrarModal('modal-herramienta'); renderHerramientas(); limpiar(['h-nombre','h-desc','h-link']); document.getElementById('h-edit-idx').value=''; document.getElementById('modal-herramienta-titulo').textContent='Nueva herramienta digital'; setMsg('h-msg','',''); },1000);
 }
 
@@ -3656,7 +3935,7 @@ function editarHerramienta(idx) {
   const h = HERRAMIENTAS[idx];
   document.getElementById('h-nombre').value = h.nombre;
   document.getElementById('h-tipo').value   = h.tipo;
-  document.getElementById('h-desc').value   = h.desc;
+  document.getElementById('h-desc').value   = h.desc||'';
   document.getElementById('h-link').value   = h.link||'';
   document.getElementById('h-accion').value = h.accion||'abrir';
   document.getElementById('h-edit-idx').value = idx;
@@ -3664,8 +3943,12 @@ function editarHerramienta(idx) {
   abrirModal('modal-herramienta');
 }
 
-function eliminarHerramienta(idx) {
+async function eliminarHerramienta(idx) {
   if(!confirm(`¿Eliminás "${HERRAMIENTAS[idx].nombre}"?`)) return;
+  if(SUPABASE_LISTO && HERRAMIENTAS[idx].id) {
+    await sb.from('herramientas').delete().eq('id', HERRAMIENTAS[idx].id);
+    await logAct('eliminar', 'herramientas', `Eliminó: ${HERRAMIENTAS[idx].nombre}`);
+  }
   HERRAMIENTAS.splice(idx,1); renderHerramientas();
 }
 
@@ -4339,16 +4622,30 @@ function renderNovedades(){
     </div>`).join('')||'<div class="lista-empty">No hay novedades publicadas.</div>';
 }
 
-function guardarNovedad(){
-  const titulo=document.getElementById('n-titulo').value.trim();
-  const texto =document.getElementById('n-texto').value.trim();
+async function guardarNovedad(){
+  const titulo = document.getElementById('n-titulo').value.trim();
+  const texto  = document.getElementById('n-texto').value.trim();
+  const cat    = document.getElementById('n-cat').value;
   if(!titulo||!texto){ setMsg('n-msg','Completá título y texto.','err'); return; }
   const editIdx = document.getElementById('n-edit-idx').value;
-  if(editIdx !== '') {
-    NOVEDADES[parseInt(editIdx)] = { ...NOVEDADES[parseInt(editIdx)], titulo, cat:document.getElementById('n-cat').value, texto };
-    setMsg('n-msg','✅ Novedad actualizada.','ok');
+
+  if(SUPABASE_LISTO) {
+    if(editIdx !== '') {
+      const n = NOVEDADES[parseInt(editIdx)];
+      await sb.from('novedades').update({ titulo, cat, texto }).eq('id', n.id);
+      NOVEDADES[parseInt(editIdx)] = { ...n, titulo, cat, texto };
+      setMsg('n-msg','✅ Novedad actualizada.','ok');
+    } else {
+      const { data } = await sb.from('novedades').insert({
+        titulo, cat, texto, autor_id: usuarioActual?.id
+      }).select().single();
+      if(data) NOVEDADES.unshift({ id:data.id, titulo, cat, texto, fecha: hoy() });
+      await logAct('crear', 'novedades', `Nueva novedad: ${titulo}`);
+      setMsg('n-msg','✅ Novedad publicada.','ok');
+    }
   } else {
-    NOVEDADES.unshift({ titulo, cat:document.getElementById('n-cat').value, texto, fecha:hoy() });
+    if(editIdx !== '') NOVEDADES[parseInt(editIdx)] = { ...NOVEDADES[parseInt(editIdx)], titulo, cat, texto };
+    else NOVEDADES.unshift({ titulo, cat, texto, fecha: hoy() });
     setMsg('n-msg','✅ Novedad publicada.','ok');
   }
   setTimeout(()=>{ cerrarModal('modal-novedad'); renderNovedades(); limpiar(['n-titulo','n-texto']); document.getElementById('n-edit-idx').value=''; document.querySelector('#modal-novedad .modal-title').textContent='Nueva novedad'; setMsg('n-msg','',''); },1100);
