@@ -897,7 +897,7 @@ table td, table th { font-size:.88rem !important; }
     <div style="display:flex;align-items:center;gap:.3rem;flex-wrap:nowrap;">
       <button class="tb-btn" onclick="switchTab('documentos')">📁 DOCS</button>
       <button class="tb-btn" onclick="abrirModalAviso()">📢 AVISOS</button>
-      <button class="tb-btn" onclick="abrirModalActividad()">📋 ACTIVIDAD</button>
+      <button class="tb-btn" id="btn-actividad" onclick="abrirModalActividad()">📋 ACTIVIDAD</button>
       <button class="tb-btn" id="btn-usuarios" onclick="abrirPanelUsuarios()" style="display:none;">👤 USUARIOS</button>
       <div style="width:1px;height:16px;background:rgba(255,255,255,.15);margin:0 .15rem;"></div>
       <span style="font-size:.7rem;font-weight:700;color:var(--gold);cursor:pointer;" id="topbar-username" onclick="abrirPerfil()">Demo</span>
@@ -920,7 +920,7 @@ table td, table th { font-size:.88rem !important; }
   <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
     <button class="tb-btn" onclick="switchTab('documentos');cerrarMenuMobile()">📁 DOCS</button>
     <button class="tb-btn" onclick="abrirModalAviso();cerrarMenuMobile()">📢 AVISOS</button>
-    <button class="tb-btn" onclick="abrirModalActividad();cerrarMenuMobile()">📋 ACTIVIDAD</button>
+    <button class="tb-btn" id="btn-actividad-mobile" onclick="abrirModalActividad();cerrarMenuMobile()">📋 ACTIVIDAD</button>
     <button class="tb-btn tb-btn-disabled">👤 USUARIOS</button>
     <button class="tb-btn tb-btn-salir" onclick="doLogout()">SALIR</button>
   </div>
@@ -2657,20 +2657,13 @@ let perfilActual = null;
 function esAdmin() { return rolActual === 'admin'; }
 
 function aplicarPermisos() {
-  // Mostrar/ocultar botones según rol
+  // Mostrar/ocultar USUARIOS según rol
   const btnUsuarios = document.getElementById('btn-usuarios');
   if(btnUsuarios) btnUsuarios.style.display = esAdmin() ? 'inline-flex' : 'none';
 
-  // Ocultar botón ACTIVIDAD para no-admins
-  const btns = document.querySelectorAll('.tb-btn');
-  btns.forEach(b => {
-    if(b.textContent.includes('ACTIVIDAD') && !esAdmin()) b.style.display = 'none';
-  });
-
-  // Ocultar botones de eliminar contenido ajeno
-  document.querySelectorAll('.btn-eliminar-otro').forEach(b => {
-    if(!esAdmin()) b.style.display = 'none';
-  });
+  // Mostrar/ocultar ACTIVIDAD según rol
+  const btnActividad = document.getElementById('btn-actividad');
+  if(btnActividad) btnActividad.style.display = esAdmin() ? 'inline-flex' : 'none';
 }
 
 // ══ LOG DE ACTIVIDAD ═══════════════════════════════════════════════════════
