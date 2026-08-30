@@ -3066,7 +3066,7 @@ guardarActividadSede = async function() {
   if(!desc||!fecha){ setMsg('sa-msg','Completá fecha y descripción.','err'); return; }
   if(SUPABASE_LISTO) {
     await sb.from('sede_actividad').insert({
-      relatoria: sedeActual, fecha, tipo, desc, autor_id: usuarioActual?.id
+      relatoria: sedeActual, fecha, tipo, descripcion: desc, autor_id: usuarioActual?.id
     });
     await logAct('crear','sede_actividad',`Relatoría ${sedeActual}: ${desc}`);
   }
@@ -3124,7 +3124,7 @@ guardarActividadDeleg = async function() {
   if(!desc||!fecha){ setMsg('da-msg','Completá fecha y descripción.','err'); return; }
   if(SUPABASE_LISTO) {
     const { data } = await sb.from('delegacion_actividad').insert({
-      delegacion_nro: delegActual, fecha, tipo, desc, municipio: municipio||null, autor_id: usuarioActual?.id
+      delegacion_nro: delegActual, fecha, tipo, descripcion: desc, municipio: municipio||null, autor_id: usuarioActual?.id
     }).select().single();
     if(data) DELEG_ACT[delegActual].unshift({ id:data.id, fecha, tipo, desc, municipio });
     await logAct('crear','delegacion_actividad',`Delegación ${delegActual}: ${desc}`);
