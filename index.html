@@ -2870,28 +2870,6 @@ function logActividad(accion, detalle, seccion) {
   if(ACTIVIDAD_LOG.length > 50) ACTIVIDAD_LOG.pop();
 }
 
-function abrirModalActividad() {
-  const lista = document.getElementById('actividad-lista');
-  if(!ACTIVIDAD_LOG.length) {
-    lista.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--muted);font-size:.82rem;font-style:italic;">No hay actividad registrada aún.</div>';
-  } else {
-    const iconos = { mensaje:'📣', novedad:'📰', capacitacion:'🎓', evento:'📅', documento:'📁', aviso:'📢', delegacion:'📍' };
-    lista.innerHTML = ACTIVIDAD_LOG.map(a => `
-      <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.65rem 1.2rem;border-bottom:1px solid var(--border);">
-        <div style="font-size:1rem;flex-shrink:0;">${iconos[a.seccion]||'📋'}</div>
-        <div style="flex:1;">
-          <div style="font-size:.8rem;font-weight:600;color:var(--navy);">${a.accion}</div>
-          <div style="font-size:.7rem;color:var(--muted);margin-top:.1rem;">${a.detalle}</div>
-        </div>
-        <div style="font-size:.62rem;color:var(--muted);white-space:nowrap;text-align:right;">
-          <div>${a.fecha}</div><div>${a.hora}</div>
-          <div style="margin-top:.2rem;font-weight:600;color:var(--navy);">${a.usuario}</div>
-        </div>
-      </div>`).join('');
-  }
-  abrirModal('modal-actividad');
-}
-
 // ══ AVISOS GLOBALES ════════════════════════════════════════════════════════
 function abrirModalAviso() {
   abrirModal('modal-aviso-global');
