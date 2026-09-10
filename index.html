@@ -2357,11 +2357,16 @@ table td, table th { font-size:.88rem !important; }
       <div class="form-grid">
         <div class="form-field"><label>Fecha</label><input type="date" id="c-fecha"></div>
         <div class="form-field"><label>Modalidad</label>
-          <select id="c-modalidad"><option value="presencial">Presencial</option><option value="virtual">Virtual</option></select>
+          <select id="c-modalidad"><option value="presencial">Presencial</option><option value="virtual">Virtual</option><option value="mixta">Mixta</option></select>
         </div>
       </div>
-      <div class="form-field"><label>Descripción</label><textarea id="c-desc" rows="3" placeholder="Descripción breve…"></textarea></div>
-      <div class="form-field"><label>Área / Destinatarios</label><input type="text" id="c-area" placeholder="Ej: Todo el personal, Auditores…"></div>
+      <div class="form-grid">
+        <div class="form-field"><label>Hora inicio <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><input type="time" id="c-hora-inicio"></div>
+        <div class="form-field"><label>Hora fin <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><input type="time" id="c-hora-fin"></div>
+      </div>
+      <div class="form-field"><label>Lugar <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><input type="text" id="c-lugar" placeholder="Ej: Sede Central, Zoom, IPAP…"></div>
+      <div class="form-field"><label>Área / Destinatarios <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><input type="text" id="c-area" placeholder="Ej: Todo el personal, Auditores…"></div>
+      <div class="form-field"><label>Descripción <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><textarea id="c-desc" rows="2" placeholder="Descripción breve…"></textarea></div>
       <div class="form-msg" id="c-msg"></div>
       <input type="hidden" id="c-edit-idx" value="">
     </div>
@@ -3289,23 +3294,48 @@ eliminarNormativa = async function(id) {
 
 // CAPACITACIONES
 guardarCapacitacion = async function() {
-  const titulo    = document.getElementById('c-titulo').value.trim();
-  const fecha     = document.getElementById('c-fecha').value;
-  const modalidad = document.getElementById('c-modalidad').value;
-  const desc      = document.getElementById('c-desc').value.trim();
-  const area      = document.getElementById('c-area').value.trim();
+  const titulo     = document.getElementById('c-titulo').value.trim();
+  const fecha      = document.getElementById('c-fecha').value;
+  const modalidad  = document.getElementById('c-modalidad').value;
+  const horaInicio = document.getElementById('c-hora-inicio').value || null;
+  const horaFin    = document.getElementById('c-hora-fin').value || null;
+  const lugar      = document.getElementById('c-lugar').value.trim() || null;
+  const desc       = document.getElementById('c-desc').value.trim();
+  const area       = document.getElementById('c-area').value.trim();
   if(!titulo||!fecha){ setMsg('c-msg','Completá título y fecha.','err'); return; }
   const editIdx = document.getElementById('c-edit-idx').value;
   if(SUPABASE_LISTO) {
     if(editIdx !== '') {
       const c = CAPS[parseInt(editIdx)];
       await sb.from('capacitaciones').update({ titulo, fecha, modalidad, descripcion: desc, area }).eq('id', c.id);
-      CAPS[parseInt(editIdx)] = { ...c, titulo, fecha, modalidad, desc, area };
+      CAPS[parseInt(editIdx)] = { ...c, titulo, fecha, modalidad, desc, area, horaInicio, horaFin, lugar };
     } else {
       const { data } = await sb.from('capacitaciones').insert({
         titulo, fecha, modalidad, descripcion: desc, area
       }).select().single();
-      if(data) CAPS.unshift({ id:data.id, titulo, fecha, modalidad, desc, area });
+      if(data) {
+        CAPS.unshift({ id:data.id, titulo, fecha, modalidad, desc, area, horaInicio, horaFin, lugar });
+        // Crear evento en cronograma automáticamente
+        const { data: ev } = await sb.from('eventos').insert({
+          asunto: titulo,
+          tipo: 'capacitacion',
+          fecha: fecha,
+          hora_inicio: horaInicio,
+          hora_fin: horaFin,
+          municipio: lugar,
+          quien: area || 'Personal de la Vocalía',
+          notas: desc,
+          autor_id: usuarioActual?.id,
+        }).select().single();
+        if(ev) {
+          REUNIONES.push({
+            id: ev.id, asunto: ev.asunto, tipo: ev.tipo, fecha: ev.fecha,
+            hora_inicio: ev.hora_inicio, hora_fin: ev.hora_fin,
+            municipio: ev.municipio, quien: ev.quien, notas: ev.notas,
+          });
+          renderCalendario();
+        }
+      }
       await logAct('crear','capacitaciones',`Nueva cap: ${titulo}`);
     }
   } else {
@@ -3313,7 +3343,7 @@ guardarCapacitacion = async function() {
     else CAPS.unshift({ id: Date.now(), titulo, fecha, modalidad, desc, area });
   }
   setMsg('c-msg','✅ Guardada.','ok');
-  setTimeout(()=>{ cerrarModal('modal-capacitacion'); renderCaps(); limpiar(['c-titulo','c-fecha','c-desc','c-area']); document.getElementById('c-edit-idx').value=''; document.querySelector('#modal-capacitacion .modal-title').textContent='Nueva capacitación'; setMsg('c-msg','',''); },1100);
+  setTimeout(()=>{ cerrarModal('modal-capacitacion'); renderCaps(); limpiar(['c-titulo','c-fecha','c-desc','c-area','c-hora-inicio','c-hora-fin','c-lugar']); document.getElementById('c-edit-idx').value=''; document.querySelector('#modal-capacitacion .modal-title').textContent='Nueva capacitación'; setMsg('c-msg','',''); },1100);
 };
 
 eliminarCap = async function(idx) {
@@ -3329,7 +3359,9 @@ guardarMaterial = async function() {
   const tipo   = document.getElementById('mat-tipo').value;
   const desc   = document.getElementById('mat-desc').value.trim();
   if(!titulo){ setMsg('mat-msg','Completá el título.','err'); return; }
-  const capId = document.getElementById('mat-cap').value || 'general';
+  const capRef   = document.getElementById('mat-cap-ref')?.value || '';
+  const capNombre= document.getElementById('mat-cap-nombre')?.value.trim() || '';
+  const capId    = capRef || capNombre || 'general';
   const yo = getUserName();
   const { data, error } = await sb.from('material_capacitaciones').insert({
     titulo, link, tipo, descripcion: desc, cap: capId,
@@ -4681,34 +4713,7 @@ function renderMaterial() {
     </div>`).join('');
 }
 
-function guardarMaterial() {
-  const ref    = document.getElementById('mat-cap-ref').value;
-  const nombre = document.getElementById('mat-cap-nombre').value.trim();
-  const cap    = ref || nombre;
-  const titulo = document.getElementById('mat-titulo').value.trim();
-  if(!cap){ setMsg('mat-msg','Seleccioná o ingresá el nombre de la capacitación.','err'); return; }
-  if(!titulo){ setMsg('mat-msg','Ingresá el título del material.','err'); return; }
-  MATERIAL.push({
-    id: Date.now(), cap, tipo: document.getElementById('mat-tipo').value,
-    titulo, desc: document.getElementById('mat-desc').value.trim(),
-    link: document.getElementById('mat-link').value.trim(), fecha: hoy()
-  });
-  setMsg('mat-msg','✅ Material guardado.','ok');
-  setTimeout(()=>{
-    cerrarModal('modal-material');
-    limpiar(['mat-cap-nombre','mat-titulo','mat-desc','mat-link']);
-    document.getElementById('mat-cap-ref').value='';
-    setMsg('mat-msg','','');
-    poblarFiltroMat(); renderMaterial();
-  },1000);
-}
 
-function eliminarMaterial(id) {
-  const m = MATERIAL.find(x=>x.id===id);
-  if(!m || !confirm(`¿Eliminás "${m.titulo}"?`)) return;
-  MATERIAL = MATERIAL.filter(x=>x.id!==id);
-  renderMaterial();
-}
 
 // ══ ESTUDIOS A CARGO — VOCALÍA B ══════════════════════════════════════════
 const ESTUDIOS_B = [
@@ -4854,26 +4859,19 @@ function renderCaps() {
   }).join('')||'<div class="lista-empty">No hay capacitaciones registradas.</div>';
 }
 
-function guardarCapacitacion(){
-  const titulo=document.getElementById('c-titulo').value.trim();
-  const fecha =document.getElementById('c-fecha').value;
-  if(!titulo||!fecha){ setMsg('c-msg','Completá título y fecha.','err'); return; }
-  const editIdx = document.getElementById('c-edit-idx').value;
-  const nuevo = { titulo, fecha, modalidad:document.getElementById('c-modalidad').value,
-    desc:document.getElementById('c-desc').value.trim(), area:document.getElementById('c-area').value.trim() };
-  if(editIdx !== '') { CAPS[parseInt(editIdx)] = nuevo; setMsg('c-msg','✅ Capacitación actualizada.','ok'); }
-  else { CAPS.push(nuevo); CAPS.sort((a,b)=>a.fecha.localeCompare(b.fecha)); setMsg('c-msg','✅ Capacitación guardada.','ok'); }
-  setTimeout(()=>{ cerrarModal('modal-capacitacion'); renderCaps(); limpiar(['c-titulo','c-fecha','c-desc','c-area']); document.getElementById('c-edit-idx').value=''; document.querySelector('#modal-capacitacion .modal-title').textContent='Nueva capacitación'; setMsg('c-msg','',''); },1100);
-}
+
 
 function editarCap(idx) {
   const c = CAPS[idx];
-  document.getElementById('c-titulo').value    = c.titulo;
-  document.getElementById('c-fecha').value     = c.fecha;
-  document.getElementById('c-modalidad').value = c.modalidad||'presencial';
-  document.getElementById('c-desc').value      = c.desc||'';
-  document.getElementById('c-area').value      = c.area||'';
-  document.getElementById('c-edit-idx').value  = idx;
+  document.getElementById('c-titulo').value       = c.titulo;
+  document.getElementById('c-fecha').value        = c.fecha;
+  document.getElementById('c-modalidad').value    = c.modalidad||'presencial';
+  document.getElementById('c-hora-inicio').value  = c.horaInicio||'';
+  document.getElementById('c-hora-fin').value     = c.horaFin||'';
+  document.getElementById('c-lugar').value        = c.lugar||'';
+  document.getElementById('c-desc').value         = c.desc||'';
+  document.getElementById('c-area').value         = c.area||'';
+  document.getElementById('c-edit-idx').value     = idx;
   document.querySelector('#modal-capacitacion .modal-title').textContent = 'Editar capacitación';
   abrirModal('modal-capacitacion');
 }
