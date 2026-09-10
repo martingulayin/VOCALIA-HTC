@@ -833,6 +833,13 @@ table td, table th { font-size:.88rem !important; }
   text-transform:uppercase !important;
 }
 
+@media(max-width:768px){
+  #portada-hero{grid-template-columns:1fr !important;padding:.9rem 1rem !important;gap:.8rem !important;}
+  #portada-stats{flex-direction:row !important;flex-wrap:wrap !important;justify-content:space-around !important;padding:.7rem .8rem !important;}
+  #portada-stats > div{min-width:70px;}
+  #portada-stats .sep-v{display:none !important;}
+  .inicio-body{padding:.9rem 1rem !important;}
+}
 /* ══ ACCESOS DIRECTOS INICIO ══ */
 .acceso-directo-btn{
   display:inline-flex;align-items:center;gap:.6rem;
@@ -972,68 +979,92 @@ table td, table th { font-size:.88rem !important; }
 
 <!-- ══ INICIO ══ -->
 <div id="panel-inicio" class="tab-panel active">
-  <div class="inicio-body" style="padding:1.4rem 2rem;">
 
-    <!-- Accesos rápidos — 2 columnas -->
-    <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.2rem;margin-bottom:1.2rem;">
-      <div class="section-label" style="margin-bottom:.8rem;">Accesos rápidos</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;">
-
-        <div class="acceso-card c-mensajes" onclick="switchTab('mensajes')" style="position:relative;padding:1rem;display:flex;align-items:center;gap:.9rem;">
-          <span id="badge-inicio-msg" style="position:absolute;top:.5rem;right:.5rem;font-size:.58rem;font-weight:700;background:#C0392B;color:#fff;border-radius:10px;padding:.12rem .42rem;">3</span>
-          <div style="font-size:1.6rem;">📣</div>
-          <div><div class="acceso-title">Mensajes</div><div class="acceso-desc">Comunicados del área</div></div>
-        </div>
-
-        <div class="acceso-card c-novedades" onclick="switchTab('novedades')" style="padding:1rem;display:flex;align-items:center;gap:.9rem;">
-          <div style="font-size:1.6rem;">📰</div>
-          <div><div class="acceso-title">Novedades</div><div class="acceso-desc">Avisos institucionales</div></div>
-        </div>
-
-        <div class="acceso-card c-documentos" onclick="switchTab('documentos')" style="padding:1rem;display:flex;align-items:center;gap:.9rem;">
-          <div style="font-size:1.6rem;">📚</div>
-          <div><div class="acceso-title">Biblioteca</div><div class="acceso-desc">Documentos y normativa</div></div>
-        </div>
-
-        <div class="acceso-card c-herramientas" onclick="switchTab('herramientas')" style="padding:1rem;display:flex;align-items:center;gap:.9rem;">
-          <div style="font-size:1.6rem;">🛠️</div>
-          <div><div class="acceso-title">Herramientas Digitales</div><div class="acceso-desc">Links y recursos digitales</div></div>
-        </div>
-
-        <div class="acceso-card c-delegaciones" onclick="switchTab('delegaciones')" style="padding:1rem;display:flex;align-items:center;gap:.9rem;">
-          <div style="font-size:1.6rem;">📍</div>
-          <div><div class="acceso-title">Delegaciones y Sede Central</div><div class="acceso-desc">Zonales y Relatorías</div></div>
-        </div>
-
-        <div class="acceso-card c-capacitaciones" onclick="switchTab('capacitaciones')" style="padding:1rem;display:flex;align-items:center;gap:.9rem;">
-          <div style="font-size:1.6rem;">🎓</div>
-          <div><div class="acceso-title">Capacitaciones</div><div class="acceso-desc">Cursos y material</div></div>
-        </div>
-
-        <div class="acceso-card c-cronograma" onclick="switchTab('cronograma')" style="position:relative;padding:1rem;display:flex;align-items:center;gap:.9rem;">
-          <span style="position:absolute;top:.5rem;right:.5rem;font-size:.58rem;font-weight:700;background:var(--gold);color:#0F2340;border-radius:10px;padding:.12rem .42rem;" id="badge-inicio-cron">4</span>
-          <div style="font-size:1.6rem;">📅</div>
-          <div><div class="acceso-title">Cronograma</div><div class="acceso-desc">Eventos este mes</div></div>
-        </div>
-
-        <div class="acceso-card c-vocalia" onclick="switchTab('vocalia')" style="padding:1rem;display:flex;align-items:center;gap:.9rem;">
-          <div style="font-size:1.6rem;">🏛️</div>
-          <div><div class="acceso-title">La Vocalía</div><div class="acceso-desc">Info institucional</div></div>
-        </div>
-
+  <!-- ══ HERO DIVIDIDO ══ -->
+  <div style="background:var(--navy);display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;padding:1.4rem 1.8rem;align-items:center;" id="portada-hero">
+    <!-- Izquierda -->
+    <div>
+      <div style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#4A6A8A;margin-bottom:.5rem;">Portal interno · 2026</div>
+      <div style="font-size:1.6rem;font-weight:900;color:#fff;line-height:1.05;margin-bottom:.5rem;">Vocalía <span style="color:var(--gold);">Municipalidades "B"</span></div>
+      <div style="font-size:.72rem;color:#2A3A4A;margin-bottom:.8rem;">H. Tribunal de Cuentas · Prov. de Buenos Aires</div>
+      <div style="font-size:.68rem;font-style:italic;color:#2D4A6A;border-left:2px solid var(--gold);padding-left:.6rem;line-height:1.6;">Control externo de las cuentas municipales · 10 delegaciones zonales · Sede Central La Plata</div>
+    </div>
+    <!-- Derecha: accesos rápidos -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
+      <div onclick="switchTab('mensajes')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:7px;padding:.65rem .6rem;cursor:pointer;position:relative;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+        <span id="badge-inicio-msg" style="position:absolute;top:.4rem;right:.4rem;font-size:.52rem;font-weight:700;background:#C0392B;color:#fff;border-radius:8px;padding:.08rem .28rem;">3</span>
+        <div style="font-size:1.1rem;margin-bottom:.2rem;">📣</div>
+        <div style="font-size:.72rem;font-weight:700;color:#fff;">Mensajes</div>
+        <div style="font-size:.58rem;color:#4A6A8A;margin-top:.1rem;">Comunicados</div>
+      </div>
+      <div onclick="switchTab('novedades')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:7px;padding:.65rem .6rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+        <div style="font-size:1.1rem;margin-bottom:.2rem;">📰</div>
+        <div style="font-size:.72rem;font-weight:700;color:#fff;">Novedades</div>
+        <div style="font-size:.58rem;color:#4A6A8A;margin-top:.1rem;">Avisos</div>
+      </div>
+      <div onclick="switchTab('documentos')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:7px;padding:.65rem .6rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+        <div style="font-size:1.1rem;margin-bottom:.2rem;">📚</div>
+        <div style="font-size:.72rem;font-weight:700;color:#fff;">Biblioteca</div>
+        <div style="font-size:.58rem;color:#4A6A8A;margin-top:.1rem;">Docs y normativa</div>
+      </div>
+      <div onclick="switchTab('herramientas')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:7px;padding:.65rem .6rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+        <div style="font-size:1.1rem;margin-bottom:.2rem;">🛠️</div>
+        <div style="font-size:.72rem;font-weight:700;color:#fff;">Herramientas</div>
+        <div style="font-size:.58rem;color:#4A6A8A;margin-top:.1rem;">Links digitales</div>
+      </div>
+      <div onclick="switchTab('delegaciones')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:7px;padding:.65rem .6rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+        <div style="font-size:1.1rem;margin-bottom:.2rem;">📍</div>
+        <div style="font-size:.72rem;font-weight:700;color:#fff;">Delegaciones</div>
+        <div style="font-size:.58rem;color:#4A6A8A;margin-top:.1rem;">Zonales y Sede</div>
+      </div>
+      <div onclick="switchTab('cronograma')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:7px;padding:.65rem .6rem;cursor:pointer;position:relative;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+        <span id="badge-inicio-cron" style="position:absolute;top:.4rem;right:.4rem;font-size:.52rem;font-weight:700;background:var(--gold);color:#0F2340;border-radius:8px;padding:.08rem .28rem;">4</span>
+        <div style="font-size:1.1rem;margin-bottom:.2rem;">📅</div>
+        <div style="font-size:.72rem;font-weight:700;color:#fff;">Cronograma</div>
+        <div style="font-size:.58rem;color:#4A6A8A;margin-top:.1rem;">Eventos del mes</div>
       </div>
     </div>
+  </div>
 
-    <!-- Separador -->
+  <!-- ══ BARRA DE ESTADÍSTICAS ══ -->
+  <div id="portada-stats" style="background:#0A1929;border-top:1px solid rgba(74,158,224,.12);border-bottom:1px solid rgba(74,158,224,.12);padding:.9rem 1.8rem;display:flex;justify-content:space-around;flex-wrap:wrap;gap:.5rem 1rem;">
+    <div style="text-align:center;">
+      <div style="font-size:1.8rem;font-weight:900;color:var(--gold);line-height:1;">100</div>
+      <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4A6A8A;margin-top:.2rem;">Estudios a cargo</div>
+      <div style="font-size:.5rem;color:#2A3A4A;margin-top:.1rem;">66 mun · 23 entes · 11 SAPEM</div>
+    </div>
+    <div class="sep-v" style="width:1px;background:rgba(255,255,255,.06);margin:.2rem 0;"></div>
+    <div style="text-align:center;">
+      <div style="font-size:1.8rem;font-weight:900;color:var(--gold);line-height:1;">66</div>
+      <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4A6A8A;margin-top:.2rem;">Municipios</div>
+    </div>
+    <div class="sep-v" style="width:1px;background:rgba(255,255,255,.06);margin:.2rem 0;"></div>
+    <div style="text-align:center;">
+      <div style="font-size:1.8rem;font-weight:900;color:var(--gold);line-height:1;">23</div>
+      <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4A6A8A;margin-top:.2rem;">Entes</div>
+    </div>
+    <div class="sep-v" style="width:1px;background:rgba(255,255,255,.06);margin:.2rem 0;"></div>
+    <div style="text-align:center;">
+      <div style="font-size:1.8rem;font-weight:900;color:var(--gold);line-height:1;">11</div>
+      <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4A6A8A;margin-top:.2rem;">SAPEM</div>
+    </div>
+    <div class="sep-v" style="width:1px;background:rgba(255,255,255,.06);margin:.2rem 0;"></div>
+    <div style="text-align:center;">
+      <div style="font-size:1.8rem;font-weight:900;color:var(--gold);line-height:1;">10</div>
+      <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4A6A8A;margin-top:.2rem;">Delegaciones</div>
+    </div>
+  </div>
+
+  <!-- ══ ACTIVIDAD RECIENTE + ACCESOS ══ -->
+  <div class="inicio-body" style="padding:1.2rem 1.8rem;">
+
+    <!-- Separador actividad -->
     <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem;">
-      <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap;">Actividad reciente</div>
-      <div style="flex:1;height:1px;background:var(--border);"></div>
+      <div class="section-label" style="margin-bottom:0;">Actividad reciente</div>
     </div>
 
     <!-- 3 widgets -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.9rem;">
-
-      <!-- Últimos mensajes -->
       <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;">
         <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;display:flex;align-items:center;justify-content:space-between;">
           Últimos mensajes
@@ -1041,8 +1072,6 @@ table td, table th { font-size:.88rem !important; }
         </div>
         <div id="widget-mensajes"></div>
       </div>
-
-      <!-- Próximos eventos -->
       <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;">
         <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;display:flex;align-items:center;justify-content:space-between;">
           Próximos eventos
@@ -1050,8 +1079,6 @@ table td, table th { font-size:.88rem !important; }
         </div>
         <div id="widget-eventos"></div>
       </div>
-
-      <!-- Novedades recientes -->
       <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;">
         <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;display:flex;align-items:center;justify-content:space-between;">
           Novedades recientes
@@ -1059,14 +1086,12 @@ table td, table th { font-size:.88rem !important; }
         </div>
         <div id="widget-novedades"></div>
       </div>
-
     </div>
 
     <!-- Accesos directos HTC -->
     <div style="margin-top:1.1rem;">
       <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.8rem;">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap;">Accesos directos</div>
-        <div style="flex:1;height:1px;background:var(--border);"></div>
+        <div class="section-label" style="margin-bottom:0;">Accesos directos</div>
       </div>
       <div style="display:flex;gap:.7rem;flex-wrap:wrap;">
         <a href="https://intranet.htc.gba.gov.ar/" target="_blank" class="acceso-directo-btn">
@@ -1095,6 +1120,8 @@ table td, table th { font-size:.88rem !important; }
   </div>
 </div>
 
+
+
 <!-- ══ LA VOCALÍA ══ -->
 <div id="panel-vocalia" class="tab-panel">
   <div class="inicio-hero">
@@ -1116,22 +1143,27 @@ table td, table th { font-size:.88rem !important; }
   <div class="seccion-wrap">
 
     <!-- Estadísticas -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:2rem;">
+      <div style="background:var(--navy);border-radius:8px;padding:1.2rem;text-align:center;border-bottom:3px solid var(--gold);">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">100</div>
+        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-top:.3rem;">Estudios a cargo</div>
+        <div style="font-size:.6rem;color:#2A3A4A;margin-top:.2rem;">66 mun · 23 entes · 11 SAPEM</div>
+      </div>
+      <div style="background:var(--navy);border-radius:8px;padding:1.2rem;text-align:center;border-bottom:3px solid var(--gold);">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">66</div>
+        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-top:.3rem;">Municipios</div>
+      </div>
+      <div style="background:var(--navy);border-radius:8px;padding:1.2rem;text-align:center;border-bottom:3px solid var(--gold);">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">23</div>
+        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-top:.3rem;">Entes descentralizados</div>
+      </div>
+      <div style="background:var(--navy);border-radius:8px;padding:1.2rem;text-align:center;border-bottom:3px solid var(--gold);">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">11</div>
+        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-top:.3rem;">SAPEM</div>
+      </div>
       <div style="background:var(--navy);border-radius:8px;padding:1.2rem;text-align:center;border-bottom:3px solid var(--gold);">
         <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">10</div>
         <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-top:.3rem;">Delegaciones zonales</div>
-      </div>
-      <div style="background:var(--navy);border-radius:8px;padding:1.2rem;text-align:center;border-bottom:3px solid var(--gold);">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">135</div>
-        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-top:.3rem;">Municipios (A y B)</div>
-      </div>
-      <div style="background:var(--navy);border-radius:8px;padding:1.2rem;text-align:center;border-bottom:3px solid var(--gold);">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">5</div>
-        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-top:.3rem;">Jornadas técnicas 2025</div>
-      </div>
-      <div style="background:var(--navy);border-radius:8px;padding:1.2rem;text-align:center;border-bottom:3px solid var(--gold);">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">1935</div>
-        <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-top:.3rem;">Año de creación HTC</div>
       </div>
     </div>
 
