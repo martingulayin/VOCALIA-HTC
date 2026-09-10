@@ -3513,7 +3513,7 @@ function renderLecturas(m) {
   ).join('');
   const resto = n > 4 ? `<div class="lectura-avatar" style="background:rgba(74,158,224,.15);">+${n-4}</div>` : '';
   return `
-    <div class="lectura-bar" onclick="marcarLeido(${m.id})" style="cursor:${yoLeyo?'default':'pointer'};" title="${yoLeyo?'Ya leíste este mensaje':'Click para marcar como leído'}">
+    <div class="lectura-bar" onclick="marcarLeido('${m.id}')" style="cursor:${yoLeyo?'default':'pointer'};" title="${yoLeyo?'Ya leíste este mensaje':'Click para marcar como leído'}">
       <span>👁</span>
       <div class="lectura-avatares">${avatares}${resto}</div>
       <span class="lectura-texto">Visto por <b>${n}</b> de <b>${total}</b></span>
