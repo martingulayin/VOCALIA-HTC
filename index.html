@@ -2519,7 +2519,7 @@ async function doLogin() {
   aplicarPermisos();
   await logAct('login', 'acceso', `Ingresó al portal`);
   await iniciarBanner();
-cargarTodosLosDatos();
+  cargarTodosLosDatos();
 }
 
 // Enter en los campos + verificar sesión activa al cargar
@@ -4637,8 +4637,6 @@ async function eliminarHerramienta(idx) {
 const DELEG_DOCS = {};
 const DELEG_ACT  = {};
 let delegActual = null;
-const DELEG_DOCS = {};
-const DELEG_ACT  = {};
 
 const TIPO_DOC_DELEG = { circular:'📋 Circular', informe:'📄 Informe', planilla:'📊 Planilla', acta:'📝 Acta', otro:'📎 Otro' };
 const TIPO_ACT_DELEG = { reunion:'🟢 Reunión', visita:'🔵 Visita', capacitacion:'🟣 Capacitación', otro:'⚪ Otro' };
