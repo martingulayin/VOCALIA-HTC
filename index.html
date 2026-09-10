@@ -1554,7 +1554,7 @@ table td, table th { font-size:.88rem !important; }
     <div id="cpanel-material" style="display:none;">
       <div class="seccion-header" style="margin-top:1.2rem;">
         <div class="seccion-title">Material de capacitaciones</div>
-        <button class="btn-accion" onclick="abrirModal('modal-material')">+ Cargar material</button>
+        <button class="btn-accion" onclick="poblarFiltroMat();abrirModal('modal-material')">+ Cargar material</button>
       </div>
 
       <!-- Filtro por capacitación -->
@@ -2208,14 +2208,10 @@ table td, table th { font-size:.88rem !important; }
     </div>
     <div class="modal-body">
       <div class="form-field">
-        <label>Capacitación a la que pertenece</label>
+        <label>Capacitación</label>
         <select id="mat-cap-ref">
           <option value="">— Seleccioná una capacitación —</option>
         </select>
-      </div>
-      <div class="form-field">
-        <label>O ingresá el nombre de la capacitación manualmente</label>
-        <input type="text" id="mat-cap-nombre" placeholder="Ej: Jornada LOM — septiembre 2026">
       </div>
       <div class="form-field">
         <label>Título del material</label>
@@ -2233,11 +2229,11 @@ table td, table th { font-size:.88rem !important; }
         </select>
       </div>
       <div class="form-field">
-        <label>Descripción (opcional)</label>
+        <label>Descripción <span style="font-weight:400;color:var(--muted);">(opcional)</span></label>
         <textarea id="mat-desc" rows="2" placeholder="Breve descripción del material…"></textarea>
       </div>
       <div class="form-field">
-        <label>Link externo (Drive, OneDrive, etc.)</label>
+        <label>Link externo <span style="font-weight:400;color:var(--muted);">(Drive, OneDrive, etc.)</span></label>
         <input type="url" id="mat-link" placeholder="https://…">
       </div>
       <div class="form-msg" id="mat-msg"></div>
@@ -3362,20 +3358,19 @@ guardarMaterial = async function() {
   const link   = document.getElementById('mat-link').value.trim();
   const tipo   = document.getElementById('mat-tipo').value;
   const desc   = document.getElementById('mat-desc').value.trim();
+  const capId = document.getElementById('mat-cap-ref')?.value || '';
   if(!titulo){ setMsg('mat-msg','Completá el título.','err'); return; }
-  const capRef   = document.getElementById('mat-cap-ref')?.value || '';
-  const capNombre= document.getElementById('mat-cap-nombre')?.value.trim() || '';
-  const capId    = capRef || capNombre || 'general';
+  if(!capId){ setMsg('mat-msg','Seleccioná una capacitación.','err'); return; }
   const yo = getUserName();
   const { data, error } = await sb.from('material_capacitaciones').insert({
-    titulo, link, tipo, descripcion: desc, cap: capId,
+    titulo, link, tipo, descripcion: desc, cap: capId, cap_id: capId,
     autor_id: usuarioActual?.id, autor_nombre: yo,
   }).select().single();
   if(error){ setMsg('mat-msg','❌ Error al guardar: ' + error.message,'err'); return; }
   MATERIAL.push({ id: data.id, titulo, link, tipo, desc, cap: capId });
   await logAct('crear','material',`Material "${titulo}" agregado`);
   setMsg('mat-msg','✅ Material cargado.','ok');
-  setTimeout(()=>{ cerrarModal('modal-material'); renderMaterial(); poblarFiltroMat(); limpiar(['mat-titulo','mat-link','mat-desc']); setMsg('mat-msg','',''); },1000);
+  setTimeout(()=>{ cerrarModal('modal-material'); poblarFiltroMat(); renderMaterial(); limpiar(['mat-titulo','mat-link','mat-desc']); document.getElementById('mat-cap-ref').value=''; setMsg('mat-msg','',''); },1000);
 };
 
 eliminarMaterial = async function(id) {
@@ -3393,9 +3388,9 @@ cargarMaterial = async function() {
   if(error || !data) return;
   MATERIAL = data.map(m => ({
     id: m.id, titulo: m.titulo, tipo: m.tipo,
-    desc: m.descripcion, link: m.link, cap: m.cap,
+    desc: m.descripcion, link: m.link, cap: m.cap_id || m.cap,
   }));
-  renderMaterial(); poblarFiltroMat();
+  poblarFiltroMat(); renderMaterial();
 };
 
 // ══ FIN SUPABASE OVERRIDES ══════════════════════════════════════════════
@@ -4670,16 +4665,18 @@ function switchCapTab(tab) {
 }
 
 function poblarFiltroMat() {
-  const caps = [...new Set(MATERIAL.map(m => m.cap))];
-  const sel  = document.getElementById('mat-filtro');
+  // Filtro: todas las capacitaciones de CAPS
+  const sel = document.getElementById('mat-filtro');
   const curr = sel.value;
   sel.innerHTML = '<option value="">Todas</option>' +
-    caps.map(c => `<option value="${c}"${c===curr?' selected':''}>${c}</option>`).join('');
-  // También poblar el select del modal
+    CAPS.map(c => `<option value="${c.id}"${c.id===curr?' selected':''}>${c.titulo} — ${formatFechaCorta(c.fecha)}</option>`).join('');
+
+  // Select del modal: poblar con CAPS
   const ref = document.getElementById('mat-cap-ref');
-  ref.innerHTML = '<option value="">— Seleccioná una capacitación —</option>' +
-    caps.map(c => `<option value="${c}">${c}</option>`).join('') +
-    CAPS.map(c => `<option value="${c.titulo} — ${formatFechaCorta(c.fecha)}">${c.titulo} — ${formatFechaCorta(c.fecha)}</option>`).join('');
+  if(ref) {
+    ref.innerHTML = '<option value="">— Seleccioná una capacitación —</option>' +
+      CAPS.map(c => `<option value="${c.id}">${c.titulo} — ${formatFechaCorta(c.fecha)}</option>`).join('');
+  }
 }
 
 function formatFechaCorta(str) {
@@ -4692,13 +4689,18 @@ function renderMaterial() {
   const datos  = filtro ? MATERIAL.filter(m => m.cap === filtro) : MATERIAL;
   const cont   = document.getElementById('mat-lista');
   if(!datos.length) { cont.innerHTML = '<div class="mat-empty">No hay material cargado aún.</div>'; return; }
-  // Agrupar por capacitación
+  // Agrupar por cap_id
   const grupos = {};
   datos.forEach(m => { if(!grupos[m.cap]) grupos[m.cap]=[]; grupos[m.cap].push(m); });
-  cont.innerHTML = Object.entries(grupos).map(([cap, items]) => `
+  // Obtener nombre real de la capacitación
+  function getNombreCap(capId) {
+    const c = CAPS.find(x => x.id === capId);
+    return c ? `${c.titulo} — ${formatFechaCorta(c.fecha)}` : capId;
+  }
+  cont.innerHTML = Object.entries(grupos).map(([capId, items]) => `
     <div class="mat-grupo">
       <div class="mat-grupo-header">
-        <div class="mat-grupo-titulo">🎓 ${cap}</div>
+        <div class="mat-grupo-titulo">🎓 ${getNombreCap(capId)}</div>
         <div class="mat-grupo-fecha">${items.length} archivo${items.length===1?'':'s'}</div>
       </div>
       <div class="mat-grupo-items">
@@ -4711,7 +4713,7 @@ function renderMaterial() {
             </div>
             <span class="mat-item-badge mat-badge-${m.tipo}">${TIPO_MAT_LABEL[m.tipo]||'Otro'}</span>
             ${m.link?`<a href="${m.link}" target="_blank" class="mat-item-link">↗ Abrir</a>`:''}
-            <button class="mat-item-del" onclick="eliminarMaterial(${m.id})" title="Eliminar">🗑</button>
+            <button class="mat-item-del" onclick="eliminarMaterial('${m.id}')" title="Eliminar">🗑</button>
           </div>`).join('')}
       </div>
     </div>`).join('');
