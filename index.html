@@ -3016,7 +3016,7 @@ async function cargarNormativaDB() {
 async function cargarCapacitacionesDB() {
   const { data, error } = await sb.from('capacitaciones').select('*').order('fecha', { ascending: false });
   if(error || !data || !data.length) return;
-  CAPS = data.map(c => ({ id:c.id, titulo:c.titulo, fecha:c.fecha, modalidad:c.modalidad, desc:c.descripcion, area:c.area }));
+  CAPS = data.map(c => ({ id:c.id, titulo:c.titulo, fecha:c.fecha, modalidad:c.modalidad, desc:c.descripcion, area:c.area, horaInicio:c.hora_inicio, horaFin:c.hora_fin, lugar:c.lugar }));
   if(typeof renderCaps === 'function') renderCaps();
 }
 
@@ -3307,7 +3307,11 @@ guardarCapacitacion = async function() {
   if(SUPABASE_LISTO) {
     if(editIdx !== '') {
       const c = CAPS[parseInt(editIdx)];
-      await sb.from('capacitaciones').update({ titulo, fecha, modalidad, descripcion: desc, area }).eq('id', c.id);
+      const { error: updErr } = await sb.from('capacitaciones').update({
+        titulo, fecha, modalidad, descripcion: desc, area,
+        hora_inicio: horaInicio, hora_fin: horaFin, lugar
+      }).eq('id', c.id);
+      if(updErr){ setMsg('c-msg','❌ Error al actualizar: ' + updErr.message,'err'); return; }
       CAPS[parseInt(editIdx)] = { ...c, titulo, fecha, modalidad, desc, area, horaInicio, horaFin, lugar };
     } else {
       const { data } = await sb.from('capacitaciones').insert({
