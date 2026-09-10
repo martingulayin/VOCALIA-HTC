@@ -3096,7 +3096,7 @@ async function cargarSedeAct() {
   Object.keys(SEDE_ACT).forEach(k => SEDE_ACT[k] = []);
   data.forEach(a => {
     if(!SEDE_ACT[a.relatoria]) SEDE_ACT[a.relatoria] = [];
-    SEDE_ACT[a.relatoria].push({ id:a.id, fecha:a.fecha, desc:a.descripcion, tipo:a.tipo });
+    SEDE_ACT[a.relatoria].push({ id:a.id, fecha:a.fecha, desc:a.descripcion, tipo:a.tipo, eventoId:a.evento_id||null });
   });
   if(sedeActual) renderActividadSedeR();
 }
@@ -3118,7 +3118,7 @@ async function cargarDelegAct() {
   if(error || !data) return;
   data.forEach(a => {
     if(!DELEG_ACT[a.delegacion_nro]) DELEG_ACT[a.delegacion_nro] = [];
-    DELEG_ACT[a.delegacion_nro].push({ id:a.id, fecha:a.fecha, desc:a.descripcion, tipo:a.tipo, municipio:a.municipio });
+    DELEG_ACT[a.delegacion_nro].push({ id:a.id, fecha:a.fecha, desc:a.descripcion, tipo:a.tipo, municipio:a.municipio, eventoId:a.evento_id||null });
   });
   if(delegActual) renderActividadDeleg();
 }
@@ -3133,7 +3133,7 @@ async function cargarNormativaDB() {
 async function cargarCapacitacionesDB() {
   const { data, error } = await sb.from('capacitaciones').select('*').order('fecha', { ascending: false });
   if(error || !data || !data.length) return;
-  CAPS = data.map(c => ({ id:c.id, titulo:c.titulo, fecha:c.fecha, modalidad:c.modalidad, desc:c.descripcion, area:c.area, horaInicio:c.hora_inicio, horaFin:c.hora_fin, lugar:c.lugar }));
+  CAPS = data.map(c => ({ id:c.id, titulo:c.titulo, fecha:c.fecha, modalidad:c.modalidad, desc:c.descripcion, area:c.area, horaInicio:c.hora_inicio, horaFin:c.hora_fin, lugar:c.lugar, eventoId:c.evento_id||null }));
   if(typeof renderCaps === 'function') renderCaps();
 }
 
@@ -3317,7 +3317,14 @@ guardarActividadSede = async function() {
         id: ev.id, asunto: ev.asunto, tipo: ev.tipo, fecha: ev.fecha,
         hora_inicio: ev.hora_inicio, hora_fin: ev.hora_fin,
         municipio: ev.municipio, quien: ev.quien, notas: ev.notas,
+        origen_tabla: 'sede_actividad', origen_id: data?.id,
       });
+      // Guardar evento_id en sede_actividad
+      if(data?.id) {
+        await sb.from('sede_actividad').update({ evento_id: ev.id }).eq('id', data.id);
+        const actIdx = (SEDE_ACT[sedeActual]||[]).findIndex(a => a.id === data.id);
+        if(actIdx >= 0) SEDE_ACT[sedeActual][actIdx].eventoId = ev.id;
+      }
       renderCalendario();
     }
     await logAct('crear','sede_actividad',`Relatoría ${sedeActual}: ${desc}`);
@@ -3338,7 +3345,14 @@ eliminarDocSede = async function(idx) {
 eliminarActSede = async function(idx) {
   if(!confirm('¿Eliminás?')) return;
   const act = SEDE_ACT[sedeActual][idx];
-  if(SUPABASE_LISTO && act.id) await sb.from('sede_actividad').delete().eq('id', act.id);
+  if(SUPABASE_LISTO && act.id) {
+    await sb.from('sede_actividad').delete().eq('id', act.id);
+    if(act.eventoId) {
+      await sb.from('eventos').delete().eq('id', act.eventoId);
+      const evIdx = REUNIONES.findIndex(r => r.id === act.eventoId);
+      if(evIdx >= 0) { REUNIONES.splice(evIdx, 1); renderCalendario(); }
+    }
+  }
   SEDE_ACT[sedeActual].splice(idx,1); renderActividadSedeR();
 };
 
@@ -3399,6 +3413,16 @@ eliminarDocDeleg = async function(idx) {
   DELEG_DOCS[delegActual].splice(idx,1); renderDocsDeleg();
 };
 
+async function sincronizarEvento(eventoId, cambios) {
+  if(!eventoId || !SUPABASE_LISTO) return;
+  await sb.from('eventos').update(cambios).eq('id', eventoId);
+  const evIdx = REUNIONES.findIndex(r => r.id === eventoId);
+  if(evIdx >= 0) {
+    REUNIONES[evIdx] = { ...REUNIONES[evIdx], ...cambios };
+    renderCalendario();
+  }
+}
+
 guardarActividadDeleg = async function() {
   const desc       = document.getElementById('da-desc').value.trim();
   const fecha      = document.getElementById('da-fecha').value;
@@ -3437,7 +3461,14 @@ guardarActividadDeleg = async function() {
         id: ev.id, asunto: ev.asunto, tipo: ev.tipo, fecha: ev.fecha,
         hora_inicio: ev.hora_inicio, hora_fin: ev.hora_fin,
         municipio: ev.municipio, quien: ev.quien, notas: ev.notas,
+        origen_tabla: 'delegacion_actividad', origen_id: data?.id,
       });
+      // Guardar evento_id en delegacion_actividad
+      if(data?.id) {
+        await sb.from('delegacion_actividad').update({ evento_id: ev.id }).eq('id', data.id);
+        const actIdx = (DELEG_ACT[delegActual]||[]).findIndex(a => a.id === data.id);
+        if(actIdx >= 0) DELEG_ACT[delegActual][actIdx].eventoId = ev.id;
+      }
       renderCalendario();
     }
     await logAct('crear','delegacion_actividad',`Delegación ${delegActual}: ${desc}`);
@@ -3455,7 +3486,14 @@ guardarActividadDeleg = async function() {
 eliminarActDeleg = async function(idx) {
   if(!confirm('¿Eliminás?')) return;
   const act = DELEG_ACT[delegActual][idx];
-  if(SUPABASE_LISTO && act.id) await sb.from('delegacion_actividad').delete().eq('id', act.id);
+  if(SUPABASE_LISTO && act.id) {
+    await sb.from('delegacion_actividad').delete().eq('id', act.id);
+    if(act.eventoId) {
+      await sb.from('eventos').delete().eq('id', act.eventoId);
+      const evIdx = REUNIONES.findIndex(r => r.id === act.eventoId);
+      if(evIdx >= 0) { REUNIONES.splice(evIdx, 1); renderCalendario(); }
+    }
+  }
   DELEG_ACT[delegActual].splice(idx,1); renderActividadDeleg();
 };
 
@@ -3535,6 +3573,17 @@ guardarCapacitacion = async function() {
       }).eq('id', c.id);
       if(updErr){ setMsg('c-msg','❌ Error al actualizar: ' + updErr.message,'err'); return; }
       CAPS[parseInt(editIdx)] = { ...c, titulo, fecha, modalidad, desc, area, horaInicio, horaFin, lugar };
+      // Sincronizar evento en cronograma
+      if(c.eventoId) {
+        await sb.from('eventos').update({
+          asunto: titulo, fecha,
+          hora_inicio: horaInicio, hora_fin: horaFin, municipio: lugar,
+          quien: area || 'Personal de la Vocalía',
+        }).eq('id', c.eventoId);
+        const evIdx = REUNIONES.findIndex(r => r.id === c.eventoId);
+        if(evIdx >= 0) REUNIONES[evIdx] = { ...REUNIONES[evIdx], asunto: titulo, fecha, hora_inicio: horaInicio, hora_fin: horaFin };
+        renderCalendario();
+      }
     } else {
       const { data } = await sb.from('capacitaciones').insert({
         titulo, fecha, modalidad, descripcion: desc, area
@@ -3560,7 +3609,12 @@ guardarCapacitacion = async function() {
             id: ev.id, asunto: ev.asunto, tipo: ev.tipo, fecha: ev.fecha,
             hora_inicio: ev.hora_inicio, hora_fin: ev.hora_fin,
             municipio: ev.municipio, quien: ev.quien, notas: ev.notas,
+            origen_tabla: 'capacitaciones', origen_id: data.id,
           });
+          // Guardar evento_id en capacitaciones
+          await sb.from('capacitaciones').update({ evento_id: ev.id }).eq('id', data.id);
+          const capIdx = CAPS.findIndex(c => c.id === data.id);
+          if(capIdx >= 0) CAPS[capIdx].eventoId = ev.id;
           renderCalendario();
         }
       }
@@ -3576,7 +3630,15 @@ guardarCapacitacion = async function() {
 
 eliminarCap = async function(idx) {
   if(!confirm(`¿Eliminás "${CAPS[idx].titulo}"?`)) return;
-  if(SUPABASE_LISTO && CAPS[idx].id) await sb.from('capacitaciones').delete().eq('id', CAPS[idx].id);
+  const cap = CAPS[idx];
+  if(SUPABASE_LISTO && cap.id) {
+    await sb.from('capacitaciones').delete().eq('id', cap.id);
+    if(cap.eventoId) {
+      await sb.from('eventos').delete().eq('id', cap.eventoId);
+      const evIdx = REUNIONES.findIndex(r => r.id === cap.eventoId);
+      if(evIdx >= 0) { REUNIONES.splice(evIdx, 1); renderCalendario(); }
+    }
+  }
   CAPS.splice(idx,1); renderCaps();
 };
 
