@@ -3068,8 +3068,59 @@ async function cargarTodosLosDatos() {
     cargarNormativaDB(),
     cargarCapacitacionesDB(),
     cargarMaterial(),
+    cargarSedeDocs(),
+    cargarSedeAct(),
+    cargarDelegDocs(),
+    cargarDelegAct(),
   ]);
   renderWidgetsInicio();
+}
+
+async function cargarSedeDocs() {
+  if(!SUPABASE_LISTO) return;
+  const { data, error } = await sb.from('sede_docs').select('*').order('created_at', { ascending: false });
+  if(error || !data) return;
+  // Resetear
+  Object.keys(SEDE_DOCS).forEach(k => SEDE_DOCS[k] = []);
+  data.forEach(d => {
+    if(!SEDE_DOCS[d.relatoria]) SEDE_DOCS[d.relatoria] = [];
+    SEDE_DOCS[d.relatoria].push({ id:d.id, titulo:d.titulo, tipo:d.tipo, link:d.link, desc:d.descripcion, fecha: new Date(d.created_at).toLocaleDateString('es-AR') });
+  });
+  if(sedeActual) renderDocsSedeR();
+}
+
+async function cargarSedeAct() {
+  if(!SUPABASE_LISTO) return;
+  const { data, error } = await sb.from('sede_actividad').select('*').order('fecha', { ascending: false });
+  if(error || !data) return;
+  Object.keys(SEDE_ACT).forEach(k => SEDE_ACT[k] = []);
+  data.forEach(a => {
+    if(!SEDE_ACT[a.relatoria]) SEDE_ACT[a.relatoria] = [];
+    SEDE_ACT[a.relatoria].push({ id:a.id, fecha:a.fecha, desc:a.descripcion, tipo:a.tipo });
+  });
+  if(sedeActual) renderActividadSedeR();
+}
+
+async function cargarDelegDocs() {
+  if(!SUPABASE_LISTO) return;
+  const { data, error } = await sb.from('delegacion_docs').select('*').order('created_at', { ascending: false });
+  if(error || !data) return;
+  data.forEach(d => {
+    if(!DELEG_DOCS[d.delegacion_nro]) DELEG_DOCS[d.delegacion_nro] = [];
+    DELEG_DOCS[d.delegacion_nro].push({ id:d.id, titulo:d.titulo, tipo:d.tipo, link:d.link, desc:d.descripcion, fecha: new Date(d.created_at).toLocaleDateString('es-AR') });
+  });
+  if(delegActual) renderDocsDeleg();
+}
+
+async function cargarDelegAct() {
+  if(!SUPABASE_LISTO) return;
+  const { data, error } = await sb.from('delegacion_actividad').select('*').order('fecha', { ascending: false });
+  if(error || !data) return;
+  data.forEach(a => {
+    if(!DELEG_ACT[a.delegacion_nro]) DELEG_ACT[a.delegacion_nro] = [];
+    DELEG_ACT[a.delegacion_nro].push({ id:a.id, fecha:a.fecha, desc:a.descripcion, tipo:a.tipo, municipio:a.municipio });
+  });
+  if(delegActual) renderActividadDeleg();
 }
 
 async function cargarNormativaDB() {
@@ -4521,6 +4572,8 @@ async function eliminarHerramienta(idx) {
 }
 
 // ══ DELEGACIONES — REPOSITORIO ════════════════════════════════════════════
+const DELEG_DOCS = {};
+const DELEG_ACT  = {};
 let delegActual = null;
 const DELEG_DOCS = {};
 const DELEG_ACT  = {};
@@ -4611,26 +4664,7 @@ function abrirSubirDocDeleg() {
   abrirModal('modal-doc-deleg');
 }
 
-function guardarDocDeleg() {
-  const titulo = document.getElementById('dd-titulo').value.trim();
-  if(!titulo){ setMsg('dd-msg','Ingresá el título.','err'); return; }
-  DELEG_DOCS[delegActual].push({ id:Date.now(), titulo, tipo:document.getElementById('dd-tipo').value, link:document.getElementById('dd-link').value.trim(), desc:document.getElementById('dd-desc').value.trim(), fecha:hoy() });
-  setMsg('dd-msg','✅ Documento guardado.','ok');
-  setTimeout(()=>{ cerrarModal('modal-doc-deleg'); renderDocsDeleg(); limpiar(['dd-titulo','dd-link','dd-desc']); setMsg('dd-msg','',''); },1000);
-}
 
-function eliminarDocDeleg(idx){ if(!confirm('¿Eliminás?')) return; DELEG_DOCS[delegActual].splice(idx,1); renderDocsDeleg(); }
-
-function guardarActividadDeleg() {
-  const desc = document.getElementById('da-desc').value.trim();
-  const fecha = document.getElementById('da-fecha').value;
-  if(!desc||!fecha){ setMsg('da-msg','Completá fecha y descripción.','err'); return; }
-  DELEG_ACT[delegActual].unshift({ id:Date.now(), fecha, tipo:document.getElementById('da-tipo').value, desc, municipio:document.getElementById('da-municipio').value.trim() });
-  setMsg('da-msg','✅ Actividad registrada.','ok');
-  setTimeout(()=>{ cerrarModal('modal-actividad-deleg'); renderActividadDeleg(); limpiar(['da-fecha','da-desc','da-municipio']); setMsg('da-msg','',''); },1000);
-}
-
-function eliminarActDeleg(idx){ if(!confirm('¿Eliminás?')) return; DELEG_ACT[delegActual].splice(idx,1); renderActividadDeleg(); }
 
 // ══ PAPELES DE TRABAJO ═════════════════════════════════════════════════════
 let PAPELES = [];
