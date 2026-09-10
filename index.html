@@ -2060,7 +2060,11 @@ table td, table th { font-size:.88rem !important; }
           </select>
         </div>
       </div>
-      <div class="form-field"><label>Descripción</label><textarea id="sa-desc" rows="3" placeholder="Descripción de la actividad…"></textarea></div>
+      <div class="form-grid">
+        <div class="form-field"><label>Hora inicio <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><input type="time" id="sa-hora-inicio"></div>
+        <div class="form-field"><label>Hora fin <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><input type="time" id="sa-hora-fin"></div>
+      </div>
+      <div class="form-field"><label>Descripción</label><textarea id="sa-desc" rows="2" placeholder="Descripción de la actividad…"></textarea></div>
       <div class="form-msg" id="sa-msg"></div>
     </div>
     <div class="modal-footer">
@@ -3124,6 +3128,7 @@ async function cargarEventos() {
     id: e.id, asunto: e.asunto, tipo: e.tipo, fecha: e.fecha,
     hora_inicio: e.hora_inicio, hora_fin: e.hora_fin,
     municipio: e.municipio, quien: e.quien, notas: e.notas,
+    origen_tabla: e.origen_tabla || null, origen_id: e.origen_id || null,
   }));
   renderCalendario();
 }
@@ -3168,6 +3173,23 @@ guardarEdicion = async function() {
   };
   if(SUPABASE_LISTO && REUNIONES[eventoActivoIdx].id) {
     await sb.from('eventos').update(cambios).eq('id', REUNIONES[eventoActivoIdx].id);
+
+    // Sincronizar con tabla de origen si existe
+    const origen = REUNIONES[eventoActivoIdx].origen_tabla;
+    const origenId = REUNIONES[eventoActivoIdx].origen_id;
+    if(origen && origenId) {
+      const camposOrigen = { fecha: cambios.fecha, descripcion: cambios.asunto };
+      if(origen === 'capacitaciones') {
+        camposOrigen.titulo = cambios.asunto;
+        await sb.from('capacitaciones').update({ titulo: cambios.asunto, fecha: cambios.fecha }).eq('id', origenId);
+        const capIdx = CAPS.findIndex(c => c.id === origenId);
+        if(capIdx >= 0) CAPS[capIdx] = { ...CAPS[capIdx], titulo: cambios.asunto, fecha: cambios.fecha };
+      } else if(origen === 'delegacion_actividad') {
+        await sb.from('delegacion_actividad').update({ fecha: cambios.fecha, descripcion: cambios.notas||cambios.asunto }).eq('id', origenId);
+      } else if(origen === 'sede_actividad') {
+        await sb.from('sede_actividad').update({ fecha: cambios.fecha, descripcion: cambios.notas||cambios.asunto }).eq('id', origenId);
+      }
+    }
     await logAct('editar','evento',`Editó: ${asunto}`);
   }
   REUNIONES[eventoActivoIdx] = { ...REUNIONES[eventoActivoIdx], ...cambios };
@@ -3177,19 +3199,41 @@ guardarEdicion = async function() {
 
 // SEDE CENTRAL
 guardarActividadSede = async function() {
-  const desc  = document.getElementById('sa-desc').value.trim();
-  const fecha = document.getElementById('sa-fecha').value;
-  const tipo  = document.getElementById('sa-tipo').value;
+  const desc       = document.getElementById('sa-desc').value.trim();
+  const fecha      = document.getElementById('sa-fecha').value;
+  const tipo       = document.getElementById('sa-tipo').value;
+  const horaInicio = document.getElementById('sa-hora-inicio').value || null;
+  const horaFin    = document.getElementById('sa-hora-fin').value || null;
   if(!desc||!fecha){ setMsg('sa-msg','Completá fecha y descripción.','err'); return; }
+  const asunto = `[Sede Central · ${sedeActual}] ${desc}`;
   if(SUPABASE_LISTO) {
-    await sb.from('sede_actividad').insert({
+    const { data } = await sb.from('sede_actividad').insert({
       relatoria: sedeActual, fecha, tipo, descripcion: desc, autor_id: usuarioActual?.id
-    });
+    }).select().single();
+    if(data) SEDE_ACT[sedeActual].unshift({ id:data.id, fecha, desc, tipo });
+    // Crear evento en cronograma
+    const { data: ev } = await sb.from('eventos').insert({
+      asunto, tipo, fecha,
+      hora_inicio: horaInicio, hora_fin: horaFin,
+      quien: `Sede Central — ${sedeActual}`,
+      notas: desc, autor_id: usuarioActual?.id,
+      origen_tabla: 'sede_actividad',
+      origen_id: data?.id || null,
+    }).select().single();
+    if(ev) {
+      REUNIONES.push({
+        id: ev.id, asunto: ev.asunto, tipo: ev.tipo, fecha: ev.fecha,
+        hora_inicio: ev.hora_inicio, hora_fin: ev.hora_fin,
+        municipio: ev.municipio, quien: ev.quien, notas: ev.notas,
+      });
+      renderCalendario();
+    }
     await logAct('crear','sede_actividad',`Relatoría ${sedeActual}: ${desc}`);
+  } else {
+    SEDE_ACT[sedeActual].unshift({ fecha, desc, tipo });
   }
-  SEDE_ACT[sedeActual].unshift({ fecha, desc, tipo });
-  setMsg('sa-msg','✅ Actividad registrada.','ok');
-  setTimeout(()=>{ cerrarModal('modal-actividad-sede'); renderActividadSedeR(); limpiar(['sa-desc']); setMsg('sa-msg','',''); },1000);
+  setMsg('sa-msg','✅ Actividad registrada y agregada al cronograma.','ok');
+  setTimeout(()=>{ cerrarModal('modal-actividad-sede'); renderActividadSedeR(); limpiar(['sa-desc','sa-hora-inicio','sa-hora-fin']); setMsg('sa-msg','',''); },1000);
 };
 
 eliminarDocSede = async function(idx) {
@@ -3293,6 +3337,8 @@ guardarActividadDeleg = async function() {
       quien: `Delegación Nº ${delegActual} — ${deleg?.sede||''}`,
       notas: desc,
       autor_id: usuarioActual?.id,
+      origen_tabla: 'delegacion_actividad',
+      origen_id: data?.id || null,
     }).select().single();
     if(ev) {
       REUNIONES.push({
@@ -3414,6 +3460,8 @@ guardarCapacitacion = async function() {
           quien: area || 'Personal de la Vocalía',
           notas: desc,
           autor_id: usuarioActual?.id,
+          origen_tabla: 'capacitaciones',
+          origen_id: data.id,
         }).select().single();
         if(ev) {
           REUNIONES.push({
@@ -4268,17 +4316,7 @@ function abrirSubirDocSede() {
   abrirModal('modal-actividad-sede');
 }
 
-function guardarActividadSede() {
-  const desc  = document.getElementById('sa-desc').value.trim();
-  const fecha = document.getElementById('sa-fecha').value;
-  if(!desc||!fecha){ setMsg('sa-msg','Completá fecha y descripción.','err'); return; }
-  SEDE_ACT[sedeActual].unshift({ fecha, desc, tipo:document.getElementById('sa-tipo').value });
-  setMsg('sa-msg','✅ Actividad registrada.','ok');
-  setTimeout(()=>{ cerrarModal('modal-actividad-sede'); renderActividadSedeR(); limpiar(['sa-desc']); setMsg('sa-msg','',''); },1000);
-}
 
-function eliminarDocSede(idx){ if(!confirm('¿Eliminás?')) return; SEDE_DOCS[sedeActual].splice(idx,1); renderDocsSedeR(); }
-function eliminarActSede(idx){ if(!confirm('¿Eliminás?')) return; SEDE_ACT[sedeActual].splice(idx,1); renderActividadSedeR(); }
 
 // ══ HERRAMIENTAS DIGITALES ════════════════════════════════════════════════
 const TIPO_HERR = {
