@@ -3405,17 +3405,14 @@ function simularNotificacionNueva() {
 }
 
 function actualizarPuntoNotif() {
-  const tabBtn = document.getElementById('tab-mensajes');
+  const badge = document.getElementById('badge-mensajes');
   let dot = document.getElementById('notif-dot-tab');
   if(NOTIF_PENDIENTES > 0) {
-    if(!dot) {
+    if(!dot && badge) {
       dot = document.createElement('span');
       dot.id = 'notif-dot-tab';
-      dot.className = 'notif-dot';
-      // Posicionar relativo al tab, esquina superior derecha del badge
-      dot.style.cssText = 'position:absolute;top:6px;right:4px;width:8px;height:8px;background:#C0392B;border-radius:50%;border:2px solid #132B4E;animation:notif-pulse 1.8s ease infinite;pointer-events:none;';
-      tabBtn.style.position = 'relative';
-      tabBtn.appendChild(dot);
+      dot.style.cssText = 'display:inline-block;width:7px;height:7px;background:#C0392B;border-radius:50%;margin-left:3px;vertical-align:middle;animation:notif-pulse 1.8s ease infinite;flex-shrink:0;';
+      badge.parentNode.insertBefore(dot, badge.nextSibling);
     }
   } else {
     if(dot) dot.remove();
