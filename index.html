@@ -2088,8 +2088,19 @@ table td, table th { font-size:.88rem !important; }
           <option value="otro">Otro</option>
         </select>
       </div>
-      <div class="form-field"><label>Link externo (Drive, etc.)</label><input type="url" id="dd-link" placeholder="https://…"></div>
-      <div class="form-field"><label>Descripción (opcional)</label><textarea id="dd-desc" rows="2" placeholder="Breve descripción…"></textarea></div>
+      <div class="form-field">
+        <label>Subir archivo <span style="font-weight:400;color:var(--muted);">(PDF, Word, Excel, etc.)</span></label>
+        <input type="file" id="dd-archivo" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip"
+          style="font-size:.78rem;padding:.35rem 0;color:var(--text);">
+        <div id="dd-archivo-prog" style="display:none;margin-top:.4rem;">
+          <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+            <div id="dd-archivo-bar" style="height:100%;width:0%;background:var(--gold);transition:width .3s;"></div>
+          </div>
+          <div id="dd-archivo-stat" style="font-size:.68rem;color:var(--muted);margin-top:.3rem;"></div>
+        </div>
+      </div>
+      <div class="form-field"><label>O link externo <span style="font-weight:400;color:var(--muted);">(Drive, OneDrive, etc.)</span></label><input type="url" id="dd-link" placeholder="https://…"></div>
+      <div class="form-field"><label>Descripción <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><textarea id="dd-desc" rows="2" placeholder="Breve descripción…"></textarea></div>
       <div class="form-msg" id="dd-msg"></div>
     </div>
     <div class="modal-footer">
@@ -2118,8 +2129,12 @@ table td, table th { font-size:.88rem !important; }
           </select>
         </div>
       </div>
-      <div class="form-field"><label>Descripción</label><textarea id="da-desc" rows="3" placeholder="Descripción de la actividad…"></textarea></div>
-      <div class="form-field"><label>Municipio (si aplica)</label><input type="text" id="da-municipio" placeholder="Ej: Municipalidad de Quilmes"></div>
+      <div class="form-grid">
+        <div class="form-field"><label>Hora inicio <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><input type="time" id="da-hora-inicio"></div>
+        <div class="form-field"><label>Hora fin <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><input type="time" id="da-hora-fin"></div>
+      </div>
+      <div class="form-field"><label>Descripción</label><textarea id="da-desc" rows="2" placeholder="Descripción de la actividad…"></textarea></div>
+      <div class="form-field"><label>Municipio <span style="font-weight:400;color:var(--muted);">(si aplica)</span></label><input type="text" id="da-municipio" placeholder="Ej: Municipalidad de Quilmes"></div>
       <div class="form-msg" id="da-msg"></div>
     </div>
     <div class="modal-footer">
@@ -3193,11 +3208,36 @@ eliminarActSede = async function(idx) {
 
 // DELEGACIONES
 guardarDocDeleg = async function() {
-  const titulo = document.getElementById('dd-titulo').value.trim();
-  const link   = document.getElementById('dd-link').value.trim();
-  const desc   = document.getElementById('dd-desc').value.trim();
-  const tipo   = document.getElementById('dd-tipo').value;
+  const titulo  = document.getElementById('dd-titulo').value.trim();
+  const tipo    = document.getElementById('dd-tipo').value;
+  const desc    = document.getElementById('dd-desc').value.trim();
+  const archivo = document.getElementById('dd-archivo')?.files[0];
+  let   link    = document.getElementById('dd-link').value.trim();
+
   if(!titulo){ setMsg('dd-msg','Ingresá el título.','err'); return; }
+  if(!archivo && !link){ setMsg('dd-msg','Subí un archivo o ingresá un link.','err'); return; }
+
+  if(archivo) {
+    const prog = document.getElementById('dd-archivo-prog');
+    const bar  = document.getElementById('dd-archivo-bar');
+    const stat = document.getElementById('dd-archivo-stat');
+    prog.style.display = 'block'; bar.style.width = '30%';
+    stat.textContent = 'Subiendo archivo…';
+    const filePath = `delegaciones/${delegActual}/${Date.now()}_${archivo.name}`;
+    const { data: upData, error: upErr } = await sb.storage
+      .from('documentos Vocalia')
+      .upload(filePath, archivo, { cacheControl: '3600', upsert: false });
+    if(upErr) {
+      prog.style.display='none'; bar.style.width='0%';
+      setMsg('dd-msg','❌ Error al subir: ' + upErr.message,'err'); return;
+    }
+    bar.style.width = '80%';
+    const { data: signed } = await sb.storage.from('documentos Vocalia').createSignedUrl(filePath, 31536000);
+    link = signed?.signedUrl || filePath;
+    bar.style.width = '100%'; stat.textContent = '✅ Archivo subido.';
+    setTimeout(()=>{ prog.style.display='none'; bar.style.width='0%'; stat.textContent=''; }, 2000);
+  }
+
   if(SUPABASE_LISTO) {
     const { data } = await sb.from('delegacion_docs').insert({
       delegacion_nro: delegActual, titulo, tipo, link, descripcion: desc, autor_id: usuarioActual?.id
@@ -3208,7 +3248,12 @@ guardarDocDeleg = async function() {
     DELEG_DOCS[delegActual].unshift({ titulo, tipo, link, desc, fecha: hoy() });
   }
   setMsg('dd-msg','✅ Documento cargado.','ok');
-  setTimeout(()=>{ cerrarModal('modal-doc-deleg'); renderDocsDeleg(); limpiar(['dd-titulo','dd-link','dd-desc']); setMsg('dd-msg','',''); },1000);
+  setTimeout(()=>{
+    cerrarModal('modal-doc-deleg'); renderDocsDeleg();
+    limpiar(['dd-titulo','dd-link','dd-desc']);
+    document.getElementById('dd-archivo').value='';
+    setMsg('dd-msg','','');
+  },1000);
 };
 
 eliminarDocDeleg = async function(idx) {
@@ -3219,22 +3264,54 @@ eliminarDocDeleg = async function(idx) {
 };
 
 guardarActividadDeleg = async function() {
-  const desc      = document.getElementById('da-desc').value.trim();
-  const fecha     = document.getElementById('da-fecha').value;
-  const tipo      = document.getElementById('da-tipo').value;
-  const municipio = document.getElementById('da-municipio').value.trim();
+  const desc       = document.getElementById('da-desc').value.trim();
+  const fecha      = document.getElementById('da-fecha').value;
+  const tipo       = document.getElementById('da-tipo').value;
+  const municipio  = document.getElementById('da-municipio').value.trim();
+  const horaInicio = document.getElementById('da-hora-inicio').value || null;
+  const horaFin    = document.getElementById('da-hora-fin').value || null;
   if(!desc||!fecha){ setMsg('da-msg','Completá fecha y descripción.','err'); return; }
+
+  const deleg = DELEGACIONES_B.find(d => d.nro === delegActual);
+  const asunto = `[Deleg. ${delegActual} · ${deleg?.sede||''}] ${desc}`;
+
   if(SUPABASE_LISTO) {
     const { data } = await sb.from('delegacion_actividad').insert({
-      delegacion_nro: delegActual, fecha, tipo, descripcion: desc, municipio: municipio||null, autor_id: usuarioActual?.id
+      delegacion_nro: delegActual, fecha, tipo, descripcion: desc,
+      municipio: municipio||null, autor_id: usuarioActual?.id
     }).select().single();
     if(data) DELEG_ACT[delegActual].unshift({ id:data.id, fecha, tipo, desc, municipio });
+
+    // Crear evento en cronograma
+    const { data: ev } = await sb.from('eventos').insert({
+      asunto,
+      tipo,
+      fecha,
+      hora_inicio: horaInicio,
+      hora_fin: horaFin,
+      municipio: municipio || null,
+      quien: `Delegación Nº ${delegActual} — ${deleg?.sede||''}`,
+      notas: desc,
+      autor_id: usuarioActual?.id,
+    }).select().single();
+    if(ev) {
+      REUNIONES.push({
+        id: ev.id, asunto: ev.asunto, tipo: ev.tipo, fecha: ev.fecha,
+        hora_inicio: ev.hora_inicio, hora_fin: ev.hora_fin,
+        municipio: ev.municipio, quien: ev.quien, notas: ev.notas,
+      });
+      renderCalendario();
+    }
     await logAct('crear','delegacion_actividad',`Delegación ${delegActual}: ${desc}`);
   } else {
     DELEG_ACT[delegActual].unshift({ fecha, tipo, desc, municipio });
   }
-  setMsg('da-msg','✅ Actividad registrada.','ok');
-  setTimeout(()=>{ cerrarModal('modal-actividad-deleg'); renderActividadDeleg(); limpiar(['da-desc','da-municipio']); setMsg('da-msg','',''); },1000);
+  setMsg('da-msg','✅ Actividad registrada y agregada al cronograma.','ok');
+  setTimeout(()=>{
+    cerrarModal('modal-actividad-deleg'); renderActividadDeleg();
+    limpiar(['da-desc','da-municipio','da-hora-inicio','da-hora-fin']);
+    setMsg('da-msg','','');
+  },1000);
 };
 
 eliminarActDeleg = async function(idx) {
