@@ -201,6 +201,77 @@ main{flex:1;}
 .msg-cuerpo{font-size:.82rem;color:var(--text);line-height:1.65;}
 .lista-empty{text-align:center;padding:3rem;color:var(--muted);font-size:.85rem;font-style:italic;}
 
+/* ══ NOTIFICACIONES TIEMPO REAL ══ */
+.notif-dot{
+  position:absolute;top:-4px;right:-4px;width:9px;height:9px;
+  background:var(--red);border-radius:50%;border:2px solid var(--navy);
+  animation:notif-pulse 1.8s ease infinite;
+}
+@keyframes notif-pulse{
+  0%,100%{transform:scale(1);opacity:1;}
+  50%{transform:scale(1.35);opacity:.7;}
+}
+.notif-banner{
+  display:flex;align-items:center;gap:.7rem;
+  background:rgba(74,158,224,.1);border:1px solid rgba(74,158,224,.3);
+  border-radius:6px;padding:.55rem 1rem;margin-bottom:.9rem;
+  font-size:.78rem;color:var(--gold);cursor:pointer;
+  animation:slide-in .3s ease;
+}
+@keyframes slide-in{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.notif-banner:hover{background:rgba(74,158,224,.18);}
+
+/* ══ MENCIONES ══ */
+.mencion{
+  color:var(--gold);font-weight:700;
+  background:rgba(74,158,224,.12);border-radius:3px;
+  padding:0 3px;cursor:default;
+}
+.mencion-yo{
+  color:#fff;font-weight:700;
+  background:rgba(74,158,224,.3);border-radius:3px;
+  padding:0 3px;
+}
+.mention-dropdown{
+  position:absolute;z-index:300;
+  background:var(--navy);border:1px solid rgba(74,158,224,.3);
+  border-radius:6px;min-width:180px;
+  box-shadow:0 6px 20px rgba(0,0,0,.3);overflow:hidden;
+}
+.mention-item{
+  display:flex;align-items:center;gap:.55rem;
+  padding:.45rem .7rem;cursor:pointer;
+  font-size:.78rem;color:#CBD5E0;transition:background .1s;
+}
+.mention-item:hover{background:rgba(74,158,224,.15);color:var(--gold);}
+.mention-avatar{
+  width:24px;height:24px;border-radius:50%;
+  background:rgba(74,158,224,.2);border:1px solid rgba(74,158,224,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;font-weight:700;color:var(--gold);flex-shrink:0;
+}
+
+/* ══ ESTADOS DE LECTURA ══ */
+.lectura-bar{
+  display:flex;align-items:center;gap:.5rem;
+  margin-top:.6rem;padding:.45rem .7rem;
+  background:var(--cream);border-radius:5px;
+  font-size:.62rem;color:var(--muted);cursor:pointer;
+  transition:background .15s;
+}
+.lectura-bar:hover{background:#E2EAF4;}
+.lectura-avatares{display:flex;margin-left:.2rem;}
+.lectura-avatar{
+  width:18px;height:18px;border-radius:50%;
+  background:var(--navy);border:1.5px solid var(--white);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.5rem;font-weight:700;color:var(--gold);
+  margin-left:-5px;flex-shrink:0;
+}
+.lectura-avatar:first-child{margin-left:0;}
+.lectura-texto{color:var(--muted);}
+.lectura-yo{color:var(--green);font-weight:600;}
+
 /* ══ CRONOGRAMA ══ */
 .cron-toolbar{display:flex;align-items:center;gap:.8rem;margin-bottom:1.3rem;flex-wrap:wrap;}
 .cron-mes-nav{display:flex;align-items:center;gap:.5rem;}
@@ -492,6 +563,9 @@ main{flex:1;}
   .topbar-titulo-principal{font-size:1.25rem !important;}
   #topbar-botones-pc{display:none !important;}
   #topbar-hamburger{display:block !important;}
+}
+@media(min-width:1101px){
+  #menu-mobile{display:none !important;}
 }
 @media(max-width:768px){
   .topbar-titulo-principal{font-size:1.05rem !important;}
@@ -949,7 +1023,7 @@ table td, table th { font-size:.88rem !important; }
 </div>
 
 <!-- BUSCADOR INTEGRAL -->
-<div id="buscador-bar" style="background:#0A1929;border-bottom:1px solid rgba(255,255,255,.06);padding:.55rem 1.8rem;display:flex;align-items:center;gap:.8rem;">
+<div id="buscador-bar" style="background:#0A1929;border-bottom:1px solid rgba(255,255,255,.06);padding:.55rem 1.8rem;display:none;align-items:center;gap:.8rem;">
   <span style="font-size:.85rem;color:#4A6A8A;flex-shrink:0;">🔍</span>
   <input type="text" id="buscador-input" placeholder="Buscar en todo el portal — mensajes, documentos, normativa, novedades, capacitaciones…"
     oninput="buscarPortal(this.value)" onfocus="abrirBuscador()" autocomplete="off"
@@ -1129,7 +1203,7 @@ table td, table th { font-size:.88rem !important; }
     <div class="inicio-title">La <span>Vocalía</span></div>
     <div class="inicio-sub" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
       <span>Vocalía Municipalidades "B" · H. Tribunal de Cuentas de la Provincia de Buenos Aires</span>
-      <a href="data:application/pdf;base64,JVBERi0xLjQKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgKG9wZW5zb3VyY2UpCjEgMCBvYmoKPDwKL0YxIDIgMCBSIC9GMiAzIDAgUgo+PgplbmRvYmoKMiAwIG9iago8PAovQmFzZUZvbnQgL0hlbHZldGljYSAvRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZyAvTmFtZSAvRjEgL1N1YnR5cGUgL1R5cGUxIC9UeXBlIC9Gb250Cj4+CmVuZG9iagozIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhLUJvbGQgL0VuY29kaW5nIC9XaW5BbnNpRW5jb2RpbmcgL05hbWUgL0YyIC9TdWJ0eXBlIC9UeXBlMSAvVHlwZSAvRm9udAo+PgplbmRvYmoKNCAwIG9iago8PAovQ29udGVudHMgOSAwIFIgL01lZGlhQm94IFsgMCAwIDU5NS4yNzU2IDg0MS44ODk4IF0gL1BhcmVudCA4IDAgUiAvUmVzb3VyY2VzIDw8Ci9Gb250IDEgMCBSIC9Qcm9jU2V0IFsgL1BERiAvVGV4dCAvSW1hZ2VCIC9JbWFnZUMgL0ltYWdlSSBdCj4+IC9Sb3RhdGUgMCAvVHJhbnMgPDwKCj4+IAogIC9UeXBlIC9QYWdlCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9Db250ZW50cyAxMCAwIFIgL01lZGlhQm94IFsgMCAwIDU5NS4yNzU2IDg0MS44ODk4IF0gL1BhcmVudCA4IDAgUiAvUmVzb3VyY2VzIDw8Ci9Gb250IDEgMCBSIC9Qcm9jU2V0IFsgL1BERiAvVGV4dCAvSW1hZ2VCIC9JbWFnZUMgL0ltYWdlSSBdCj4+IC9Sb3RhdGUgMCAvVHJhbnMgPDwKCj4+IAogIC9UeXBlIC9QYWdlCj4+CmVuZG9iago2IDAgb2JqCjw8Ci9QYWdlTW9kZSAvVXNlTm9uZSAvUGFnZXMgOCAwIFIgL1R5cGUgL0NhdGFsb2cKPj4KZW5kb2JqCjcgMCBvYmoKPDwKL0F1dGhvciAoSC4gVHJpYnVuYWwgZGUgQ3VlbnRhcyBQQkEpIC9DcmVhdGlvbkRhdGUgKEQ6MjAyNjA4MjgxOTU4MDMrMDAnMDAnKSAvQ3JlYXRvciAoXCh1bnNwZWNpZmllZFwpKSAvS2V5d29yZHMgKCkgL01vZERhdGUgKEQ6MjAyNjA4MjgxOTU4MDMrMDAnMDAnKSAvUHJvZHVjZXIgKFJlcG9ydExhYiBQREYgTGlicmFyeSAtIFwob3BlbnNvdXJjZVwpKSAKICAvU3ViamVjdCAoXCh1bnNwZWNpZmllZFwpKSAvVGl0bGUgKFF1aVwzNTFuZXMgU29tb3MgXDIwNCBWb2NhbFwzNTVhIE11bmljaXBhbGlkYWRlcyBCKSAvVHJhcHBlZCAvRmFsc2UKPj4KZW5kb2JqCjggMCBvYmoKPDwKL0NvdW50IDIgL0tpZHMgWyA0IDAgUiA1IDAgUiBdIC9UeXBlIC9QYWdlcwo+PgplbmRvYmoKOSAwIG9iago8PAovRmlsdGVyIFsgL0FTQ0lJODVEZWNvZGUgL0ZsYXRlRGVjb2RlIF0gL0xlbmd0aCAzMjI5Cj4+CnN0cmVhbQpHYXUwRmZsR2gsKDRGTTFUX2NkWmpmZiZBbFZqLk8uI0NqbSZtSz9NRm5sMyxCU0EncjwkOVIvcXMzRU1FNDw1JGRTc1tHK0k3QG9jPFtEZ0ImYUNcXkYrKkJjR280U08uOjQrYFhlImlRR15dZTJBajQrbl1uR3IrOm8kaFxGYkxAMS8jLSMoYmUrIlFYWG1LRDlLQmpUPUxZMiQvYkVDajsmN2NCMCdLNEolaTZXQl8wU1xRQT1AQF5vWTxeKjZEcCwmTGopY1xLaXNeImxec2FGYFReaCRVci0+K0xwTTlbVWVEWTQxVyZrcEk5QGldMDE/Om06K11pP00tZSomJXJMKyl0cT4qKzksZDA3bExAMTo7VWpNLEReN00sWCgjdFNoN08qNSRNailqODFyPSQoRkRjVDFBLTwvX1FdYUkhMj9tVmA6NmNNSXQtZlA6XW9qZiRVY0xoaWIsSipSNjQ2XD9iNWBWMlBcNSdoSFppIz43K0xpdSlGMm1cSWE1RU4wam9NPi5GLFdkVUhlZElLRzdcXGUqVi8oKGd0JFhSJWYrQzQsSFtDQXFXKSRJKnRCQVk9ZixQR1FdcVZNSm5qNSpMZV8iSGdWbj1pLzZkRUVKPy9vT2oxR1dpUyRXNC0pITJsSUhyXkhhakkpZi5ASGM3UFJHJVk+IlZYcnJaLFRBNCNsUS8ic188VTtoRGolNm1bOE5eIyVCX2ZlUzJYKV5YW09QTGBcVjRebjlALSNzbGFKJV1RPSVGKERfQj9ocEFwLkViSD9QP0U6WV51SUcoUj1vZEFkYDJPY01DJGB0Tk85SyNQcmJwcmgmQHNQQDNeay8rciUnN2hLIWAuZl9pOWMyX1gqWGtnIWFfRG4qZVY+R0QwJzwhZlxFLHFFTVNPOFB1KjYta0xXT0goYz4vXkddXWhUVGc9MlZPPkNHcT5lMVoxbiUyTTpALSVHdWJuaW11X2Y3Nl5GckVPMT4paHNvKWA3Y1w2TzBoOjcxSWtXXD9LYSspREpgOURtVmNbWW9OMlQsRV1ocGhcUV89QEBOUC1nYCZbJXBySy5bOG03bEZvTG5GWzxaISMnMipwTm1YT2guOD9HPilkJWJFNThtKktyK11mbGlvSzI5MltuPCwhMjVGMllVOXNCJCY9aDw5dSViRCNsImk3Um9sJD4mS05BJUowM15tLWg6bT1KM15bQChyYnJRZSVnWC5gWCR0XD91MlVvQCZKbVh0UkYkME08KHMzM3A4Km9pV2hrSUVhVmtyL2JyJmVrVFA2LkdCSmY9ISJoTG1iRi1zQmU8UU1cJkduU0wzUStATylPKlNQL0pFWyhXbkNFbDxVWiZaUUtGMV8lckRVdTNyWD9VPSFAT1xELTAhKDkxZVVyMT9FOXRHPEJZIzg3ZSdkN1s+O1RVcmIzPyshZExhZCtaYyhRJERUTFJIQURcWThmbiFQJFFcSjxebTVzOyg/WlRhcGNCK3E7YE85RkxeTlg8Z1YhdGdJUy5wV3JFbiNFLzVYalgxTlVdSipgNmQ0O19icmpnMXBnTDpDXjInXkFMRjZZbEhwVks2cktrS1RSTkUqPC4oXSk/bFVLWkYtXkVBaCdeVihNVVFCWDkkWl8xMk1qcURpcWJia1JfMSs9ZmQnNVwxTEVQTmFIV15KbGxKL2s6JDZMNzAzOz1PaVtpJ1NIKTVQZzcoakMsLkZ0XzdjNmMwMDEnWyxiYzpWXlVNZ2hmUVNTJDZIWCtLaU4jUl9DMkpzMCsiYD8iNk9xXXFidD0zLCxSMGc9SCxXSlllXi90cCtCNENXPEFNSXAlZyxsJzFIblQjT0QtTG1aIUE5dUNxVWJAN1QjczxwOiEhayQvQG9xPj9sX25rK05NMzgxPS4sKClbXSFTLFhQSUxKR1xvZlNDQzo5VG4zVzo7ZkwhYkAyVlNzLlxdTk1sU3NEPGU8aHBCXy1mXiMzLlN1a0gwYjZPJFJoczwsSDUyZU1kL3AsbC1vRENxPnRbN2o6UV5ZWko5RXQiR1dNMnRvT3UrRjMvVj1lVkdkYmlqWm50NW0kVlNcIWBKR3IxTVEyMj9ZMSRxM2gjLFVSQy1fUT9uUE1RLyFwU0o7M01faC4qcihGSDZWTjAoR0wvc08tXl1rLl0oIi5EITpzWFVZMUVZRj1UJEUlczFDY0w4b3N0OF1xcyQ2Oj9SQCwmJmk8STFDS0coKGllQG5ZXW5OIy88XlRBJ0YrTUQ6Mj9MMj5cOTskT0Y9dTZyI2dGY15BQVdFL2I1US5McHJhUWdpci43P3JQb0BwOlFMMidMJj9DQUgsYkIhNUNQMz9OQyVHSmtWTypcVS9ySTRkKSZZWWxFWFZxJ1ZNP0FQOFZkYl5NcklVRWAlZGVoL08lVWpHPmFkOE9xVzkkRGQoJDpiPT5hSkZcSWs9JCxcJmYxSSQobUAqXzUkQ2pcMGFUPj1CUSQiJVwuWyk9KkRMKlVZNnJuKjNnWG07dXFMWElmWm0vP1puIlpLM3VvJyZMPlU9UmQ+MEslNGxnYW9ZXl9CXz4kVXMqJXEwZyFKKEsvN1FUOj9fRFZlV0EoI3A0L0AnQSM3QE4mPlRMTHBPLyZEcFprRygta1U8U1BzNj5Ab25WLEptO1kyVWdtXTFYNTJaaW4kdEc7Rys2LTg7JjExL3NPQT1UNDJCSDAlVnFUSFtfbU5QKDJlS1EtUWNAJ1dUN0JfKmNEUCUrMko9RyNQN0hpVEBfcSYkIVA3OSZVTmJaJGQmUFxJLlxoMz8iTTg8YjVOTSpNaTg8JTdvW1E7UF50PE1xcjY7N3BLRlFNbG9BZHIlZFBTNiEuZ2RURSVUcmhDT2JsZW5vXTwxLEcoM1tTUUBVcE5FcVpodG07Tl8oX1RXWCZJc0xYWFhQJE51L2AqPm4nV24paEpNUlduTmRUVnVUWW9oOzFiaidyOSFWUS5TPlghP1VzND5VXFJGa3UpZ0cpblM5aF5dSEpEXEs+ajwoVDJfKUdpcWY4L0ZJKFUwb0ZOJCVwUFwkLiI6NC11SDlcM2NdRFBKQXFEbVspKC5zPC05W1BxdEdddChAPl5uTC9mMiVZdFtXJEJNRG1BWzA4bzFbRGAqTUdTIVdzNTYnUiNAOkxVbVs5aT9eJm9SQlZaWy4rPitTTkohZ0lJSjVqanNtcD9XaEVpP2FtKF9aM1lwQkEzOFJsRWJNcUo4Oi8rKF1zWD1qa0s6MipwK0VObytvcVlmcFhyIVJpZUhLTzNycm9KKWVqRitCNWhcPiciOzRxPlVwOCNwL1JoZj4+Z1kxKENBZylnXGlgc2VxKCVPbDNyWyUmdFAqWlNuITlcUGxiPkpnOFA3bzk2ISg1cEhjOVNHNiMzXW8vTi5WRVI+IUc+MiFuSHFfPzJkYmcraW1KcDEsUD4wOEsmXmdGZFInbWU+UilwVlwwJUhsSm9FM0E6Q0pGYmVPKC5gKGIhKnROWzlxWGA2M2YyPj1HO1YkTTRdZmFoLkIlUV1FalBSRDlVJVJRVURvSyhvNj9Ra1JnVGJLX0kqNWg/bjprcj9zaCk9ITtiR3BAYnFUUmtkJC0xQU4nZSNlREZmcFA9RjUtITMuampSVmlNbk8mVDwyV3VDUz9YR145SEBzInAlTVxRY3NlbFhdYjRXNUxEaCtgXClDW0wmKzpKZmNYQGJOVzpIaSVtI1NbQ2FoLG5tKyY7I3ROIjllVWNZZVFIbGc0TS9iMkI8QHFDYjldVXFxTEc6ZC1wOi8ucnFIMVhObWI9W0VlMGcubmlcSG09N0U9UGYkTCkkZmEyWlQ9M284ZFYpPnBtX1ZaYEpvWjkhdUYsaWZZNS8tLyFKX1s7Tkw2ZyZXaEosIVdua2EoSmRrI2RjXnVnZktIJVRydTZeJXVGXSNqNDo6JENmOzolOE1VOVFgSExUQjVfPVEwOWdRYj5tcixsNyYwOjxLMy5FUzQ8bGc3W01qYUg2Y1YxRW4sM207KVs+JmBlZ15bQSglcWknbTtSP11wRis+NT9cWUYwVjktWFBiZyVPKiZbXW5uIj9BdTxNVmxbLGMnWVJmcD0+LSxJTzJSZyFzS1A5WSIjPF4uXTc9XiRXcW4uXEQpQThPRzFsUD81RGtoYkFSXClwR2cuMF9hZkJeITtzaTIhZlpDZks8PTpeIzgyc0NWRi9PPGk8VjVfZzRwc1JTWHBSO2VUWiVTU00+J0tjTkhmLEtdOCNBX0JidWNAaThHKilUbjRSQj9iPVErMyc0aDNlMlIpSD87czk/YzhrJWloWj1AL34+ZW5kc3RyZWFtCmVuZG9iagoxMCAwIG9iago8PAovRmlsdGVyIFsgL0FTQ0lJODVEZWNvZGUgL0ZsYXRlRGVjb2RlIF0gL0xlbmd0aCAxNzk3Cj4+CnN0cmVhbQpHYXRtO2dOKSUsJjpPOlNtLFVhX2ZJLWIzXUtBZkRTI0BQWDh1dVZbKlBdQihYTUAxOCQ6cm1VXlYxKjQ3KWtEV1tOOkpVSlFWOTFoL2ZlIy48dFZYWDNZO2EwTmw2XElvKWRIPG5CVGJpa29MQGtHc2RnLWM/WnFgLWBcbExKLnNyOVIoT1tHJnJpKmc1KCYjb1YpbWIvLWxWUCExWFo/OyRwQD9wIkwuc0BaU00wTzhxTVkjWTVZITUsVzpEJ3A6alJLU3BeLCFWJVVVWV9kbDUwb0lKS04iU0FHMzM5UEJxWUZuZVNtUUxmYGojNyhqKHBiXE5wIWBtaiowWiZuN003UjJkIm5PbEUwWjJmdF1jX0kzSzQ1NkdgZWIlME0jJFlkNCwqYltfJnIiay1AXEwhOE09IlgsRyFcXmFpV1Y0M24yTjYsTTBYaWMiXCNvPi9kLjFqNmhSMDUvRV9daFBvKlhNWzBcMChLMyJfTiYlSUNkZ28iUCp0Tik+U1BXWFdbPW8/dCJTdTxtc2JYKipaaFtJUkhhQStiPTpdQ0g0X0cnXlxJQ0pnZlJQTkM8WWBdPyE0SEJdLDZOOWxOcHVHU1JONGNJQW81YEIlXlVvblU+ZGQ2OSx1ZzUyLStVLF9oYVB0VUNJTl1uWEUqZG1pR1JnaSE+MDlSdUU1Z1NzYWkpK1ZdKzdGLWdNM1djVSlOT0I9MEdcWD5dRXJkVSdEa1ZVWUBGOW1IYTFUQVdeTDNwN1hsKGNqXVllY08vP3MwUDoyRSZZVG4qMW04ZnVnKWhbYVMxK2QlMjA2dD5oLWVWSjllPFVYPGxrZDN0QyJlcVxhSy8qSzFlJV88MkskPkpfc10yOFVKPU1KZGEuWzZRPjU0V0hHMi1TcSExaVchbV5UbEUnRjRRbz5HR3VFRm8sM21IZj5OSWNfZVM1SydOXyhlcSpVZiImcSxSWlU5SVdqSFY3O2plRk85bSY4V2lOL1phW2tdNmA7PFw7YFIvWEZnQ2tPS0QlayovLnBIaWNLMTAnPTZnL1BgbWFoaFNCQylXZEBSZyR0SmdFWHFKWzVMZ2JyZWRNJEhfMGIvK0ZJNFMlb1IkWltybjhpZ2pfJzlyNlIoYiNIT3AlVm9eVSZUSjVjXFpuUE9nJShjO2kiMVw/S3Mtalo3QFdiJT4/OWUnTU4xRCFccDNjWisqWy9DK2VbbXVzZWdFZmwoXGpaaGo2aDFPa2JjJlBGMEJxTCg1TTtVXzFdUnFUUyFSKSFGUUBePE00Tl4zTWAxc1YwOj5EVFVHZlckU01OcmNjIW9qY0dbVSlAOCg/WUJdQV5KWHQmRUUibWZ0OWA7TmpaIiFEOjdzJURKQkRAKl10LkJSTHNbKDtaYig9SFlWY0FeVCU2SmlqQUU/LCQmX0IrNG4nTlo0aUwoWi1QJldiYGhWbyIuLXFNYWFNS0tAJSJBVyQ1V1IsSyhuaDYnKWMwS04iZ0swXydaLlRIYEI5XjUrIzZwWS9BRSpfSjJhXmZYWEA0L1w7W09CYUBSNm0wKVtKQio0LEFATmJeLjpqWVI0K0I4M09NUEgoVjIiIkJBJnE+T2RMLi5CW3MmUV44Q1MvKW82cTlpIjshW1xxYSgpaiVjc1QtUEdfNEtAZXMuTGBhL2ZLY19WUDsuJ2BAMlxOOD5pXDBmImM9KUp1MlEzNmdNakhDMldQNVliKnJyMmFgOUxpWkVsXG8xWionVm0uSGk+P1dQZk1cZjlwRUZURUI8IT41TTxXTHNYJ2lSSGIkSVE1OExqUCplbGREXjhwQEdMIjJwMCYqdFwyKyNaOEBAX0djUEtgYWBGQnEyKVU3UytlTFc0XF1WU2pPTmYuSUY0RidTN2MsVmpOJ2k5ckQ/UXA/NGglSExHM2A+STZGJG07QXI3cm1xXUswLG9tN0xYMGomMERYVUVXT28tQ1RNYTYqKzAnTkByZj5NYlI3OCkoIj9MKT4yU1Y2YGM3PlVYLT8nP1xlWlZyKjdgJVg4Q3FuZGk7JSlXVjhPcEhjNzdjZ3JBYlgxOERpWCVhcU4iRzxgSDBKay5YSWJfQmA7YmBJaS8yNi4rR3UkOzZWLiJmWzMjU2VuW3RKLiRYQFg9Z2FAUC5ZMThxdG5yYmZSV15DKWY4ZzZPV08udT5GVCQ1aHFGWWRxUldpXF1gdSMrSy9sPTNuVSldSCozSzgkcWM+cW8oWy5JYT4vOVBIWipuJ14kZWpVMyU3PD9XQ1xnWjY7TkREQ2shPjNzJ0pKQ2VdZDsxYS0xW2cwPTtmbkBuQGxQNTJOcUAzSGpbNDUuSTsub0ozMUFBZ2w4TzM7KTw+ZUdCXDhsSF1hRTdQcEA7aTlEMTtzWlhMS241cmVaRl0yOC9Yfj5lbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAxMQowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwNjEgMDAwMDAgbiAKMDAwMDAwMDEwMiAwMDAwMCBuIAowMDAwMDAwMjA5IDAwMDAwIG4gCjAwMDAwMDAzMjEgMDAwMDAgbiAKMDAwMDAwMDUyNCAwMDAwMCBuIAowMDAwMDAwNzI4IDAwMDAwIG4gCjAwMDAwMDA3OTYgMDAwMDAgbiAKMDAwMDAwMTEyNiAwMDAwMCBuIAowMDAwMDAxMTkxIDAwMDAwIG4gCjAwMDAwMDQ1MTEgMDAwMDAgbiAKdHJhaWxlcgo8PAovSUQgCls8YWU3YzI1ZWE2ODQ4OWFlOGFlYWVkYzMyYWIwYTdmYzE+PGFlN2MyNWVhNjg0ODlhZThhZWFlZGMzMmFiMGE3ZmMxPl0KJSBSZXBvcnRMYWIgZ2VuZXJhdGVkIFBERiBkb2N1bWVudCAtLSBkaWdlc3QgKG9wZW5zb3VyY2UpCgovSW5mbyA3IDAgUgovUm9vdCA2IDAgUgovU2l6ZSAxMQo+PgpzdGFydHhyZWYKNjQwMAolJUVPRgo=" download="Vocalia_Municipalidades_B_Quienes_Somos.pdf"
+      <a href="data:application/pdf;base64,JVBERi0xLjQKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgKG9wZW5zb3VyY2UpCjEgMCBvYmoKPDwKL0YxIDIgMCBSIC9GMiAzIDAgUgo+PgplbmRvYmoKMiAwIG9iago8PAovQmFzZUZvbnQgL0hlbHZldGljYSAvRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZyAvTmFtZSAvRjEgL1N1YnR5cGUgL1R5cGUxIC9UeXBlIC9Gb250Cj4+CmVuZG9iagozIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhLUJvbGQgL0VuY29kaW5nIC9XaW5BbnNpRW5jb2RpbmcgL05hbWUgL0YyIC9TdWJ0eXBlIC9UeXBlMSAvVHlwZSAvRm9udAo+PgplbmRvYmoKNCAwIG9iago8PAovQ29udGVudHMgOSAwIFIgL01lZGlhQm94IFsgMCAwIDU5NS4yNzU2IDg0MS44ODk4IF0gL1BhcmVudCA4IDAgUiAvUmVzb3VyY2VzIDw8Ci9Gb250IDEgMCBSIC9Qcm9jU2V0IFsgL1BERiAvVGV4dCAvSW1hZ2VCIC9JbWFnZUMgL0ltYWdlSSBdCj4+IC9Sb3RhdGUgMCAvVHJhbnMgPDwKCj4+IAogIC9UeXBlIC9QYWdlCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9Db250ZW50cyAxMCAwIFIgL01lZGlhQm94IFsgMCAwIDU5NS4yNzU2IDg0MS44ODk4IF0gL1BhcmVudCA4IDAgUiAvUmVzb3VyY2VzIDw8Ci9Gb250IDEgMCBSIC9Qcm9jU2V0IFsgL1BERiAvVGV4dCAvSW1hZ2VCIC9JbWFnZUMgL0ltYWdlSSBdCj4+IC9Sb3RhdGUgMCAvVHJhbnMgPDwKCj4+IAogIC9UeXBlIC9QYWdlCj4+CmVuZG9iago2IDAgb2JqCjw8Ci9QYWdlTW9kZSAvVXNlTm9uZSAvUGFnZXMgOCAwIFIgL1R5cGUgL0NhdGFsb2cKPj4KZW5kb2JqCjcgMCBvYmoKPDwKL0F1dGhvciAoXChhbm9ueW1vdXNcKSkgL0NyZWF0aW9uRGF0ZSAoRDoyMDI2MDkxMDE0MDcxMSswMCcwMCcpIC9DcmVhdG9yIChcKHVuc3BlY2lmaWVkXCkpIC9LZXl3b3JkcyAoKSAvTW9kRGF0ZSAoRDoyMDI2MDkxMDE0MDcxMSswMCcwMCcpIC9Qcm9kdWNlciAoUmVwb3J0TGFiIFBERiBMaWJyYXJ5IC0gXChvcGVuc291cmNlXCkpIAogIC9TdWJqZWN0IChcKHVuc3BlY2lmaWVkXCkpIC9UaXRsZSAoXChhbm9ueW1vdXNcKSkgL1RyYXBwZWQgL0ZhbHNlCj4+CmVuZG9iago4IDAgb2JqCjw8Ci9Db3VudCAyIC9LaWRzIFsgNCAwIFIgNSAwIFIgXSAvVHlwZSAvUGFnZXMKPj4KZW5kb2JqCjkgMCBvYmoKPDwKL0ZpbHRlciBbIC9BU0NJSTg1RGVjb2RlIC9GbGF0ZURlY29kZSBdIC9MZW5ndGggMjY2Mgo+PgpzdHJlYW0KR2F1MEVCaSFkMShCKU9eXC9LKFddR0IidGBUc0YhSjk0UlYmODJePWwqXjphRUQ0Qm5ZcW9xckxBQ0xgRGdAMTYjWVBdMW1SR2o6Z2YqQy1dOUhNImEkN0g/TilmciExXGdFTyFDRlppKDUwUkZSJTsnLEc0PVlxaiksRSEjRko/JUZCcjsmal5BLiRIJyRfMERXaWs/XSxuSjZFTikmLC1BTDhOIz5Ca1dLSDtmWEorPFNBaSE1OFRbKlRfVGklXlMicSgvSihpSG5HXiZ0V0ozYSg2SCpKS25JPVs9WjV1JHReaVNEX2RtIywpMjpVUzxeWzkpc1IwO0MlRC1ITVw4YC9hI0s0dTBNRy9GJi0mNGsza1xDblg1U0dpLHVMdSFCc1Eobio8NTl1VmVWN1FkZWFSIW1VNWFGaSVYOThjazQnYCQ5QF1dbixoQVBdU0EuYV5lO3RAJ1pwUyZRcjhKUz1SW1whOWsvLFc5W0ZXM15eMUtaUTVhQiNiQFZmYjlYIVk6Lj8pPCZZWUwmcSdbOF5tMUNdXE0vcDJtPGlTZkBkOys+QF5mNS1sNDFNc15aSUFHUkVYclguSCtnO01gYExSS1RZQDpjKUsjWSxQbV0zUzxwdVJLVWAlb0ZrTGxTJTBXL0c4WSxGT0gyJWAmTVNrK0dbTTpUcW8xRS8rVUojWjNFTCdvRChPSTkiQ0VnWzJKYyJoMlg9WFkqaFNwbCs3JEkwX2goVXVaRTFzJGNhPzxyUzlbXD5tJzw+VC9iMy8lKUdKbmIkRjsjLGBcKlxLNElXX2VDXjFYLEdsVVBFWU51N1pNS0xATEMkQ2VTKlszVyhXOVw2Zm5SPyNAaUcjcDAoQFk+Nmd1XmZcPXJNNGRAPVhVLzssXEAvSXRxQElRViE9TDduQF9aMXFIRl9ESS88YkUtYDoqOjhVI1A0TEpiOXRHXCFrUC0zUyM2SHRZSyZSb0xyajw7ZHUzZ1VrUFhmZ3JrJHEucHNrXTUjbk0vSj5BW0JeK2Jjb09VRjVsMU9oPD1ZMmNrKlNCNEpkZixua21eQkRkI3JAampYQmtFbE5LKjBoKTNhbmc6YG09UUs5alxtTCJuYU4oU18+R0RdW1ZuLyM1JyRmTG1COkYrMlI3XC1uLUFtWyc0Xz40YTRYcUI1KS1jMkBYOFxvaSg1I1haRCQkK0MyNzJyV3BRajJMOGtLR0EjKGNqcFpmTTZcY2NUblFhNjhjTWM6T0pRRUFnQSMobEhkbFVVb0k+bTllTEVRPUNmTSs1KFBsNSNCMmVyY2EsYTo5JkRYUmFfWElpb1QtaD9sXllQY0gmLCpzYj5sW3Q4VkhOP1NYWCxTcEFbLzA6Vz5qYGxlZVRrTW04KmgxX2tWLEdURGFdalt1bDBTN2dOOStNKl89RFdBXDJZU1Y3VStqRkIoJFEoR0NtWjwscGgtNylVLyRNQTotL0gsV0ouWjImaS0pMVpxVmJtWEVpPC1QVkVeUSpaMHJgPipJZ2wiR0JwXktoO3BgbnUpTXFRb3E+cCxnKT0jUFdGSC1WXUFfVVwhJltJck1TYF5YS1I1IWs3M1FlJ1prNGJPQiVpNilFciYiWkBJV1ZXK089R0lQIztXYW1rNlgqaChNSSNiVERSZyg/Wz1HU0kqOnBrIVozXTFLK1A5ZmoxZiFAMzRJPFtNPUVOYGlBLUZGQXQ4VUhBbWxcM1BbKHBacXFrJnBmRS1bXEZKLGw6PGFHazFbaWw1Vmd0OyxVK3I0SU9MN1pZUTpbR2RiKFFmalxyJCNFKGhjTT0pMjZMby1QJEBJVVhYR10lalNdMTpdMzFcWFlFUldBZ0kkYSUqbiR1Vm0wSikrTU0tMy44Vzw1M0o2cTtxOlU0K1o4bS1nOFkkLT1GXylAWVo6WUsiSHIkRG5GUG1FV2s+YF9aYydgVzQxRl4lKmkxMzdxXVZRKm81cFVdXHRJMzEzX1YuXnVtXDI/aDVnLVtadS4rOjF0SFhFJS1iOlhDNlZtLF87YjQ6LlB0J1BjcllYKTtCajY1MCNRTzAzMVoxJ1cnMlNQJVY6UmVSNENGXUk+K0dMMyckPzVidVhbI0RAajo4cz8uYXMmSig/L29PSnRlYkldU2tpNnJXNm9FUS5oKG0qMSpqV1VFY1pGIV9YP2ErQURJUS9CMTB0bGlPaCYpYDhXI3FMN0VMUFs8LUFOVCFmOyJFNyUpJkNkNC07KyllSGFmYTpPRChiMW43Jlg7Y1VkcCcqXCRZYlF1Jj5IVEhSO2FxKGhCKmhTZ2MoXDRTSUs8bSJoOCZEKVd0MGNbI1NWNU8uWiIsUThBLXBJNF8rUig+QnAzRWU8ITgnWE80KkBQaENub144KTd0NHVVTTdaQ05TJyZQMXFuMjBPZSYvaVVpYDRuTnUjYmY7ZW1YYl1KJHFKWiNENEwocmchJm1AJ1wuNSJtTkBGRlk+Qj8lSlYpQjR1N2okcm5VXUhHcjVtY0BHUGhINEFLK3VIYzgoYSE/QmhbSU02W2hDbC4nXCkpYk41RFdCQUptXj5yWHJKPCxpXDtAUzhKY2AzW250TCk9Qi9CXjlxZ2dkVTI9PExkZmc4MClUWEEvXEJjaTxEY0w0KG9IPlVOMy1ZYiE+YlopUC9yODgoWCZyIl9zU2QwK0U+QT09JU9rWmg3YGsoQShrJGIpJjNMSEpbKlZsS3RwaTVVbW5oakc1Ils6NnRnWyhYRlhdTlsjXVRnRjJeOEdYRWBybHRLYSFtSkJNSzZYUHI/JDMuXkJTcl1kbHAlcHQkXjdKPGtgVG5wUFcmYyViWFMrTXFBKkYvZm1HRTtKVWxTJSZxZmxmX0IoXyFKPUFqViY6YTUuN09vOFc8XEJqTEYsXXFwRiRGKUkpOTssXlpfVE1aOlVrbCwrLWtuQyU3MnQmLjVNXHQuOiJlMF9wbVMiZlRcamcjRiZAdF5CO3FzKERqTT1LWW1CTUwtUUwnS1omLmk7QGs6UGhHRC1xI2tTRWJAVk0qVV9xX2NVVl1mLlwpXUxbTVskQk1MPFpfQyRyWUloXkwwUickcllyPlduTSMvUFozaTBTYm1WTzFXOSwvZGM2ZzR1QnFtJmc9PUc3NmUoTmBUOUAwPzxULkBTczFrdFJqR05qI18tYFRHSERkJTVgaDBxa2ZBJSNaanVoYmVyQklGL1lQN3RlXTwvKFNddXBDVDUvalgwTjRtSzMmaS9uZjJIWGNSJWQ3VkRAXi82aC49PS5sNClvNSlmLVw1XlZPVFtGJFdrPmU+QTQiPjVyOXMjMmA7QWB0ZmZAPGRWNFoiXyU/ZlBNUT9bTiJWLVtMY0c/YWVxTipyMHNMNUUsSUlaZF1sX0cqaDcqKFYxcnIlaC8mI1pEO0A/ZG4yN24qbnBcSWwhbDUkZmoobl0/S2E6K2FDdVg1ZUJOKztocl9CJGJWbSFwO0RfazhUZWEhW2MxbEE6VyVZbzRyb1xuZF5ULjo9KXRsSiRMOms3REBSZlltR2hXOEwpYzVAb18vU2xTNjZpVFR+PmVuZHN0cmVhbQplbmRvYmoKMTAgMCBvYmoKPDwKL0ZpbHRlciBbIC9BU0NJSTg1RGVjb2RlIC9GbGF0ZURlY29kZSBdIC9MZW5ndGggMzM2Nwo+PgpzdHJlYW0KR2F1SE49YGA9VyUiQFpLXyFJOC8tV05gcVxmTW00OiM1Pj5hM0FeTG8ickosVVEtbjlQYS0oVmxQSidRcGR1NC9kbihHYSdFUjRqIS5rRlpLKV1OWGdLc3VPY2YpYzMkQyZDKSVPYTdxYl9PUTteXGRRSCtJOz1LJUwrZDJBbSZMcU1nLWtRamd1cjxnQD9lSTNMMSppMiRjIVQjImxiZzVPVCRDJmFKJVdmX0NyR0AoOzY/OXJeRyVQVktCTzk1QVNXW25xaEpCamhnY1dTbktmTi1eNiVSPiNnZFRfJDlVXEkqNic4Oys0L2NxQHJXJklJNUhnT1o+XSsraFFFS1UvLicsWWshTy1zO0EwQHBhbUpWSV4mTlYsPy5VQ0NwYVlZc0ErbGtDO1QxKGgqLXEwYE1YU0okXzRqQmViWkkwUi5LR0A5OkhJWV1BY0BJKDxmTixLKyE+WyIpJmwxZ1M7TE46MlRXUFtLbjU3VileLW1baDZXPHA2Wy9vTiV0X1hScDBtKF8iXHQqQCpBLF0lbjU0IlxfOmcmXDNtXk8scTxaYF0nM21fSD1lZ0wvOlUmKkhcXWFJRWBkQUgha2smKCNdVi5tRy1gPGdMcVMtNW9lP2hIW0wtTEVrMlonIU5gIVgkaEMlaU5cZVI+S0tYOWpEQlNpY3EvaGlaPXIvK0IrREsyJlJQYUs2PSNrXCJlcFZCcCxvSkxBYFFPLGZnbjlcTDlQZjgjUWxbcFErL0MhXGtnKSlHWDUjV29VbjFWTDsvSjNOcyNUUVhpTSRqcllQbiIoSFc8bVoyUnRhPGdOLmEoXFVzNldmIll0MVZzLD1mJl06Q1tcOyNfIlI4LldBZVlbN2ZBKjEzUkQrJEQ8Yz0tIVVsMkMwSDVCZmJOXDpeJS5WRF9oKyI0T0BqXVldPCZtRDRfW1leYj9uJTQ6LTcoJlUtWjdpbFZJX1puaSFKXGlaMkksOFlebSc9XSEvKVsiZzFQbkAmPTNuSzM4XWs+aSokVEM0S24yczhmNEdMMEFrKEwzVW1zQz44XW51KzNJczUpTWVEIV0tTjkmL2s/ZGZyZ1xGaidHTGhNXVZKIzA4biFWbjVsRkImVUdBIzdPSVJWVD5jQXUtTDQ4KDtfOCxEPzg7MWhhIyViMzVYLmlhW24mJmk7JkhEZzAzUEVCPmVsQ2BDOUo1MkVwOT90OmokYiZMPWJGISJYN1c3SWlKJ20tbT5hL2A1WnNWR1RraipLPyliXkwoay5aNV40PyszUUJEcT8kQWB1KTRyYFROYkZUdWpWJHJWPGBBKEJbYWJGOjJhclJoZipuMF1PJmsrbUQzWFliZkReKm1YUmosVTkhbU9LSGg7RWNcRlNuZ0JSLlMtY0hhSlBHVVBmUUJITT87XzcmS0RKJ1c7c189YlNiZzU1UWNTJ0hwN1xeM3RWTyRkTkRmOmo8dCM5X0gtZy4wb1ZDOUMsMU5aVGslOiNeLzFGZCtAYj9eQ3VkPlwlVWllPCNSZGBWPmNib0coKUdMWigyYGpKLz1bQV4wb0ZNQEJxKkxpMFV0KFJuTDdJSCYyIUBpLmVpajNLTlJNTGlTUlguWEk2Q1pGJFg1NHJjQkcxKF44KV5MNTU5Vy1jM3BDV2dTKjlwc107TyldU2shM1k9WC9KV0paTTBbcjloYkdYQWM9YDRILjtNaWNBckBaU2hRYExXRTUzYiIjWm1fKms+ZClAalY9bWRDLl1KO2wwPUReO0EjSUloYDowL1VZbmg2N2w0aGhfKyRlKDU8RUtRXUlMMEBAZG5vYVlhUVcmazdZSktQXjxAMjEmYVk1XzZBWj5UcjdzMnA1QjNzPkJFWnNBYGNaKDIwSWMhWjYxNyM0T1Rzb15GWSpMRF5SKXBnJ0kuYVNEKDgwTWApIW9VOzInSDk8WzckO2IhXnNoLEY9TUwocUpPMSc9bTJmaXFJIihRajFfUWUpQkxvSENQIyRkVDZXaUc3ZlVTMGstYTxBVV1BJTA5U0FWO25fcy1udTUzNStYNEVtXzRsMUBNSCg0JSQ1PGNEVTVGM2MrO1tZNzpMVCdsT0otOF5PVDhpKitdRk91LDlJP1NRLlM9M0YpWHAuXDc3TGlxZzoiYmAsIUhLL2JWUiJTZD1sUztuQVVlLS5NP2VPWiksUU5oLyktK2VtXSY3dTMlajtzUSpbUk9IaCxuQDkjLTpvazkkV1daJD0vISxYTC1fXD4nZEVEX0xPbyJlVVlhRyQ3WWwmaSJfQjgjLj8/PD5IS1gsSF5WSiJaMDppOSVNbTIjUnJbU01TSV5SN20mQWlwRi5vbEAhVFZ0RFwpQy1UNS9NSC00blgqTS0kPGJrUDldMytBWj5ISXNzSGNtX1VJajNZUjVLSyRPOj1FO0dwSmd1Z1U6XDllTnBBZ2FgPUYycFEqRmE2ZV5mbTVSdVtZOSVlXSVMcVB1KC1MU0YkUWEpRWBjQmtVcGAjN2ZRVU1qYklMLU1yJ3NvJGQoMCw7SmBLKCQ5bWVIdTZkcj5BJj47K2MvazcmcTB0T0BWUk5Sa2FrPSczOmQ/bjtvPyEpNEUpcGpWNWdFXFUtb1EoW1pGOVVPZzZCOy9qcSpcW1orYSVpImI/PVxaVkJ1Oy1pTDAjKy4rKCIlO3EnKlQkYkQ1JWY2bjRhXyVocUckZDpqRFoiSSRvW0A2XmY/QylcWUMuS2hfbCcnRmxgbVZOWUB0S1UiO1BMVW1KbDpOS3I0K2VuPXBWXkEkRGtHKTdRX0EkcWY7V2QhT3JVWV9uI1tyM2J0QnRZalFMNWRPLDNtckFZOWJEL3M4NlxKc09rcy9WTSJHMSdaSi1TOCtfbSduMlUnTlBWK2hPY1E2TkxZblMzWCgmaWQ5IWY7QiZZNTFMbG0mI14lWVg1SVF0LjosM2Y/RD08ZjsrUVZnXkohaEpVQj5DRDgsLWxnZC9nYENXa21HTiVWR1pKRzxWR05SKzA6KD5TcDNRST0ySU8rNCJUVWlVS2hMWStyPFlrTiZOSC1LRUB1Kl11bGFdRCYiW21EdEteP2FWZiVoOkhhYis3R1EyVlZhPyRbU3QlbUgjcFI9UFBtTSozXyI4dXFcZm5bck4iZGswXlQ8ZTlQMDpxL1BTdHMuczVHYCc1dW0pUXAuYlAubkFeZFNvV0BcQ1h0bXFNPFFhYkpLMnFRbTQiX21uZ21laXIiKTBqVyM7YjY1JFEnOiYxQC01cGhpY1c5N2NHP11iZV8oSklCSCYyWipqdDEwRyJicm02VUBydGFlJWozRnEwVFFCN0EhcWk+KDVJPDtvSXU+WmEnRl5mY3BgSy5Iazs5TVxFUykjbVwlJSMzRzZSbE0mTW9IdDhvMChhVGpvREIyW1o+Q3BLK2hAWT8zRyNhSWMwTyFjcGk4QnI3JE4va3BxRy1PTU4xMU1PSFJVNVphZGNFJXVRWHR1T2ZsLk5UciwuNUwvOF9kS1dbZmdrK2klNHNXYHNPcSRib0YhaUpoJXA4b0NlSmgtPzhaaCxeWEc5YTA+MWIpbmBrOylnLGYsJCZnNzw7MFA0NlNmQkU6UXEmK1w6S0ZjJGgvZkxBSUBKOycrK24hSlZNP2JjTzRoQnFRcjJWXyNJUWNFVFtPRzE7XU5iS2drS2s0ckE9PVVsNCpHNDojSVlTTFBoNTRRT3U9X0M2TDlVaD5ZVl9nNTFOdDoydGFCVmRUdUpXRiJyLWApM2ZIMkpJTU5CI2lIMmRiYztoTklgcSYwWW90OGZwMCc2PjtgdSVgYUBUUVE1cj9nJy4uSW5wTGotSjxhOHJ1O1MnPEdlXWYhMDg/aio/MGRfRklKMy8+VURtR2opQ1M6bVBzN0NLPjpfM2k/LlNkZD9kNkhqJmo6JFZnPVxFLSEjMCQrPGkrSnM2Q1ZCMVUpa3U/UVg+UWRgayloP0JfUjtlKWM4W21ZbyM1Z0RBQXFgJVRIRmlDWUpnUm4icG5sY1NWUWA8bW0uKEthXnBAUWdBRVJnRUxgY1FwJUVCXShZTVZsS2Q+PUM9I20oYzw5bm07JCQ6LyxrSEc4J0tLS2k7Kj86U1FgZGgkTiQnSFhtQ3QhX2hJUixhZkxpMWlIOnU9V0ZqayVNKEdSKmVkLj9yX11lMyFYPWI/PyVIKU1mJ1VjMScpSC4mRFlwMmFkQUdnUGNhSlJfJTA8LykrcVlGVSQlbWgtPyFibmFlMTNfLU5dRzVQOyp1ZVhjRCg0NG87Y0pNX3NRXVpDN25IZ21EaiRcKV8iW28mVThYLlwqWUQiX0krNUM9NShiayFCRitxQU47UFRON2YpISFUZF5IJ3BKJGtQVm45QEtqWyoxSCEwWDBuLDxeQDdTTWkyMVNjSUwqQWxIUU9nNWszaj5OZ20nIW9FWiZJYU5xOVBdN29HSCkkZXVLUVo5PldzOCk5Nl5iUiFHYE03cWsxNVgjYWJfaVglKSFxNipuIzg5NVp+PmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDExCjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDA2MSAwMDAwMCBuIAowMDAwMDAwMTAyIDAwMDAwIG4gCjAwMDAwMDAyMDkgMDAwMDAgbiAKMDAwMDAwMDMyMSAwMDAwMCBuIAowMDAwMDAwNTI0IDAwMDAwIG4gCjAwMDAwMDA3MjggMDAwMDAgbiAKMDAwMDAwMDc5NiAwMDAwMCBuIAowMDAwMDAxMDc2IDAwMDAwIG4gCjAwMDAwMDExNDEgMDAwMDAgbiAKMDAwMDAwMzg5NCAwMDAwMCBuIAp0cmFpbGVyCjw8Ci9JRCAKWzwwYzRkMDYzNmJlMTJhODQ2MDZiNTM4YjE5NmYxNjc5Yz48MGM0ZDA2MzZiZTEyYTg0NjA2YjUzOGIxOTZmMTY3OWM+XQolIFJlcG9ydExhYiBnZW5lcmF0ZWQgUERGIGRvY3VtZW50IC0tIGRpZ2VzdCAob3BlbnNvdXJjZSkKCi9JbmZvIDcgMCBSCi9Sb290IDYgMCBSCi9TaXplIDExCj4+CnN0YXJ0eHJlZgo3MzUzCiUlRU9GCg==" download="Vocalia_Municipalidades_B_Quienes_Somos.pdf"
         style="display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .9rem;
         background:rgba(74,158,224,.15);border:1.5px solid rgba(74,158,224,.4);border-radius:6px;
         color:var(--gold);text-decoration:none;font-size:.68rem;font-weight:700;
@@ -2252,7 +2326,12 @@ table td, table th { font-size:.88rem !important; }
           <option value="urgente">Urgente</option>
         </select>
       </div>
-      <div class="form-field"><label>Contenido</label><textarea id="m-cuerpo" rows="5" placeholder="Texto del comunicado…"></textarea></div>
+      <div class="form-field"><label>Contenido</label>
+        <div id="modal-cuerpo-wrap" style="position:relative;">
+          <textarea id="m-cuerpo" rows="5" placeholder="Texto del comunicado… Usá @nombre para mencionar a alguien"></textarea>
+          <div style="font-size:.62rem;color:var(--muted);margin-top:.3rem;">💡 Escribí @ para mencionar a un integrante del equipo</div>
+        </div>
+      </div>
       <div class="form-msg" id="m-msg"></div>
       <input type="hidden" id="m-edit-idx" value="">
     </div>
@@ -2325,16 +2404,22 @@ table td, table th { font-size:.88rem !important; }
 let MENSAJES = [
   { id:1, autor:'Vocal', cargo:'Vocalía Municipalidades "B" · H. Tribunal de Cuentas PBA', nivel:'urgente',
     titulo:'Reunión plenaria obligatoria — jueves 28/08',
-    cuerpo:'Se convoca a todo el personal a la reunión plenaria del jueves 28 de agosto a las 10:00 hs. en la sala de reuniones. Se tratarán temas de organización interna y presentación del plan de trabajo del segundo semestre. La asistencia es obligatoria.',
-    fecha:'25/08/2026' },
-  { id:2, autor:'Dra. [Nombre Relatora]', cargo:'Relatora Mayor · Vocalía Municipalidades "B"', nivel:'importante',
+    cuerpo:'Se convoca a todo el personal a la reunión plenaria del jueves 28 de agosto a las 10:00 hs. en la sala de reuniones. Se tratarán temas de organización interna y presentación del plan de trabajo del segundo semestre. La asistencia es obligatoria. @mgulayin por favor confirmá asistencia.',
+    fecha:'25/08/2026',
+    lecturas:[ {nombre:'Dra. García'},{nombre:'Lic. Martínez'},{nombre:'Cr. López'},{nombre:'Sra. Romero'},{nombre:'Lic. Ferreyra'} ],
+    total_usuarios: 8 },
+  { id:2, autor:'Dra. García', cargo:'Relatora Mayor · Vocalía Municipalidades "B"', nivel:'importante',
     titulo:'Nuevo procedimiento para presentación de informes',
-    cuerpo:'A partir del 1° de septiembre, todos los informes de auditoría deberán presentarse con la nueva carátula unificada disponible en la sección Documentos. Se solicita revisar el modelo antes de la próxima presentación.',
-    fecha:'22/08/2026' },
-  { id:3, autor:'Dra. [Nombre Relatora]', cargo:'Relatora Mayor · Vocalía Municipalidades "B"', nivel:'informativo',
+    cuerpo:'A partir del 1° de septiembre, todos los informes de auditoría deberán presentarse con la nueva carátula unificada disponible en la sección Documentos. Se solicita revisar el modelo antes de la próxima presentación. @Lic. Martínez coordiná con las delegaciones.',
+    fecha:'22/08/2026',
+    lecturas:[ {nombre:'Cr. López'},{nombre:'Sra. Romero'} ],
+    total_usuarios: 8 },
+  { id:3, autor:'Lic. Martínez', cargo:'Relatora Mayor · Vocalía Municipalidades "B"', nivel:'informativo',
     titulo:'Horario de atención al público — agosto 2026',
     cuerpo:'Se recuerda que durante el mes de agosto el horario de atención al público es de 9:00 a 13:00 hs. de lunes a viernes. Las consultas telefónicas se atienden en el mismo horario.',
-    fecha:'18/08/2026' }
+    fecha:'18/08/2026',
+    lecturas:[ {nombre:'Dra. García'},{nombre:'Lic. Martínez'},{nombre:'Cr. López'},{nombre:'Sra. Romero'},{nombre:'Lic. Ferreyra'},{nombre:'Cr. Sánchez'},{nombre:'Sra. Torres'} ],
+    total_usuarios: 8 }
 ];
 
 let REUNIONES = [
@@ -2472,9 +2557,8 @@ function norm(str) {
 
 function activarBuscador() {
   const input = document.getElementById('buscador-input');
-  // Hacer scroll al buscador y hacer foco
   const bar = document.getElementById('buscador-bar');
-  if(bar) bar.scrollIntoView({ behavior:'smooth', block:'center' });
+  if(bar) { bar.style.display = 'flex'; }
   setTimeout(() => {
     input.focus();
     input.select();
@@ -2482,7 +2566,6 @@ function activarBuscador() {
     if(q.length >= 2) mostrarResultados(q);
     else if(MENSAJES.length || REUNIONES.length || NOVEDADES.length) mostrarSugerencias();
     else {
-      // Sin datos todavía — mostrar mensaje
       document.getElementById('buscador-inner').innerHTML =
         '<div style="padding:.8rem 1.2rem;font-size:.75rem;color:#4A6A8A;">Escribí para buscar en todo el portal…</div>';
       document.getElementById('buscador-resultados').style.display = 'block';
@@ -2545,6 +2628,7 @@ function cerrarBuscador() {
   document.getElementById('buscador-esc').style.display = 'none';
   document.getElementById('buscador-input').value = '';
   document.getElementById('buscador-input').blur();
+  document.getElementById('buscador-bar').style.display = 'none';
 }
 
 function buscarPortal(q) {
@@ -2976,14 +3060,28 @@ async function cargarDocs() {
 }
 
 async function cargarMensajes() {
-  const { data, error } = await sb.from('mensajes')
-    .select('*, respuestas(*)').order('created_at', { ascending: false });
+  // Traer mensajes + respuestas + lecturas en paralelo
+  const [{ data, error }, { data: lecturasData }] = await Promise.all([
+    sb.from('mensajes').select('*, respuestas(*)').order('created_at', { ascending: false }),
+    sb.from('lecturas_mensajes').select('mensaje_id, usuario_nombre'),
+  ]);
   if(error || !data) return;
+
+  // Agrupar lecturas por mensaje_id
+  const lecturasMap = {};
+  (lecturasData || []).forEach(l => {
+    if(!lecturasMap[l.mensaje_id]) lecturasMap[l.mensaje_id] = [];
+    lecturasMap[l.mensaje_id].push({ nombre: l.usuario_nombre });
+  });
+
   MENSAJES = data.map(m => ({
     id: m.id, autor: m.autor_nombre, cargo: m.cargo||'',
     nivel: m.nivel, titulo: m.titulo, cuerpo: m.cuerpo,
     fecha: new Date(m.created_at).toLocaleDateString('es-AR'),
+    lecturas: lecturasMap[m.id] || [],
+    total_usuarios: 8,
   }));
+
   data.forEach(m => {
     if(m.respuestas?.length) {
       RESPUESTAS[m.id] = m.respuestas.map(r => ({
@@ -3322,6 +3420,170 @@ function switchTab(tab) {
 // ── Respuestas por mensaje ──
 const RESPUESTAS = {}; // { msg_id: [{autor, texto, fecha, hora}] }
 
+// ── Usuarios del equipo (para menciones) ──
+const USUARIOS_EQUIPO = [
+  { nombre:'Dra. García',     inicial:'G', cargo:'Relatora Mayor' },
+  { nombre:'Lic. Martínez',   inicial:'M', cargo:'Delegación La Plata' },
+  { nombre:'Cr. López',       inicial:'L', cargo:'Delegación Quilmes' },
+  { nombre:'Sra. Romero',     inicial:'R', cargo:'Delegación Zárate' },
+  { nombre:'Lic. Ferreyra',   inicial:'F', cargo:'Delegación Mar del Plata' },
+  { nombre:'Cr. Sánchez',     inicial:'S', cargo:'Delegación Azul' },
+  { nombre:'Sra. Torres',     inicial:'T', cargo:'Delegación Morón' },
+  { nombre:'mgulayin',        inicial:'M', cargo:'Admin · Sede Central' },
+];
+
+// ── Notificaciones en tiempo real (demo) ──
+let NOTIF_PENDIENTES = 0;
+let _notifTimer = null;
+
+function simularNotificacionNueva() {
+  // Simula que otro usuario publicó un mensaje
+  NOTIF_PENDIENTES++;
+  actualizarPuntoNotif();
+  mostrarBannerNotif('Dra. García publicó un nuevo comunicado');
+}
+
+function actualizarPuntoNotif() {
+  // Punto rojo en el tab de mensajes
+  const badge = document.getElementById('badge-mensajes');
+  let dot = document.getElementById('notif-dot-tab');
+  const tabBtn = document.getElementById('tab-mensajes');
+  if(NOTIF_PENDIENTES > 0) {
+    if(!dot) {
+      dot = document.createElement('span');
+      dot.id = 'notif-dot-tab';
+      dot.className = 'notif-dot';
+      dot.style.cssText = 'position:relative;display:inline-block;';
+      // Insertar punto sobre el tab
+      tabBtn.style.position = 'relative';
+      const dotEl = document.createElement('span');
+      dotEl.id = 'notif-dot-tab';
+      dotEl.className = 'notif-dot';
+      tabBtn.appendChild(dotEl);
+    }
+  } else {
+    if(dot) dot.remove();
+  }
+}
+
+function mostrarBannerNotif(texto) {
+  let banner = document.getElementById('notif-banner-msg');
+  if(!banner) {
+    banner = document.createElement('div');
+    banner.id = 'notif-banner-msg';
+    banner.className = 'notif-banner';
+    banner.onclick = () => { banner.remove(); NOTIF_PENDIENTES = 0; actualizarPuntoNotif(); };
+    const lista = document.getElementById('msg-list');
+    if(lista) lista.parentNode.insertBefore(banner, lista);
+  }
+  banner.innerHTML = `<span style="font-size:1rem;">🔔</span> <span><b>Nuevo mensaje</b> — ${texto}</span> <span style="margin-left:auto;font-size:.65rem;opacity:.7;">Click para ver →</span>`;
+}
+
+async function marcarLeido(msgId) {
+  const m = MENSAJES.find(x => x.id === msgId);
+  if(!m) return;
+  const yo = getUserName();
+  if(!m.lecturas) m.lecturas = [];
+  if(m.lecturas.find(l => l.nombre === yo)) return; // ya leído
+  // Guardar en Supabase
+  if(SUPABASE_LISTO && usuarioActual) {
+    const { error } = await sb.from('lecturas_mensajes').insert({
+      mensaje_id: msgId,
+      usuario_id: usuarioActual.id,
+      usuario_nombre: yo,
+    });
+    if(error && error.code !== '23505') { // 23505 = unique violation (ya existía)
+      console.error('Error marcarLeido:', error);
+      return;
+    }
+  }
+  m.lecturas.push({ nombre: yo });
+  renderMensajes();
+}
+
+// ── Render barra de lecturas ──
+function renderLecturas(m) {
+  if(!m.lecturas) return '';
+  const yo = getUserName();
+  const n = m.lecturas.length;
+  const total = m.total_usuarios || 8;
+  const yoLeyo = m.lecturas.find(l => l.nombre === yo);
+  const avatares = m.lecturas.slice(0,4).map(l =>
+    `<div class="lectura-avatar" title="${l.nombre}">${l.nombre.charAt(0).toUpperCase()}</div>`
+  ).join('');
+  const resto = n > 4 ? `<div class="lectura-avatar" style="background:rgba(74,158,224,.15);">+${n-4}</div>` : '';
+  return `
+    <div class="lectura-bar" onclick="marcarLeido(${m.id})" style="cursor:${yoLeyo?'default':'pointer'};" title="${yoLeyo?'Ya leíste este mensaje':'Click para marcar como leído'}">
+      <span>👁</span>
+      <div class="lectura-avatares">${avatares}${resto}</div>
+      <span class="lectura-texto">Visto por <b>${n}</b> de <b>${total}</b></span>
+      ${!yoLeyo ? `<span style="margin-left:auto;font-size:.6rem;color:var(--gold);font-weight:600;">Marcar como leído →</span>` : `<span style="margin-left:auto;" class="lectura-yo">✓ Leído</span>`}
+    </div>`;
+}
+
+// ── Parsear menciones en el texto ──
+function parsearMenciones(texto) {
+  const yo = getUserName();
+  // Captura @Nombre con espacios, puntos y letras hasta fin o coma/salto
+  return texto.replace(/@([A-Za-záéíóúÁÉÍÓÚñÑ][A-Za-záéíóúÁÉÍÓÚñÑ\. ]*?)(?=\s{2}|,|$|\n)/g, (match, nombre) => {
+    const n = nombre.trimEnd();
+    const esYo = n.toLowerCase().includes(yo.toLowerCase()) ||
+                 yo.toLowerCase().includes(n.toLowerCase());
+    return `<span class="${esYo ? 'mencion-yo' : 'mencion'}" title="Mención a ${n}">@${n}</span>`;
+  });
+}
+
+// ── Dropdown de menciones en textarea ──
+function initMencionesTextarea(taId, containerId) {
+  const ta = document.getElementById(taId);
+  if(!ta) return;
+  ta.addEventListener('input', function() {
+    const val = this.value;
+    const pos = this.selectionStart;
+    const antes = val.substring(0, pos);
+    const match = antes.match(/@(\w*)$/);
+    let dropdown = document.getElementById('mention-dd-'+taId);
+    if(match) {
+      const q = match[1].toLowerCase();
+      const filtrados = USUARIOS_EQUIPO.filter(u =>
+        u.nombre.toLowerCase().includes(q) && u.nombre !== getUserName()
+      );
+      if(!filtrados.length) { if(dropdown) dropdown.remove(); return; }
+      if(!dropdown) {
+        dropdown = document.createElement('div');
+        dropdown.id = 'mention-dd-'+taId;
+        dropdown.className = 'mention-dropdown';
+        const container = document.getElementById(containerId) || ta.parentNode;
+        container.style.position = 'relative';
+        container.appendChild(dropdown);
+      }
+      dropdown.innerHTML = filtrados.map(u => `
+        <div class="mention-item" onclick="insertarMencion('${taId}','${u.nombre}')">
+          <div class="mention-avatar">${u.inicial}</div>
+          <div><div style="font-weight:600;">${u.nombre}</div><div style="font-size:.62rem;opacity:.6;">${u.cargo}</div></div>
+        </div>`).join('');
+    } else {
+      if(dropdown) dropdown.remove();
+    }
+  });
+}
+
+function insertarMencion(taId, nombre) {
+  const ta = document.getElementById(taId);
+  const val = ta.value;
+  const pos = ta.selectionStart;
+  const antes = val.substring(0, pos);
+  const despues = val.substring(pos);
+  const nuevaAntes = antes.replace(/@\w*$/, '@'+nombre+' ');
+  ta.value = nuevaAntes + despues;
+  ta.focus();
+  const dd = document.getElementById('mention-dd-'+taId);
+  if(dd) dd.remove();
+}
+
+// Simular notificación nueva cada 45 segundos (demo)
+setTimeout(() => simularNotificacionNueva(), 45000);
+
 function getUserName() {
   if(perfilActual?.nombre) return perfilActual.nombre;
   if(usuarioActual?.email) return usuarioActual.email.split('@')[0];
@@ -3442,7 +3704,7 @@ function renderMensajes() {
         <div class="msg-fecha">${m.fecha}</div>
       </div>
       <div class="msg-titulo">${m.titulo}</div>
-      <div class="msg-cuerpo">${m.cuerpo}</div>
+      <div class="msg-cuerpo">${parsearMenciones(m.cuerpo)}</div>
 
       ${renderRespuestas(msgId)}
 
@@ -3450,15 +3712,15 @@ function renderMensajes() {
       <div id="resp-form-${domId}" style="display:none;margin-top:.7rem;">
         <div style="display:flex;gap:.5rem;align-items:flex-start;">
           <div style="width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--gold);flex-shrink:0;">${getUserName().charAt(0).toUpperCase()}</div>
-          <div style="flex:1;">
+          <div id="resp-wrap-${domId}" style="flex:1;position:relative;">
             <textarea id="resp-text-${domId}" rows="2"
-              placeholder="Escribí tu respuesta…"
+              placeholder="Escribí tu respuesta… Usá @nombre para mencionar a alguien"
               style="width:100%;padding:.5rem .7rem;font-family:'Inter',sans-serif;font-size:.82rem;border:1.5px solid var(--gold);border-radius:6px;outline:none;resize:vertical;color:var(--text);"
               onkeydown="if(event.ctrlKey&&event.key==='Enter')enviarRespuestaIdx(${domId})"></textarea>
             <div style="display:flex;align-items:center;gap:.5rem;margin-top:.35rem;">
               <button onclick="enviarRespuestaIdx(${domId})" class="btn-accion" style="font-size:.7rem;padding:.35rem .8rem;">Enviar</button>
               <button onclick="toggleRespuesta(${domId})" style="background:none;border:none;font-size:.7rem;color:var(--muted);cursor:pointer;">Cancelar</button>
-              <span style="font-size:.62rem;color:var(--muted);margin-left:auto;">Ctrl+Enter para enviar</span>
+              <span style="font-size:.62rem;color:var(--muted);margin-left:auto;">@ para mencionar · Ctrl+Enter para enviar</span>
             </div>
           </div>
         </div>
@@ -3472,9 +3734,14 @@ function renderMensajes() {
         <button onclick="editarMensaje(${idx})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.22rem .6rem;font-size:.65rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:all .15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">✏️ Editar</button>
         <button onclick="eliminarMensaje(${idx})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.22rem .6rem;font-size:.65rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:all .15s;" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">🗑 Eliminar</button>
       </div>
+      ${renderLecturas(m)}
     </div>`;
   }).join('') || '<div class="lista-empty">No hay mensajes publicados.</div>';
   document.getElementById('badge-mensajes').textContent = MENSAJES.length;
+  // Inicializar menciones en todos los textareas de respuesta
+  MENSAJES.forEach((m, idx) => {
+    initMencionesTextarea('resp-text-'+idx, 'resp-wrap-'+idx);
+  });
 }
 
 function editarMensaje(idx) {
@@ -4822,6 +5089,7 @@ function renderJornadas() {
 }
 
 // ══ INIT ══════════════════════════════════════════════════════════════════
+initMencionesTextarea('m-cuerpo', 'modal-cuerpo-wrap');
 renderMensajes();
 renderCalendario();
 renderDocs();
