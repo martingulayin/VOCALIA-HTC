@@ -1765,6 +1765,7 @@ table td, table th { font-size:.88rem !important; }
     </div>
     <div class="modal-body">
       <div class="form-field"><label>Nombre completo</label><input type="text" id="nu-nombre" placeholder="Ej: María González"></div>
+      <div class="form-field"><label>Cargo</label><input type="text" id="nu-cargo" placeholder="Ej: Auditor · Delegación La Plata"></div>
       <div class="form-field"><label>Email</label><input type="email" id="nu-email" placeholder="usuario@htc.gba.gov.ar"></div>
       <div class="form-field"><label>Contraseña</label><input type="password" id="nu-pass" placeholder="Mínimo 8 caracteres"></div>
       <div class="form-field"><label>Rol</label>
@@ -2742,7 +2743,7 @@ async function cargarUsuarios() {
         <span style="font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:4px;${u.activo ? 'background:rgba(30,107,82,.12);color:#1E6B52;' : 'background:rgba(192,57,43,.12);color:#C0392B;'}">${u.activo ? 'Activo' : 'Inactivo'}</span>
         ${u.id !== usuarioActual?.id ? `
           <button onclick="toggleActivoUsuario('${u.id}',${u.activo})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.18rem .45rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;">${u.activo ? 'Desactivar' : 'Activar'}</button>
-          <button onclick="editarUsuario('${u.id}','${u.nombre||''}','${u.rol}')" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.18rem .45rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;">✏️</button>
+          <button onclick="editarUsuario('${u.id}','${u.nombre||''}','${u.cargo||''}','${u.rol}')" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.18rem .45rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;">✏️</button>
         ` : '<span style="font-size:.65rem;color:var(--muted);">(tu cuenta)</span>'}
       </div>
     </div>`).join('');
@@ -2751,7 +2752,7 @@ async function cargarUsuarios() {
 function abrirModalNuevoUsuario() {
   document.getElementById('nuevo-usuario-titulo').textContent = 'Nuevo usuario';
   document.getElementById('nu-edit-id').value = '';
-  limpiar(['nu-nombre','nu-email','nu-pass']);
+  limpiar(['nu-nombre','nu-cargo','nu-email','nu-pass']);
   document.getElementById('nu-rol').value = 'usuario';
   document.getElementById('nu-pass').style.display = 'block';
   document.querySelector('#modal-nuevo-usuario label[for="nu-pass"]') && (document.getElementById('nu-pass').parentElement.style.display = 'block');
@@ -2759,10 +2760,11 @@ function abrirModalNuevoUsuario() {
   abrirModal('modal-nuevo-usuario');
 }
 
-function editarUsuario(id, nombre, rol) {
+function editarUsuario(id, nombre, cargo, rol) {
   document.getElementById('nuevo-usuario-titulo').textContent = 'Editar usuario';
   document.getElementById('nu-edit-id').value = id;
   document.getElementById('nu-nombre').value = nombre;
+  document.getElementById('nu-cargo').value = cargo || '';
   document.getElementById('nu-rol').value = rol;
   document.getElementById('nu-email').value = '';
   document.getElementById('nu-email').disabled = true;
@@ -2773,38 +2775,44 @@ function editarUsuario(id, nombre, rol) {
 
 async function guardarUsuario() {
   const nombre = document.getElementById('nu-nombre').value.trim();
+  const cargo  = document.getElementById('nu-cargo').value.trim();
   const email  = document.getElementById('nu-email').value.trim();
   const pass   = document.getElementById('nu-pass').value;
   const rol    = document.getElementById('nu-rol').value;
-  const editId = document.getElementById('nu-edit-idx')?.value || document.getElementById('nu-edit-id').value;
+  const editId = document.getElementById('nu-edit-id').value;
 
   if(!nombre){ setMsg('nu-msg','Ingresá el nombre.','err'); return; }
 
   if(editId) {
-    // Editar — solo nombre y rol
-    const { error } = await sb.from('perfiles_vocalia').update({ nombre, rol }).eq('id', editId);
+    // Editar — nombre, cargo y rol
+    const { error } = await sb.from('perfiles_vocalia').update({ nombre, cargo, rol }).eq('id', editId);
     if(error){ setMsg('nu-msg','Error al actualizar.','err'); return; }
     await logAct('editar', 'usuarios', `Usuario ${nombre} actualizado`);
     setMsg('nu-msg','✅ Usuario actualizado.','ok');
   } else {
-    // Crear nuevo usuario via Supabase Admin API (desde el cliente con service key no se puede)
-    // Usamos signUp para crear el usuario
+    // Crear via Edge Function
     if(!email || !pass){ setMsg('nu-msg','Completá email y contraseña.','err'); return; }
     if(pass.length < 8){ setMsg('nu-msg','La contraseña debe tener al menos 8 caracteres.','err'); return; }
-    const { data, error } = await sb.auth.admin?.createUser({
-      email, password: pass,
-      user_metadata: { nombre, rol },
-      email_confirm: true,
-    }) || { error: { message: 'No disponible desde el cliente' } };
-    if(error) {
-      // Alternativa: usar inviteUserByEmail
-      const { error: invErr } = await sb.auth.admin?.inviteUserByEmail(email, { data: { nombre, rol } }) || {};
-      if(invErr){ setMsg('nu-msg','Creá el usuario desde el panel de Supabase → Authentication → Users.','err'); return; }
+    setMsg('nu-msg','Creando usuario…','');
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(`${SUPA_URL}/functions/v1/crear-usuario`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ nombre, cargo, email, password: pass, rol }),
+      });
+      const json = await res.json();
+      if(!res.ok || json.error){ setMsg('nu-msg', '❌ ' + (json.error || 'Error al crear usuario.'), 'err'); return; }
+      await logAct('crear', 'usuarios', `Nuevo usuario ${nombre} (${email})`);
+      setMsg('nu-msg','✅ Usuario creado correctamente.','ok');
+    } catch(e) {
+      setMsg('nu-msg','❌ Error de conexión: ' + e.message,'err'); return;
     }
-    await logAct('crear', 'usuarios', `Nuevo usuario ${nombre} (${email})`);
-    setMsg('nu-msg','✅ Usuario creado.','ok');
   }
-  setTimeout(()=>{ cerrarModal('modal-nuevo-usuario'); abrirModal('modal-usuarios'); cargarUsuarios(); document.getElementById('nu-email').disabled = false; setMsg('nu-msg','',''); },1100);
+  setTimeout(()=>{ cerrarModal('modal-nuevo-usuario'); abrirModal('modal-usuarios'); cargarUsuarios(); document.getElementById('nu-email').disabled = false; setMsg('nu-msg','',''); },1200);
 }
 
 async function toggleActivoUsuario(uid, activo) {
