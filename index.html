@@ -2233,7 +2233,18 @@ table td, table th { font-size:.88rem !important; }
         <textarea id="mat-desc" rows="2" placeholder="Breve descripción del material…"></textarea>
       </div>
       <div class="form-field">
-        <label>Link externo <span style="font-weight:400;color:var(--muted);">(Drive, OneDrive, etc.)</span></label>
+        <label>Subir archivo <span style="font-weight:400;color:var(--muted);">(PDF, Word, Excel, etc.)</span></label>
+        <input type="file" id="mat-archivo" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip"
+          style="font-size:.78rem;padding:.35rem 0;color:var(--text);">
+        <div id="mat-archivo-prog" style="display:none;margin-top:.4rem;">
+          <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+            <div id="mat-archivo-bar" style="height:100%;width:0%;background:var(--gold);transition:width .3s;"></div>
+          </div>
+          <div id="mat-archivo-stat" style="font-size:.68rem;color:var(--muted);margin-top:.3rem;"></div>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>O link externo <span style="font-weight:400;color:var(--muted);">(Drive, OneDrive, etc.)</span></label>
         <input type="url" id="mat-link" placeholder="https://…">
       </div>
       <div class="form-msg" id="mat-msg"></div>
@@ -3354,13 +3365,48 @@ eliminarCap = async function(idx) {
 
 // MATERIAL CAPACITACIONES
 guardarMaterial = async function() {
-  const titulo = document.getElementById('mat-titulo').value.trim();
-  const link   = document.getElementById('mat-link').value.trim();
-  const tipo   = document.getElementById('mat-tipo').value;
-  const desc   = document.getElementById('mat-desc').value.trim();
-  const capId = document.getElementById('mat-cap-ref')?.value || '';
+  const titulo  = document.getElementById('mat-titulo').value.trim();
+  const tipo    = document.getElementById('mat-tipo').value;
+  const desc    = document.getElementById('mat-desc').value.trim();
+  const capId   = document.getElementById('mat-cap-ref')?.value || '';
+  const archivo = document.getElementById('mat-archivo')?.files[0];
+  let   link    = document.getElementById('mat-link').value.trim();
+
   if(!titulo){ setMsg('mat-msg','Completá el título.','err'); return; }
   if(!capId){ setMsg('mat-msg','Seleccioná una capacitación.','err'); return; }
+  if(!archivo && !link){ setMsg('mat-msg','Subí un archivo o ingresá un link.','err'); return; }
+
+  // Si hay archivo, subirlo a Storage
+  if(archivo) {
+    const prog = document.getElementById('mat-archivo-prog');
+    const bar  = document.getElementById('mat-archivo-bar');
+    const stat = document.getElementById('mat-archivo-stat');
+    prog.style.display = 'block';
+    bar.style.width = '30%';
+    stat.textContent = 'Subiendo archivo…';
+
+    const filePath = `capacitaciones/${capId}/${Date.now()}_${archivo.name}`;
+    const { data: upData, error: upErr } = await sb.storage
+      .from('documentos Vocalia')
+      .upload(filePath, archivo, { cacheControl: '3600', upsert: false });
+
+    if(upErr) {
+      bar.style.width = '0%';
+      stat.textContent = '';
+      prog.style.display = 'none';
+      setMsg('mat-msg','❌ Error al subir: ' + upErr.message,'err');
+      return;
+    }
+
+    bar.style.width = '80%';
+    // Obtener URL firmada
+    const { data: signed } = await sb.storage.from('documentos Vocalia').createSignedUrl(filePath, 31536000);
+    link = signed?.signedUrl || filePath;
+    bar.style.width = '100%';
+    stat.textContent = '✅ Archivo subido.';
+    setTimeout(()=>{ prog.style.display='none'; bar.style.width='0%'; stat.textContent=''; }, 2000);
+  }
+
   const yo = getUserName();
   const { data, error } = await sb.from('material_capacitaciones').insert({
     titulo, link, tipo, descripcion: desc, cap: capId, cap_id: capId,
@@ -3370,7 +3416,14 @@ guardarMaterial = async function() {
   MATERIAL.push({ id: data.id, titulo, link, tipo, desc, cap: capId });
   await logAct('crear','material',`Material "${titulo}" agregado`);
   setMsg('mat-msg','✅ Material cargado.','ok');
-  setTimeout(()=>{ cerrarModal('modal-material'); poblarFiltroMat(); renderMaterial(); limpiar(['mat-titulo','mat-link','mat-desc']); document.getElementById('mat-cap-ref').value=''; setMsg('mat-msg','',''); },1000);
+  setTimeout(()=>{
+    cerrarModal('modal-material');
+    poblarFiltroMat(); renderMaterial();
+    limpiar(['mat-titulo','mat-link','mat-desc']);
+    document.getElementById('mat-cap-ref').value='';
+    document.getElementById('mat-archivo').value='';
+    setMsg('mat-msg','','');
+  },1000);
 };
 
 eliminarMaterial = async function(id) {
