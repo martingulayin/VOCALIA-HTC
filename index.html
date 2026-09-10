@@ -4880,10 +4880,7 @@ function editarCap(idx) {
   abrirModal('modal-capacitacion');
 }
 
-function eliminarCap(idx) {
-  if(!confirm(`¿Eliminás "${CAPS[idx].titulo}"?`)) return;
-  CAPS.splice(idx,1); renderCaps();
-}
+
 
 // ══ RENDER NOVEDADES ════════════════════════════════════════════════════════
 function renderNovedades(){
