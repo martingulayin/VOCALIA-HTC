@@ -1055,76 +1055,74 @@ table td, table th { font-size:.88rem !important; }
 <div id="panel-inicio" class="tab-panel active">
 
   <!-- ══ HERO DIVIDIDO ══ -->
-  <div style="background:var(--navy);display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;padding:1.4rem 1.8rem;align-items:center;" id="portada-hero">
+  <div style="background:var(--navy);display:grid;grid-template-columns:1fr 1fr;gap:.6rem;padding:2.4rem 2rem 2rem;align-items:center;" id="portada-hero">
     <!-- Izquierda -->
     <div>
-      <div style="font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#4A6A8A;margin-bottom:.5rem;">Portal interno · 2026</div>
-      <div style="font-size:1.6rem;font-weight:900;color:#fff;line-height:1.05;margin-bottom:.5rem;">Vocalía <span style="color:var(--gold);">Municipalidades "B"</span></div>
-      <div style="font-size:.72rem;color:#2A3A4A;margin-bottom:.8rem;">H. Tribunal de Cuentas · Prov. de Buenos Aires</div>
-      <div style="font-size:.68rem;font-style:italic;color:#2D4A6A;border-left:2px solid var(--gold);padding-left:.6rem;line-height:1.6;">Control externo de las cuentas municipales · 10 delegaciones zonales · Sede Central La Plata</div>
+      <div style="font-size:.6rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(74,158,224,.6);margin-bottom:.9rem;">Portal interno · 2026</div>
+      <div style="font-size:3.4rem;font-weight:900;color:#fff;line-height:1.0;letter-spacing:-.03em;margin-bottom:.6rem;">Vocalía<br><span style="color:var(--gold);">Municipalidades<br>"B"</span></div>
+      <div style="font-size:.78rem;color:#4A6A8A;font-weight:500;">H. Tribunal de Cuentas · Prov. de Buenos Aires</div>
     </div>
     <!-- Derecha: accesos rápidos -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
-      <div onclick="switchTab('mensajes')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:7px;padding:.65rem .6rem;cursor:pointer;position:relative;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
-        <span id="badge-inicio-msg" style="position:absolute;top:.4rem;right:.4rem;font-size:.52rem;font-weight:700;background:#C0392B;color:#fff;border-radius:8px;padding:.08rem .28rem;">3</span>
-        <div style="font-size:1.1rem;margin-bottom:.2rem;">📣</div>
-        <div style="font-size:.72rem;font-weight:700;color:#fff;">Mensajes</div>
-        <div style="font-size:.58rem;color:#4A6A8A;margin-top:.1rem;">Comunicados</div>
+      <div onclick="switchTab('mensajes')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:10px;padding:1.1rem 1rem;cursor:pointer;position:relative;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+        <span id="badge-inicio-msg" style="position:absolute;top:.55rem;right:.55rem;font-size:.55rem;font-weight:700;background:#C0392B;color:#fff;border-radius:8px;padding:.1rem .35rem;">3</span>
+        <div style="font-size:1.5rem;margin-bottom:.45rem;">📣</div>
+        <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Mensajes</div>
+        <div style="font-size:.62rem;color:#4A6A8A;">Comunicados</div>
       </div>
-      <div onclick="switchTab('novedades')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:7px;padding:.65rem .6rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
-        <div style="font-size:1.1rem;margin-bottom:.2rem;">📰</div>
-        <div style="font-size:.72rem;font-weight:700;color:#fff;">Novedades</div>
-        <div style="font-size:.58rem;color:#4A6A8A;margin-top:.1rem;">Avisos</div>
+      <div onclick="switchTab('novedades')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:10px;padding:1.1rem 1rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+        <div style="font-size:1.5rem;margin-bottom:.45rem;">📰</div>
+        <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Novedades</div>
+        <div style="font-size:.62rem;color:#4A6A8A;">Avisos</div>
       </div>
-      <div onclick="switchTab('documentos')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:7px;padding:.65rem .6rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
-        <div style="font-size:1.1rem;margin-bottom:.2rem;">📚</div>
-        <div style="font-size:.72rem;font-weight:700;color:#fff;">Biblioteca</div>
-        <div style="font-size:.58rem;color:#4A6A8A;margin-top:.1rem;">Docs y normativa</div>
+      <div onclick="switchTab('documentos')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:10px;padding:1.1rem 1rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+        <div style="font-size:1.5rem;margin-bottom:.45rem;">📚</div>
+        <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Biblioteca</div>
+        <div style="font-size:.62rem;color:#4A6A8A;">Docs y normativa</div>
       </div>
-      <div onclick="switchTab('herramientas')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:7px;padding:.65rem .6rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
-        <div style="font-size:1.1rem;margin-bottom:.2rem;">🛠️</div>
-        <div style="font-size:.72rem;font-weight:700;color:#fff;">Herramientas</div>
-        <div style="font-size:.58rem;color:#4A6A8A;margin-top:.1rem;">Links digitales</div>
+      <div onclick="switchTab('herramientas')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:10px;padding:1.1rem 1rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+        <div style="font-size:1.5rem;margin-bottom:.45rem;">🛠️</div>
+        <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Herramientas</div>
+        <div style="font-size:.62rem;color:#4A6A8A;">Links digitales</div>
       </div>
-      <div onclick="switchTab('delegaciones')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:7px;padding:.65rem .6rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
-        <div style="font-size:1.1rem;margin-bottom:.2rem;">📍</div>
-        <div style="font-size:.72rem;font-weight:700;color:#fff;">Delegaciones</div>
-        <div style="font-size:.58rem;color:#4A6A8A;margin-top:.1rem;">Zonales y Sede</div>
+      <div onclick="switchTab('delegaciones')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:10px;padding:1.1rem 1rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+        <div style="font-size:1.5rem;margin-bottom:.45rem;">📍</div>
+        <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Delegaciones</div>
+        <div style="font-size:.62rem;color:#4A6A8A;">Zonales y Sede</div>
       </div>
-      <div onclick="switchTab('cronograma')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:7px;padding:.65rem .6rem;cursor:pointer;position:relative;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
-        <span id="badge-inicio-cron" style="position:absolute;top:.4rem;right:.4rem;font-size:.52rem;font-weight:700;background:var(--gold);color:#0F2340;border-radius:8px;padding:.08rem .28rem;">4</span>
-        <div style="font-size:1.1rem;margin-bottom:.2rem;">📅</div>
-        <div style="font-size:.72rem;font-weight:700;color:#fff;">Cronograma</div>
-        <div style="font-size:.58rem;color:#4A6A8A;margin-top:.1rem;">Eventos del mes</div>
+      <div onclick="switchTab('cronograma')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:10px;padding:1.1rem 1rem;cursor:pointer;position:relative;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+        <div style="font-size:1.5rem;margin-bottom:.45rem;">📅</div>
+        <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Cronograma</div>
+        <div style="font-size:.62rem;color:#4A6A8A;">Eventos del mes</div>
       </div>
     </div>
   </div>
 
   <!-- ══ BARRA DE ESTADÍSTICAS ══ -->
-  <div id="portada-stats" style="background:#0A1929;border-top:1px solid rgba(74,158,224,.12);border-bottom:1px solid rgba(74,158,224,.12);padding:.9rem 1.8rem;display:flex;justify-content:space-around;flex-wrap:wrap;gap:.5rem 1rem;">
+  <div id="portada-stats" style="background:#0A1929;border-top:1px solid rgba(74,158,224,.12);border-bottom:1px solid rgba(74,158,224,.12);padding:1.3rem 1.8rem;display:flex;justify-content:space-around;flex-wrap:wrap;gap:.5rem 1rem;">
     <div style="text-align:center;">
-      <div style="font-size:1.8rem;font-weight:900;color:var(--gold);line-height:1;">100</div>
+      <div style="font-size:2.6rem;font-weight:900;color:var(--gold);line-height:1;">100</div>
       <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4A6A8A;margin-top:.2rem;">Estudios a cargo</div>
       <div style="font-size:.5rem;color:#2A3A4A;margin-top:.1rem;">66 mun · 23 entes · 11 SAPEM</div>
     </div>
     <div class="sep-v" style="width:1px;background:rgba(255,255,255,.06);margin:.2rem 0;"></div>
     <div style="text-align:center;">
-      <div style="font-size:1.8rem;font-weight:900;color:var(--gold);line-height:1;">66</div>
+      <div style="font-size:2.6rem;font-weight:900;color:var(--gold);line-height:1;">66</div>
       <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4A6A8A;margin-top:.2rem;">Municipios</div>
     </div>
     <div class="sep-v" style="width:1px;background:rgba(255,255,255,.06);margin:.2rem 0;"></div>
     <div style="text-align:center;">
-      <div style="font-size:1.8rem;font-weight:900;color:var(--gold);line-height:1;">23</div>
+      <div style="font-size:2.6rem;font-weight:900;color:var(--gold);line-height:1;">23</div>
       <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4A6A8A;margin-top:.2rem;">Entes</div>
     </div>
     <div class="sep-v" style="width:1px;background:rgba(255,255,255,.06);margin:.2rem 0;"></div>
     <div style="text-align:center;">
-      <div style="font-size:1.8rem;font-weight:900;color:var(--gold);line-height:1;">11</div>
+      <div style="font-size:2.6rem;font-weight:900;color:var(--gold);line-height:1;">11</div>
       <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4A6A8A;margin-top:.2rem;">SAPEM</div>
     </div>
     <div class="sep-v" style="width:1px;background:rgba(255,255,255,.06);margin:.2rem 0;"></div>
     <div style="text-align:center;">
-      <div style="font-size:1.8rem;font-weight:900;color:var(--gold);line-height:1;">10</div>
+      <div style="font-size:2.6rem;font-weight:900;color:var(--gold);line-height:1;">10</div>
       <div style="font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4A6A8A;margin-top:.2rem;">Delegaciones</div>
     </div>
   </div>
@@ -1725,45 +1723,16 @@ table td, table th { font-size:.88rem !important; }
 
 <!-- ══ MODAL BIENVENIDA ══ -->
 <div class="modal-overlay open" id="modal-bienvenida" style="z-index:99999;align-items:center;">
-  <div class="modal-box" style="max-width:560px;border-top:4px solid var(--gold);">
-    <div style="background:var(--navy);padding:1.8rem 1.8rem 1.4rem;text-align:center;border-radius:.9rem .9rem 0 0;">
-      <div style="font-size:2.2rem;margin-bottom:.6rem;">🏛️</div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Bienvenido/a</div>
-      <div style="font-size:.9rem;color:var(--gold);font-weight:600;">Vocalía Municipalidades "B"</div>
+  <div style="background:#0F2340;border:1px solid rgba(74,158,224,.2);border-radius:14px;padding:2.4rem 2.2rem 2rem;max-width:460px;width:100%;position:relative;text-align:center;font-family:'Inter',sans-serif;">
+    <button onclick="cerrarBienvenida()" style="position:absolute;top:1rem;right:1.1rem;font-size:1rem;color:#4A6A8A;cursor:pointer;background:none;border:none;line-height:1;">✕</button>
+    <div style="font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(74,158,224,.6);margin-bottom:.9rem;">H. Tribunal de Cuentas · Prov. de Buenos Aires</div>
+    <div style="font-size:2.1rem;font-weight:900;color:#fff;line-height:1.05;letter-spacing:-.03em;margin-bottom:.3rem;">Bienvenido/a al<br><span style="color:#4A9EE0;">Portal Vocalía</span></div>
+    <div style="font-size:.78rem;color:#4A6A8A;margin-bottom:1.4rem;">Municipalidades "B" · Portal interno 2026</div>
+    <div style="width:36px;height:2px;background:rgba(74,158,224,.3);margin:0 auto 1.4rem;"></div>
+    <div style="font-size:.82rem;color:#8AA4BE;line-height:1.65;margin-bottom:1.8rem;max-width:340px;margin-left:auto;margin-right:auto;">
+      Este espacio reúne los <strong style="color:#4A9EE0;font-weight:600;">comunicados, normativa, cronograma y herramientas</strong> de uso interno del equipo de la Vocalía.
     </div>
-    <div class="modal-body" style="padding:1.5rem 1.8rem;">
-      <p style="font-size:.85rem;color:var(--text);line-height:1.75;margin-bottom:1.2rem;">
-        Este espacio reúne información y herramientas de uso interno del equipo. Aquí vas a encontrar:
-      </p>
-      <div style="display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.2rem;">
-        <div style="display:flex;align-items:center;gap:.8rem;padding:.6rem .9rem;background:var(--cream);border-radius:6px;border-left:3px solid var(--gold);">
-          <span style="font-size:1rem;">📣</span>
-          <div><div style="font-size:.8rem;font-weight:700;color:var(--navy);">Mensajes y comunicados</div><div style="font-size:.7rem;color:var(--muted);">Comunicaciones oficiales del Vocal y autoridades</div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:.8rem;padding:.6rem .9rem;background:var(--cream);border-radius:6px;border-left:3px solid var(--gold);">
-          <span style="font-size:1rem;">📅</span>
-          <div><div style="font-size:.8rem;font-weight:700;color:var(--navy);">Cronograma</div><div style="font-size:.7rem;color:var(--muted);">Reuniones, visitas, vencimientos y eventos del área</div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:.8rem;padding:.6rem .9rem;background:var(--cream);border-radius:6px;border-left:3px solid var(--gold);">
-          <span style="font-size:1rem;">📚</span>
-          <div><div style="font-size:.8rem;font-weight:700;color:var(--navy);">Biblioteca</div><div style="font-size:.7rem;color:var(--muted);">Documentos compartidos y normativa de referencia</div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:.8rem;padding:.6rem .9rem;background:var(--cream);border-radius:6px;border-left:3px solid var(--gold);">
-          <span style="font-size:1rem;">🎓</span>
-          <div><div style="font-size:.8rem;font-weight:700;color:var(--navy);">Capacitaciones</div><div style="font-size:.7rem;color:var(--muted);">Cursos, jornadas y material de capacitación</div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:.8rem;padding:.6rem .9rem;background:var(--cream);border-radius:6px;border-left:3px solid var(--gold);">
-          <span style="font-size:1rem;">📰</span>
-          <div><div style="font-size:.8rem;font-weight:700;color:var(--navy);">Novedades</div><div style="font-size:.7rem;color:var(--muted);">Avisos institucionales, normativa y noticias del área</div></div>
-        </div>
-      </div>
-      <p style="font-size:.78rem;color:var(--muted);line-height:1.6;text-align:center;">
-        Usá el <strong>🔍 buscador</strong> para encontrar cualquier contenido rápidamente,<br>o el <strong>🤖 Asistente HTC</strong> para consultas normativas.
-      </p>
-    </div>
-    <div class="modal-footer" style="justify-content:center;padding:1rem 1.8rem 1.3rem;">
-      <button class="btn-accion" style="padding:.6rem 2rem;font-size:.82rem;" onclick="cerrarBienvenida()">Ingresar al portal →</button>
-    </div>
+    <button onclick="cerrarBienvenida()" style="display:inline-flex;align-items:center;gap:.5rem;background:#4A9EE0;color:#0F2340;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:800;letter-spacing:.04em;padding:.75rem 2rem;border-radius:8px;border:none;cursor:pointer;">→ &nbsp;Ingresar al portal</button>
   </div>
 </div>
 
@@ -3049,7 +3018,20 @@ async function cargarMensajes() {
     }
   });
   renderMensajes();
-  document.getElementById('badge-mensajes').textContent = MENSAJES.length;
+  actualizarBadgeMensajes();
+}
+
+function contarNoLeidos() {
+  const yo = getUserName();
+  return MENSAJES.filter(m => !m.lecturas || !m.lecturas.find(l => l.nombre === yo)).length;
+}
+
+function actualizarBadgeMensajes() {
+  const n = contarNoLeidos();
+  const badgeTab = document.getElementById('badge-mensajes');
+  const badgeHero = document.getElementById('badge-inicio-msg');
+  if(badgeTab) { badgeTab.textContent = n; badgeTab.style.display = n > 0 ? '' : 'none'; }
+  if(badgeHero) { badgeHero.textContent = n; badgeHero.style.display = n > 0 ? '' : 'none'; }
 }
 
 async function cargarNovedades() {
@@ -3361,9 +3343,7 @@ function renderWidgetsInicio() {
       </div>
     </div>`).join('') || '<div style="font-size:.78rem;color:var(--muted);font-style:italic;">Sin novedades.</div>';
 
-  const mesActual = new Date().toISOString().slice(0,7);
-  const bc = document.getElementById('badge-inicio-cron');
-  if(bc) bc.textContent = REUNIONES.filter(r=>r.fecha&&r.fecha.startsWith(mesActual)).length;
+
 }
 
 function switchTab(tab) {
@@ -3452,6 +3432,7 @@ async function marcarLeido(msgId) {
   }
   m.lecturas.push({ nombre: yo });
   renderMensajes();
+  actualizarBadgeMensajes();
 }
 
 // ── Render barra de lecturas ──
@@ -3692,7 +3673,7 @@ function renderMensajes() {
       ${renderLecturas(m)}
     </div>`;
   }).join('') || '<div class="lista-empty">No hay mensajes publicados.</div>';
-  document.getElementById('badge-mensajes').textContent = MENSAJES.length;
+  actualizarBadgeMensajes();
   // Inicializar menciones en todos los textareas de respuesta
   MENSAJES.forEach((m, idx) => {
     initMencionesTextarea('resp-text-'+idx, 'resp-wrap-'+idx);
