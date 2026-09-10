@@ -3036,7 +3036,7 @@ async function cargarMensajes() {
     nivel: m.nivel, titulo: m.titulo, cuerpo: m.cuerpo,
     fecha: new Date(m.created_at).toLocaleDateString('es-AR'),
     lecturas: lecturasMap[m.id] || [],
-    total_usuarios: 8,
+    total_usuarios: TOTAL_USUARIOS || 8,
   }));
 
   data.forEach(m => {
@@ -3380,9 +3380,12 @@ const RESPUESTAS = {}; // { msg_id: [{autor, texto, fecha, hora}] }
 // ── Usuarios del equipo (para menciones) ──
 let USUARIOS_EQUIPO = [];
 
+let TOTAL_USUARIOS = 0;
+
 async function cargarUsuariosEquipo() {
   const { data, error } = await sb.from('perfiles_vocalia').select('nombre, cargo');
   if(error || !data) return;
+  TOTAL_USUARIOS = data.length;
   USUARIOS_EQUIPO = data.map(u => ({
     nombre:  u.nombre,
     inicial: u.nombre.charAt(0).toUpperCase(),
@@ -3402,22 +3405,17 @@ function simularNotificacionNueva() {
 }
 
 function actualizarPuntoNotif() {
-  // Punto rojo en el tab de mensajes
-  const badge = document.getElementById('badge-mensajes');
-  let dot = document.getElementById('notif-dot-tab');
   const tabBtn = document.getElementById('tab-mensajes');
+  let dot = document.getElementById('notif-dot-tab');
   if(NOTIF_PENDIENTES > 0) {
     if(!dot) {
       dot = document.createElement('span');
       dot.id = 'notif-dot-tab';
       dot.className = 'notif-dot';
-      dot.style.cssText = 'position:relative;display:inline-block;';
-      // Insertar punto sobre el tab
+      // Posicionar relativo al tab, esquina superior derecha del badge
+      dot.style.cssText = 'position:absolute;top:6px;right:4px;width:8px;height:8px;background:#C0392B;border-radius:50%;border:2px solid #132B4E;animation:notif-pulse 1.8s ease infinite;pointer-events:none;';
       tabBtn.style.position = 'relative';
-      const dotEl = document.createElement('span');
-      dotEl.id = 'notif-dot-tab';
-      dotEl.className = 'notif-dot';
-      tabBtn.appendChild(dotEl);
+      tabBtn.appendChild(dot);
     }
   } else {
     if(dot) dot.remove();
@@ -3464,7 +3462,7 @@ function renderLecturas(m) {
   if(!m.lecturas) return '';
   const yo = getUserName();
   const n = m.lecturas.length;
-  const total = m.total_usuarios || 8;
+  const total = TOTAL_USUARIOS || m.total_usuarios || 8;
   const yoLeyo = m.lecturas.find(l => l.nombre === yo);
   const avatares = m.lecturas.slice(0,4).map(l =>
     `<div class="lectura-avatar" title="${l.nombre}">${l.nombre.charAt(0).toUpperCase()}</div>`
@@ -3495,14 +3493,16 @@ function parsearMenciones(texto) {
 function initMencionesTextarea(taId, containerId) {
   const ta = document.getElementById(taId);
   if(!ta) return;
-  ta.addEventListener('input', function() {
+  ta.addEventListener('input', async function() {
     const val = this.value;
     const pos = this.selectionStart;
     const antes = val.substring(0, pos);
-    const match = antes.match(/@(\w*)$/);
+    const match = antes.match(/@([\w\s]*)$/);
     let dropdown = document.getElementById('mention-dd-'+taId);
     if(match) {
-      const q = match[1].toLowerCase();
+      const q = match[1].toLowerCase().trim();
+      // Si el array está vacío, intentar recargar
+      if(!USUARIOS_EQUIPO.length) await cargarUsuariosEquipo();
       const filtrados = USUARIOS_EQUIPO.filter(u =>
         u.nombre.toLowerCase().includes(q) && u.nombre !== getUserName()
       );
@@ -3532,7 +3532,7 @@ function insertarMencion(taId, nombre) {
   const pos = ta.selectionStart;
   const antes = val.substring(0, pos);
   const despues = val.substring(pos);
-  const nuevaAntes = antes.replace(/@\w*$/, '@'+nombre+' ');
+  const nuevaAntes = antes.replace(/@[\w\s]*$/, '@'+nombre+' ');
   ta.value = nuevaAntes + despues;
   ta.focus();
   const dd = document.getElementById('mention-dd-'+taId);
