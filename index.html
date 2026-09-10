@@ -2043,6 +2043,45 @@ table td, table th { font-size:.88rem !important; }
 </div>
 
 <!-- ══ MODAL ACTIVIDAD SEDE CENTRAL ══ -->
+<div class="modal-overlay" id="modal-doc-sede">
+  <div class="modal-box" style="max-width:460px;">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-doc-sede-titulo">Subir documento</div>
+      <button class="modal-close" onclick="cerrarModal('modal-doc-sede')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field"><label>Título del documento</label><input type="text" id="sd-titulo" placeholder="Nombre descriptivo…"></div>
+      <div class="form-field"><label>Tipo</label>
+        <select id="sd-tipo">
+          <option value="circular">Circular / Resolución</option>
+          <option value="informe">Informe</option>
+          <option value="planilla">Planilla / Modelo</option>
+          <option value="acta">Acta</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Subir archivo <span style="font-weight:400;color:var(--muted);">(PDF, Word, Excel, etc.)</span></label>
+        <input type="file" id="sd-archivo" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip"
+          style="font-size:.78rem;padding:.35rem 0;color:var(--text);">
+        <div id="sd-archivo-prog" style="display:none;margin-top:.4rem;">
+          <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+            <div id="sd-archivo-bar" style="height:100%;width:0%;background:var(--gold);transition:width .3s;"></div>
+          </div>
+          <div id="sd-archivo-stat" style="font-size:.68rem;color:var(--muted);margin-top:.3rem;"></div>
+        </div>
+      </div>
+      <div class="form-field"><label>O link externo <span style="font-weight:400;color:var(--muted);">(Drive, OneDrive, etc.)</span></label><input type="url" id="sd-link" placeholder="https://…"></div>
+      <div class="form-field"><label>Descripción <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><textarea id="sd-desc" rows="2" placeholder="Breve descripción…"></textarea></div>
+      <div class="form-msg" id="sd-msg"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-accion sec" onclick="cerrarModal('modal-doc-sede')">Cancelar</button>
+      <button class="btn-accion" onclick="guardarDocSede()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-actividad-sede">
   <div class="modal-box" style="max-width:460px;">
     <div class="modal-head">
@@ -2065,6 +2104,7 @@ table td, table th { font-size:.88rem !important; }
         <div class="form-field"><label>Hora fin <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><input type="time" id="sa-hora-fin"></div>
       </div>
       <div class="form-field"><label>Descripción</label><textarea id="sa-desc" rows="2" placeholder="Descripción de la actividad…"></textarea></div>
+      <div class="form-field"><label>Lugar <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><input type="text" id="sa-lugar" placeholder="Ej: Sala de reuniones, Zoom…"></div>
       <div class="form-msg" id="sa-msg"></div>
     </div>
     <div class="modal-footer">
@@ -3204,6 +3244,7 @@ guardarActividadSede = async function() {
   const tipo       = document.getElementById('sa-tipo').value;
   const horaInicio = document.getElementById('sa-hora-inicio').value || null;
   const horaFin    = document.getElementById('sa-hora-fin').value || null;
+  const lugar      = document.getElementById('sa-lugar')?.value.trim() || null;
   if(!desc||!fecha){ setMsg('sa-msg','Completá fecha y descripción.','err'); return; }
   const asunto = `[Sede Central · ${sedeActual}] ${desc}`;
   if(SUPABASE_LISTO) {
@@ -3233,7 +3274,7 @@ guardarActividadSede = async function() {
     SEDE_ACT[sedeActual].unshift({ fecha, desc, tipo });
   }
   setMsg('sa-msg','✅ Actividad registrada y agregada al cronograma.','ok');
-  setTimeout(()=>{ cerrarModal('modal-actividad-sede'); renderActividadSedeR(); limpiar(['sa-desc','sa-hora-inicio','sa-hora-fin']); setMsg('sa-msg','',''); },1000);
+  setTimeout(()=>{ cerrarModal('modal-actividad-sede'); renderActividadSedeR(); limpiar(['sa-desc','sa-hora-inicio','sa-hora-fin','sa-lugar']); setMsg('sa-msg','',''); },1000);
 };
 
 eliminarDocSede = async function(idx) {
@@ -4312,11 +4353,62 @@ function renderActividadSedeR() {
 }
 
 function abrirSubirDocSede() {
-  document.getElementById('sa-fecha').value = new Date().toISOString().split('T')[0];
-  abrirModal('modal-actividad-sede');
+  const s = sedeActual ? ` · ${sedeActual}` : '';
+  const el = document.getElementById('modal-doc-sede-titulo');
+  if(el) el.textContent = `Subir documento${s}`;
+  abrirModal('modal-doc-sede');
 }
 
 
+
+async function guardarDocSede() {
+  const titulo  = document.getElementById('sd-titulo').value.trim();
+  const tipo    = document.getElementById('sd-tipo').value;
+  const desc    = document.getElementById('sd-desc').value.trim();
+  const archivo = document.getElementById('sd-archivo')?.files[0];
+  let   link    = document.getElementById('sd-link').value.trim();
+
+  if(!titulo){ setMsg('sd-msg','Ingresá el título.','err'); return; }
+  if(!archivo && !link){ setMsg('sd-msg','Subí un archivo o ingresá un link.','err'); return; }
+
+  if(archivo) {
+    const prog = document.getElementById('sd-archivo-prog');
+    const bar  = document.getElementById('sd-archivo-bar');
+    const stat = document.getElementById('sd-archivo-stat');
+    prog.style.display = 'block'; bar.style.width = '30%';
+    stat.textContent = 'Subiendo archivo…';
+    const filePath = `sede/${sedeActual}/${Date.now()}_${archivo.name}`;
+    const { data: upData, error: upErr } = await sb.storage
+      .from('documentos Vocalia')
+      .upload(filePath, archivo, { cacheControl: '3600', upsert: false });
+    if(upErr) {
+      prog.style.display='none'; bar.style.width='0%';
+      setMsg('sd-msg','❌ Error al subir: ' + upErr.message,'err'); return;
+    }
+    bar.style.width = '80%';
+    const { data: signed } = await sb.storage.from('documentos Vocalia').createSignedUrl(filePath, 31536000);
+    link = signed?.signedUrl || filePath;
+    bar.style.width = '100%'; stat.textContent = '✅ Archivo subido.';
+    setTimeout(()=>{ prog.style.display='none'; bar.style.width='0%'; stat.textContent=''; }, 2000);
+  }
+
+  if(SUPABASE_LISTO) {
+    const { data } = await sb.from('sede_docs').insert({
+      relatoria: sedeActual, titulo, tipo, link, descripcion: desc, autor_id: usuarioActual?.id
+    }).select().single();
+    if(data) SEDE_DOCS[sedeActual].unshift({ id:data.id, titulo, tipo, link, desc, fecha: hoy() });
+    await logAct('crear','sede_docs',`Sede ${sedeActual}: ${titulo}`);
+  } else {
+    SEDE_DOCS[sedeActual].unshift({ titulo, tipo, link, desc, fecha: hoy() });
+  }
+  setMsg('sd-msg','✅ Documento cargado.','ok');
+  setTimeout(()=>{
+    cerrarModal('modal-doc-sede'); renderDocsSedeR();
+    limpiar(['sd-titulo','sd-link','sd-desc']);
+    document.getElementById('sd-archivo').value='';
+    setMsg('sd-msg','','');
+  },1000);
+}
 
 // ══ HERRAMIENTAS DIGITALES ════════════════════════════════════════════════
 const TIPO_HERR = {
