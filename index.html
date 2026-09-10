@@ -2796,7 +2796,7 @@ async function guardarUsuario() {
     setMsg('nu-msg','Creando usuario…','');
     try {
       const { data: { session } } = await sb.auth.getSession();
-      const res = await fetch(`${SUPA_URL}/functions/v1/crear-usuario`, {
+      const res = await fetch(`${SUPA_URL}/functions/v1/hyper-responder`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
