@@ -1013,13 +1013,13 @@ table td, table th { font-size:.88rem !important; }
 </div>
 
 <!-- BANNER AVISO -->
-<div id="aviso-banner" class="show nivel-importante">
+<div id="aviso-banner">
   <span class="banner-icon">📢</span>
   <div class="banner-cuerpo">
-    <span class="banner-titulo">Recordatorio —</span>
-    <span class="banner-texto">Reunión plenaria este jueves a las 10:00 hs. en sala de reuniones. Asistencia obligatoria.</span>
+    <span class="banner-titulo"></span>
+    <span class="banner-texto"></span>
   </div>
-  <button class="banner-close" onclick="this.parentElement.classList.remove('show')">✕</button>
+  <button class="banner-close" onclick="cerrarBannerAviso()">✕</button>
 </div>
 
 <!-- BUSCADOR INTEGRAL -->
@@ -2442,7 +2442,8 @@ async function doLogin() {
   mostrarPortal();
   aplicarPermisos();
   await logAct('login', 'acceso', `Ingresó al portal`);
-  await cargarTodosLosDatos();
+  await iniciarBanner();
+cargarTodosLosDatos();
 }
 
 // Enter en los campos + verificar sesión activa al cargar
@@ -2929,12 +2930,37 @@ function publicarAviso() {
   const contenido= document.getElementById('aviso-contenido').value.trim();
   const nivel    = document.getElementById('aviso-nivel').value;
   if(!titulo||!contenido){ setMsg('aviso-msg','Completá título y contenido.','err'); return; }
-  const banner = document.getElementById('aviso-banner');
-  banner.querySelector('.banner-titulo').textContent = titulo + ' — ';
-  banner.querySelector('.banner-texto').textContent  = contenido;
-  banner.className = 'show nivel-' + nivel;
+  // Guardar aviso en localStorage con ID único basado en contenido
+  const avisoId = btoa(titulo + contenido).slice(0, 24);
+  const aviso = { id: avisoId, titulo, contenido, nivel };
+  localStorage.setItem('vocalia_aviso_activo', JSON.stringify(aviso));
+  localStorage.removeItem('vocalia_aviso_cerrado');
+  mostrarBannerAviso(aviso);
   setMsg('aviso-msg','✅ Aviso publicado en el banner.','ok');
   setTimeout(()=>{ cerrarModal('modal-aviso-global'); limpiar(['aviso-titulo','aviso-contenido']); setMsg('aviso-msg','',''); },1100);
+}
+
+function mostrarBannerAviso(aviso) {
+  const banner = document.getElementById('aviso-banner');
+  banner.querySelector('.banner-titulo').textContent = aviso.titulo + ' — ';
+  banner.querySelector('.banner-texto').textContent  = aviso.contenido;
+  banner.className = 'show nivel-' + aviso.nivel;
+}
+
+function cerrarBannerAviso() {
+  const banner = document.getElementById('aviso-banner');
+  banner.classList.remove('show');
+  // Guardar qué aviso cerró para no mostrarlo de nuevo
+  const aviso = JSON.parse(localStorage.getItem('vocalia_aviso_activo') || 'null');
+  if(aviso) localStorage.setItem('vocalia_aviso_cerrado', aviso.id);
+}
+
+function cargarBannerAviso() {
+  const aviso = JSON.parse(localStorage.getItem('vocalia_aviso_activo') || 'null');
+  if(!aviso) return;
+  const cerrado = localStorage.getItem('vocalia_aviso_cerrado');
+  if(cerrado === aviso.id) return; // este usuario ya lo cerró
+  mostrarBannerAviso(aviso);
 }
 
 async function doLogout() {
@@ -2951,6 +2977,10 @@ async function doLogout() {
 }
 
 // ══ CARGA DE DATOS DESDE SUPABASE ══════════════════════════════════════════
+function iniciarBanner() {
+  cargarBannerAviso();
+}
+
 async function cargarTodosLosDatos() {
   await Promise.all([
     cargarMensajes(),
