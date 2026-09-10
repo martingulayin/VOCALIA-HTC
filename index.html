@@ -1095,6 +1095,11 @@ table td, table th { font-size:.88rem !important; }
         <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Cronograma</div>
         <div style="font-size:.62rem;color:#4A6A8A;">Eventos del mes</div>
       </div>
+      <div onclick="switchTab('capacitaciones')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:10px;padding:1.1rem 1rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+        <div style="font-size:1.5rem;margin-bottom:.45rem;">🎓</div>
+        <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Capacitaciones</div>
+        <div style="font-size:.62rem;color:#4A6A8A;">Cursos y material</div>
+      </div>
     </div>
   </div>
 
@@ -2991,6 +2996,7 @@ async function cargarTodosLosDatos() {
     cargarDocs(),
     cargarNormativaDB(),
     cargarCapacitacionesDB(),
+    cargarMaterial(),
   ]);
   renderWidgetsInicio();
 }
@@ -3322,16 +3328,37 @@ guardarMaterial = async function() {
   const link   = document.getElementById('mat-link').value.trim();
   const tipo   = document.getElementById('mat-tipo').value;
   const desc   = document.getElementById('mat-desc').value.trim();
-  if(!titulo||!link){ setMsg('mat-msg','Completá título y link.','err'); return; }
+  if(!titulo){ setMsg('mat-msg','Completá el título.','err'); return; }
   const capId = document.getElementById('mat-cap').value || 'general';
-  MATERIAL.push({ id: Date.now(), titulo, link, tipo, desc, cap: capId });
+  const yo = getUserName();
+  const { data, error } = await sb.from('material_capacitaciones').insert({
+    titulo, link, tipo, descripcion: desc, cap: capId,
+    autor_id: usuarioActual?.id, autor_nombre: yo,
+  }).select().single();
+  if(error){ setMsg('mat-msg','❌ Error al guardar: ' + error.message,'err'); return; }
+  MATERIAL.push({ id: data.id, titulo, link, tipo, desc, cap: capId });
+  await logAct('crear','material',`Material "${titulo}" agregado`);
   setMsg('mat-msg','✅ Material cargado.','ok');
   setTimeout(()=>{ cerrarModal('modal-material'); renderMaterial(); poblarFiltroMat(); limpiar(['mat-titulo','mat-link','mat-desc']); setMsg('mat-msg','',''); },1000);
 };
 
 eliminarMaterial = async function(id) {
   if(!confirm('¿Eliminás este material?')) return;
+  const { error } = await sb.from('material_capacitaciones').delete().eq('id', id);
+  if(error){ alert('Error al eliminar: ' + error.message); return; }
   MATERIAL = MATERIAL.filter(m => m.id !== id);
+  await logAct('eliminar','material',`Material ${id} eliminado`);
+  renderMaterial(); poblarFiltroMat();
+};
+
+cargarMaterial = async function() {
+  const { data, error } = await sb.from('material_capacitaciones')
+    .select('*').order('created_at', { ascending: false });
+  if(error || !data) return;
+  MATERIAL = data.map(m => ({
+    id: m.id, titulo: m.titulo, tipo: m.tipo,
+    desc: m.descripcion, link: m.link, cap: m.cap,
+  }));
   renderMaterial(); poblarFiltroMat();
 };
 
@@ -4596,13 +4623,7 @@ const TIPO_MAT_LABEL = {
   video:'Video', ejercicio:'Ejercicio', otro:'Otro'
 };
 
-let MATERIAL = [
-  { id:1, cap:'Contabilidad pública municipal — IPAP · Sep 2026', tipo:'presentacion', titulo:'Presentación: Presupuesto municipal y LOM', desc:'Slides de la jornada. Incluye ejemplos de modificaciones presupuestarias.', link:'https://drive.google.com', fecha:'12/09/2026' },
-  { id:2, cap:'Contabilidad pública municipal — IPAP · Sep 2026', tipo:'normativa',    titulo:'Decreto 2980/00 — Reglamento LOM PBA', desc:'Texto completo para referencia durante la capacitación.', link:'', fecha:'12/09/2026' },
-  { id:3, cap:'Contabilidad pública municipal — IPAP · Sep 2026', tipo:'ejercicio',    titulo:'Caso práctico: créditos suplementarios', desc:'Ejercicio resuelto para práctica individual.', link:'', fecha:'12/09/2026' },
-  { id:4, cap:'Auditoría de gestión en municipios — Sep 2026',    tipo:'presentacion', titulo:'Metodología de auditoría de gestión', desc:'Material del curso virtual de 12 horas.', link:'https://drive.google.com', fecha:'25/09/2026' },
-  { id:5, cap:'Auditoría de gestión en municipios — Sep 2026',    tipo:'video',        titulo:'Grabación de la sesión 1 — Introducción', desc:'Video grabado de la primera sesión del curso.', link:'https://drive.google.com', fecha:'25/09/2026' },
-];
+let MATERIAL = [];
 
 function switchCapTab(tab) {
   ['proximas','material'].forEach(t => {
