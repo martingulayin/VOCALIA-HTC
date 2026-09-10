@@ -2401,59 +2401,15 @@ table td, table th { font-size:.88rem !important; }
 
 <script>
 // ══ DATOS DEMO ════════════════════════════════════════════════════════════
-let MENSAJES = [
-  { id:1, autor:'Vocal', cargo:'Vocalía Municipalidades "B" · H. Tribunal de Cuentas PBA', nivel:'urgente',
-    titulo:'Reunión plenaria obligatoria — jueves 28/08',
-    cuerpo:'Se convoca a todo el personal a la reunión plenaria del jueves 28 de agosto a las 10:00 hs. en la sala de reuniones. Se tratarán temas de organización interna y presentación del plan de trabajo del segundo semestre. La asistencia es obligatoria. @mgulayin por favor confirmá asistencia.',
-    fecha:'25/08/2026',
-    lecturas:[ {nombre:'Dra. García'},{nombre:'Lic. Martínez'},{nombre:'Cr. López'},{nombre:'Sra. Romero'},{nombre:'Lic. Ferreyra'} ],
-    total_usuarios: 8 },
-  { id:2, autor:'Dra. García', cargo:'Relatora Mayor · Vocalía Municipalidades "B"', nivel:'importante',
-    titulo:'Nuevo procedimiento para presentación de informes',
-    cuerpo:'A partir del 1° de septiembre, todos los informes de auditoría deberán presentarse con la nueva carátula unificada disponible en la sección Documentos. Se solicita revisar el modelo antes de la próxima presentación. @Lic. Martínez coordiná con las delegaciones.',
-    fecha:'22/08/2026',
-    lecturas:[ {nombre:'Cr. López'},{nombre:'Sra. Romero'} ],
-    total_usuarios: 8 },
-  { id:3, autor:'Lic. Martínez', cargo:'Relatora Mayor · Vocalía Municipalidades "B"', nivel:'informativo',
-    titulo:'Horario de atención al público — agosto 2026',
-    cuerpo:'Se recuerda que durante el mes de agosto el horario de atención al público es de 9:00 a 13:00 hs. de lunes a viernes. Las consultas telefónicas se atienden en el mismo horario.',
-    fecha:'18/08/2026',
-    lecturas:[ {nombre:'Dra. García'},{nombre:'Lic. Martínez'},{nombre:'Cr. López'},{nombre:'Sra. Romero'},{nombre:'Lic. Ferreyra'},{nombre:'Cr. Sánchez'},{nombre:'Sra. Torres'} ],
-    total_usuarios: 8 }
-];
+let MENSAJES = [];
 
-let REUNIONES = [
-  { fecha:'2026-08-28', hora_inicio:'10:00', hora_fin:'12:00', tipo:'institucional', asunto:'Reunión plenaria del personal', convocados:'Todo el personal', municipio:'', quien:'Vocal' },
-  { fecha:'2026-08-20', hora_inicio:'09:00', hora_fin:'10:30', tipo:'reunion', asunto:'Seguimiento auditorías — cierre de expedientes', convocados:'Equipo auditoría', municipio:'', quien:'Dra. García' },
-  { fecha:'2026-08-26', hora_inicio:'09:00', hora_fin:'13:00', tipo:'visita', asunto:'Visita de auditoría — rendición 2025', convocados:'Equipo técnico', municipio:'Municipalidad de Berisso', quien:'Lic. Martínez' },
-  { fecha:'2026-08-31', hora_inicio:'', hora_fin:'', tipo:'vencimiento', asunto:'Vencimiento presentación rendición de cuentas — 2° trimestre', convocados:'', municipio:'', quien:'Admin' },
-  { fecha:'2026-09-03', hora_inicio:'14:00', hora_fin:'15:30', tipo:'presentacion', asunto:'Presentación informe de auditoría — Municipalidad de Ensenada', convocados:'Vocal, Relatoría', municipio:'Municipalidad de Ensenada', quien:'Dra. García' },
-  { fecha:'2026-09-10', hora_inicio:'10:00', hora_fin:'13:00', tipo:'capacitacion', asunto:'Capacitación: Contabilidad pública municipal', convocados:'Todo el personal', municipio:'', quien:'IPAP' },
-  { fecha:'2026-09-15', hora_inicio:'09:30', hora_fin:'12:00', tipo:'visita', asunto:'Visita de auditoría — obras públicas 2025', convocados:'Equipo técnico', municipio:'Municipalidad de Brandsen', quien:'Lic. Martínez' },
-  { fecha:'2026-09-30', hora_inicio:'', hora_fin:'', tipo:'vencimiento', asunto:'Plazo límite — descargo municipios observados', convocados:'', municipio:'', quien:'Admin' },
-];
+let REUNIONES = [];
 
-let DOCS = [
-  { nombre:'Modelo_Caratula_Informes_2026.docx', tipo:'docx', size:'48 KB', fecha:'22/08/2026', autor:'Dra. García' },
-  { nombre:'Circular_01_2026_HTC.pdf', tipo:'pdf', size:'320 KB', fecha:'15/08/2026', autor:'Mesa de Entradas' },
-  { nombre:'Planilla_Seguimiento_Auditorias.xlsx', tipo:'xlsx', size:'95 KB', fecha:'10/08/2026', autor:'Lic. Martínez' },
-  { nombre:'LOM_Decreto_Ley_6769_58.pdf', tipo:'pdf', size:'1.2 MB', fecha:'01/08/2026', autor:'Admin' },
-  { nombre:'Reglamento_Contabilidad_HTC.pdf', tipo:'pdf', size:'890 KB', fecha:'01/08/2026', autor:'Admin' },
-  { nombre:'Decreto_2980_2000.pdf', tipo:'pdf', size:'650 KB', fecha:'01/08/2026', autor:'Admin' },
-];
+let DOCS = [];
 
-let CAPS = [
-  { titulo:'Contabilidad pública municipal — normativa vigente', fecha:'2026-09-10', modalidad:'presencial', desc:'Jornada de actualización sobre LOM, Reglamento de Contabilidad y Decreto 2980/00. Dictada por el IPAP.', area:'Todo el personal' },
-  { titulo:'Auditoría de gestión en municipios bonaerenses', fecha:'2026-09-25', modalidad:'virtual', desc:'Curso virtual de 12 horas sobre metodologías de auditoría de gestión en el ámbito municipal.', area:'Auditores' },
-  { titulo:'Manejo avanzado de Excel para auditoría', fecha:'2026-10-08', modalidad:'presencial', desc:'Taller práctico de herramientas avanzadas: tablas dinámicas, funciones de búsqueda y análisis de datos.', area:'Todo el personal' },
-];
+let CAPS = [];
 
-let NOVEDADES = [
-  { titulo:'Se incorporan dos nuevas municipalidades al ámbito de control', cat:'institucional', texto:'A partir del presente ejercicio, los municipios de Azul y Olavarría incorporan nuevos circuitos administrativos que amplían el alcance del control de la Vocalía. Se está organizando un cronograma de visitas para el tercer trimestre.', fecha:'24/08/2026' },
-  { titulo:'Resolución HTC 412/2026 — Procedimiento de presentación de rendiciones', cat:'normativa', texto:'El H. Tribunal de Cuentas aprobó la Resolución 412/2026 que actualiza los plazos y formatos para la presentación de rendiciones de cuentas de las municipalidades. La normativa estará disponible en la sección Documentos.', fecha:'20/08/2026' },
-  { titulo:'Convocatoria concurso de antecedentes — Auditor municipal', cat:'rrhh', texto:'Se abre el período de inscripción para el concurso de antecedentes y oposición para el cargo de Auditor Municipal categoría B. Plazo de inscripción: del 1° al 15 de septiembre de 2026. Más información en RRHH.', fecha:'19/08/2026' },
-  { titulo:'Actualización del sistema de gestión documental', cat:'general', texto:'A partir del lunes 1° de septiembre el sistema de gestión documental incorporará nuevas funcionalidades para el registro y seguimiento de expedientes. Se realizará una breve capacitación el viernes 29/08 a las 11 hs.', fecha:'18/08/2026' },
-];
+let NOVEDADES = [];
 
 // ══ SUPABASE CLIENT ════════════════════════════════════════════════════════
 const SUPA_URL = 'https://yvsaxtiivngfzrqoscbu.supabase.co';
@@ -2490,7 +2446,7 @@ async function doLogin() {
     return;
   }
   usuarioActual = data.user;
-  const { data: perfil } = await sb.from('perfiles').select('*').eq('id', data.user.id).single();
+  const { data: perfil } = await sb.from('perfiles_vocalia').select('*').eq('id', data.user.id).single();
 
   // Verificar si el usuario está activo
   if(perfil && !perfil.activo) {
@@ -2507,7 +2463,7 @@ async function doLogin() {
   document.getElementById('topbar-role').textContent = rolActual.toUpperCase();
 
   // Actualizar último acceso
-  await sb.from('perfiles').update({ ultimo_acceso: new Date().toISOString() }).eq('id', data.user.id);
+  await sb.from('perfiles_vocalia').update({ ultimo_acceso: new Date().toISOString() }).eq('id', data.user.id);
 
   if(!remember) {
     // Sin recordarme: sesión dura hasta cerrar el navegador (no F5)
@@ -2530,13 +2486,13 @@ document.addEventListener('DOMContentLoaded', () => {
   sb.auth.getSession().then(async ({ data: { session } }) => {
     if(session) {
       usuarioActual = session.user;
-      const { data: perfil } = await sb.from('perfiles').select('*').eq('id', session.user.id).single();
+      const { data: perfil } = await sb.from('perfiles_vocalia').select('*').eq('id', session.user.id).single();
       if(perfil && !perfil.activo) { await sb.auth.signOut(); return; }
       perfilActual = perfil;
       rolActual = perfil?.rol || 'usuario';
       document.getElementById('topbar-username').textContent = perfil?.nombre || session.user.email.split('@')[0];
       document.getElementById('topbar-role').textContent = rolActual.toUpperCase();
-      await sb.from('perfiles').update({ ultimo_acceso: new Date().toISOString() }).eq('id', session.user.id);
+      await sb.from('perfiles_vocalia').update({ ultimo_acceso: new Date().toISOString() }).eq('id', session.user.id);
       mostrarPortal();
       aplicarPermisos();
       await cargarTodosLosDatos();
@@ -2804,7 +2760,7 @@ async function abrirPanelUsuarios() {
 async function cargarUsuarios() {
   const lista = document.getElementById('usuarios-lista');
   lista.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--muted);font-size:.8rem;">Cargando…</div>';
-  const { data, error } = await sb.from('perfiles').select('*').order('created_at', { ascending: false });
+  const { data, error } = await sb.from('perfiles_vocalia').select('*').order('created_at', { ascending: false });
   if(error || !data) { lista.innerHTML = '<div style="padding:1rem;color:var(--red);">Error al cargar usuarios.</div>'; return; }
   lista.innerHTML = data.map(u => `
     <div style="display:flex;align-items:center;gap:.8rem;padding:.7rem 1.2rem;border-bottom:1px solid var(--border);">
@@ -2857,7 +2813,7 @@ async function guardarUsuario() {
 
   if(editId) {
     // Editar — solo nombre y rol
-    const { error } = await sb.from('perfiles').update({ nombre, rol }).eq('id', editId);
+    const { error } = await sb.from('perfiles_vocalia').update({ nombre, rol }).eq('id', editId);
     if(error){ setMsg('nu-msg','Error al actualizar.','err'); return; }
     await logAct('editar', 'usuarios', `Usuario ${nombre} actualizado`);
     setMsg('nu-msg','✅ Usuario actualizado.','ok');
@@ -2883,7 +2839,7 @@ async function guardarUsuario() {
 }
 
 async function toggleActivoUsuario(uid, activo) {
-  const { error } = await sb.from('perfiles').update({ activo: !activo }).eq('id', uid);
+  const { error } = await sb.from('perfiles_vocalia').update({ activo: !activo }).eq('id', uid);
   if(!error) {
     await logAct(activo ? 'desactivar' : 'activar', 'usuarios', `Usuario ${uid}`);
     await cargarUsuarios();
@@ -2913,7 +2869,7 @@ async function guardarPerfil() {
   if(pass && pass.length < 8){ setMsg('perfil-msg','La contraseña debe tener al menos 8 caracteres.','err'); return; }
 
   // Actualizar nombre en perfiles
-  const { error } = await sb.from('perfiles').update({ nombre }).eq('id', usuarioActual.id);
+  const { error } = await sb.from('perfiles_vocalia').update({ nombre }).eq('id', usuarioActual.id);
   if(error){ setMsg('perfil-msg','Error al guardar.','err'); return; }
 
   // Actualizar contraseña si se ingresó
@@ -3022,6 +2978,7 @@ async function cargarTodosLosDatos() {
   await Promise.all([
     cargarMensajes(),
     cargarNovedades(),
+    cargarUsuariosEquipo(),
     cargarEventos(),
     cargarHerramientas(),
     cargarDocs(),
@@ -3421,16 +3378,17 @@ function switchTab(tab) {
 const RESPUESTAS = {}; // { msg_id: [{autor, texto, fecha, hora}] }
 
 // ── Usuarios del equipo (para menciones) ──
-const USUARIOS_EQUIPO = [
-  { nombre:'Dra. García',     inicial:'G', cargo:'Relatora Mayor' },
-  { nombre:'Lic. Martínez',   inicial:'M', cargo:'Delegación La Plata' },
-  { nombre:'Cr. López',       inicial:'L', cargo:'Delegación Quilmes' },
-  { nombre:'Sra. Romero',     inicial:'R', cargo:'Delegación Zárate' },
-  { nombre:'Lic. Ferreyra',   inicial:'F', cargo:'Delegación Mar del Plata' },
-  { nombre:'Cr. Sánchez',     inicial:'S', cargo:'Delegación Azul' },
-  { nombre:'Sra. Torres',     inicial:'T', cargo:'Delegación Morón' },
-  { nombre:'mgulayin',        inicial:'M', cargo:'Admin · Sede Central' },
-];
+let USUARIOS_EQUIPO = [];
+
+async function cargarUsuariosEquipo() {
+  const { data, error } = await sb.from('perfiles_vocalia').select('nombre, cargo');
+  if(error || !data) return;
+  USUARIOS_EQUIPO = data.map(u => ({
+    nombre:  u.nombre,
+    inicial: u.nombre.charAt(0).toUpperCase(),
+    cargo:   u.cargo || '',
+  }));
+}
 
 // ── Notificaciones en tiempo real (demo) ──
 let NOTIF_PENDIENTES = 0;
