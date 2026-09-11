@@ -3341,46 +3341,68 @@ guardarActividadSede = async function() {
   const tipo       = document.getElementById('sa-tipo').value;
   const horaInicio = document.getElementById('sa-hora-inicio').value || null;
   const horaFin    = document.getElementById('sa-hora-fin').value || null;
-  const lugar      = document.getElementById('sa-lugar')?.value.trim() || null;
   if(!desc||!fecha){ setMsg('sa-msg','Completá fecha y descripción.','err'); return; }
   const asunto = `[Sede Central · ${sedeActual}] ${desc}`;
+
   if(SUPABASE_LISTO) {
-    const { data } = await sb.from('sede_actividad').insert({
+    // 1. Insertar en sede_actividad
+    const { data: actData, error: actErr } = await sb.from('sede_actividad').insert({
       relatoria: sedeActual, fecha, tipo, descripcion: desc, autor_id: usuarioActual?.id
     }).select().single();
-    if(data) SEDE_ACT[sedeActual].unshift({ id:data.id, fecha, desc, tipo });
-    // Crear evento en cronograma
-    const { data: ev } = await sb.from('eventos').insert({
+    if(actErr) {
+      console.error('Error al guardar actividad de sede:', actErr);
+      setMsg('sa-msg','❌ Error al registrar la actividad: ' + actErr.message,'err');
+      return;
+    }
+    SEDE_ACT[sedeActual].unshift({ id: actData.id, fecha, desc, tipo, eventoId: null });
+    renderActividadSedeR();
+
+    // 2. Crear evento vinculado en cronograma
+    const { data: ev, error: evErr } = await sb.from('eventos').insert({
       asunto, tipo, fecha,
       hora_inicio: horaInicio, hora_fin: horaFin,
       quien: `Sede Central — ${sedeActual}`,
       notas: desc, autor_id: usuarioActual?.id,
       origen_tabla: 'sede_actividad',
-      origen_id: data?.id || null,
-      relatoria: sedeActual,
+      origen_id: actData.id,
     }).select().single();
-    if(ev) {
-      REUNIONES.push({
-        id: ev.id, asunto: ev.asunto, tipo: ev.tipo, fecha: ev.fecha,
-        hora_inicio: ev.hora_inicio, hora_fin: ev.hora_fin,
-        municipio: ev.municipio, quien: ev.quien, notas: ev.notas,
-        origen_tabla: 'sede_actividad', origen_id: data?.id,
-        relatoria: sedeActual,
-      });
-      // Guardar evento_id en sede_actividad
-      if(data?.id) {
-        await sb.from('sede_actividad').update({ evento_id: ev.id }).eq('id', data.id);
-        const actIdx = (SEDE_ACT[sedeActual]||[]).findIndex(a => a.id === data.id);
-        if(actIdx >= 0) SEDE_ACT[sedeActual][actIdx].eventoId = ev.id;
-      }
-      renderCalendario();
+    if(evErr) {
+      console.error('Error al crear evento en cronograma:', evErr);
+      setMsg('sa-msg','⚠️ Actividad guardada pero no se pudo agregar al cronograma: ' + evErr.message,'err');
+      return;
     }
+
+    // 3. Actualizar sede_actividad con evento_id
+    await sb.from('sede_actividad').update({ evento_id: ev.id }).eq('id', actData.id);
+
+    // 4. Actualizar arrays locales
+    const actIdx = SEDE_ACT[sedeActual].findIndex(a => a.id === actData.id);
+    if(actIdx >= 0) SEDE_ACT[sedeActual][actIdx].eventoId = ev.id;
+    REUNIONES.push({
+      id: ev.id, asunto: ev.asunto, tipo: ev.tipo, fecha: ev.fecha,
+      hora_inicio: ev.hora_inicio, hora_fin: ev.hora_fin,
+      municipio: ev.municipio, quien: ev.quien, notas: ev.notas,
+      origen_tabla: 'sede_actividad', origen_id: actData.id,
+      relatoria: sedeActual,
+    });
+    renderCalendario();
     await logAct('crear','sede_actividad',`Relatoría ${sedeActual}: ${desc}`);
+
   } else {
-    SEDE_ACT[sedeActual].unshift({ fecha, desc, tipo });
+    // Sin Supabase: solo local
+    SEDE_ACT[sedeActual].unshift({ fecha, desc, tipo, eventoId: null });
+    REUNIONES.push({
+      id: Date.now(), asunto, tipo, fecha,
+      hora_inicio: horaInicio, hora_fin: horaFin,
+      quien: `Sede Central — ${sedeActual}`, notas: desc,
+      origen_tabla: 'sede_actividad', origen_id: null, relatoria: sedeActual,
+    });
+    renderCalendario();
+    renderActividadSedeR();
   }
+
   setMsg('sa-msg','✅ Actividad registrada y agregada al cronograma.','ok');
-  setTimeout(()=>{ cerrarModal('modal-actividad-sede'); renderActividadSedeR(); limpiar(['sa-desc','sa-hora-inicio','sa-hora-fin','sa-lugar']); setMsg('sa-msg','',''); },1000);
+  setTimeout(()=>{ cerrarModal('modal-actividad-sede'); limpiar(['sa-desc','sa-hora-inicio','sa-hora-fin','sa-lugar']); setMsg('sa-msg','',''); },1000);
 };
 
 eliminarDocSede = async function(idx) {
@@ -3484,50 +3506,68 @@ guardarActividadDeleg = async function() {
   const asunto = `[Deleg. ${delegActual} · ${deleg?.sede||''}] ${desc}`;
 
   if(SUPABASE_LISTO) {
-    const { data } = await sb.from('delegacion_actividad').insert({
+    // 1. Insertar en delegacion_actividad
+    const { data: actData, error: actErr } = await sb.from('delegacion_actividad').insert({
       delegacion_nro: delegActual, fecha, tipo, descripcion: desc,
       municipio: municipio||null, autor_id: usuarioActual?.id
     }).select().single();
-    if(data) DELEG_ACT[delegActual].unshift({ id:data.id, fecha, tipo, desc, municipio });
+    if(actErr) {
+      console.error('Error al guardar actividad de delegación:', actErr);
+      setMsg('da-msg','❌ Error al registrar la actividad: ' + actErr.message,'err');
+      return;
+    }
+    DELEG_ACT[delegActual].unshift({ id: actData.id, fecha, tipo, desc, municipio, eventoId: null });
+    renderActividadDeleg();
 
-    // Crear evento en cronograma
-    const { data: ev } = await sb.from('eventos').insert({
-      asunto,
-      tipo,
-      fecha,
-      hora_inicio: horaInicio,
-      hora_fin: horaFin,
+    // 2. Crear evento vinculado en cronograma
+    const { data: ev, error: evErr } = await sb.from('eventos').insert({
+      asunto, tipo, fecha,
+      hora_inicio: horaInicio, hora_fin: horaFin,
       municipio: municipio || null,
       quien: `Delegación Nº ${delegActual} — ${deleg?.sede||''}`,
-      notas: desc,
-      autor_id: usuarioActual?.id,
+      notas: desc, autor_id: usuarioActual?.id,
       origen_tabla: 'delegacion_actividad',
-      origen_id: data?.id || null,
-      delegacion_nro: delegActual,
+      origen_id: actData.id,
     }).select().single();
-    if(ev) {
-      REUNIONES.push({
-        id: ev.id, asunto: ev.asunto, tipo: ev.tipo, fecha: ev.fecha,
-        hora_inicio: ev.hora_inicio, hora_fin: ev.hora_fin,
-        municipio: ev.municipio, quien: ev.quien, notas: ev.notas,
-        origen_tabla: 'delegacion_actividad', origen_id: data?.id,
-        delegacion_nro: delegActual,
-      });
-      // Guardar evento_id en delegacion_actividad
-      if(data?.id) {
-        await sb.from('delegacion_actividad').update({ evento_id: ev.id }).eq('id', data.id);
-        const actIdx = (DELEG_ACT[delegActual]||[]).findIndex(a => a.id === data.id);
-        if(actIdx >= 0) DELEG_ACT[delegActual][actIdx].eventoId = ev.id;
-      }
-      renderCalendario();
+    if(evErr) {
+      console.error('Error al crear evento en cronograma:', evErr);
+      setMsg('da-msg','⚠️ Actividad guardada pero no se pudo agregar al cronograma: ' + evErr.message,'err');
+      return;
     }
+
+    // 3. Actualizar delegacion_actividad con evento_id
+    await sb.from('delegacion_actividad').update({ evento_id: ev.id }).eq('id', actData.id);
+
+    // 4. Actualizar arrays locales
+    const actIdx = DELEG_ACT[delegActual].findIndex(a => a.id === actData.id);
+    if(actIdx >= 0) DELEG_ACT[delegActual][actIdx].eventoId = ev.id;
+    REUNIONES.push({
+      id: ev.id, asunto: ev.asunto, tipo: ev.tipo, fecha: ev.fecha,
+      hora_inicio: ev.hora_inicio, hora_fin: ev.hora_fin,
+      municipio: ev.municipio, quien: ev.quien, notas: ev.notas,
+      origen_tabla: 'delegacion_actividad', origen_id: actData.id,
+      delegacion_nro: delegActual,
+    });
+    renderCalendario();
     await logAct('crear','delegacion_actividad',`Delegación ${delegActual}: ${desc}`);
+
   } else {
-    DELEG_ACT[delegActual].unshift({ fecha, tipo, desc, municipio });
+    // Sin Supabase: solo local
+    DELEG_ACT[delegActual].unshift({ fecha, tipo, desc, municipio, eventoId: null });
+    REUNIONES.push({
+      id: Date.now(), asunto, tipo, fecha,
+      hora_inicio: horaInicio, hora_fin: horaFin,
+      municipio: municipio || null,
+      quien: `Delegación Nº ${delegActual} — ${deleg?.sede||''}`, notas: desc,
+      origen_tabla: 'delegacion_actividad', origen_id: null, delegacion_nro: delegActual,
+    });
+    renderCalendario();
+    renderActividadDeleg();
   }
+
   setMsg('da-msg','✅ Actividad registrada y agregada al cronograma.','ok');
   setTimeout(()=>{
-    cerrarModal('modal-actividad-deleg'); renderActividadDeleg();
+    cerrarModal('modal-actividad-deleg');
     limpiar(['da-desc','da-municipio','da-hora-inicio','da-hora-fin']);
     setMsg('da-msg','','');
   },1000);
