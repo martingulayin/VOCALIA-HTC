@@ -2520,6 +2520,7 @@ async function doLogin() {
   await logAct('login', 'acceso', `Ingresó al portal`);
   await iniciarBanner();
   cargarTodosLosDatos();
+  suscribirMensajesRealtime();
 }
 
 // Enter en los campos + verificar sesión activa al cargar
@@ -2543,6 +2544,7 @@ document.addEventListener('DOMContentLoaded', () => {
       mostrarPortal();
       aplicarPermisos();
       await cargarTodosLosDatos();
+      suscribirMensajesRealtime();
     }
   });
 });
@@ -3220,6 +3222,7 @@ async function cargarEventos() {
     hora_inicio: e.hora_inicio, hora_fin: e.hora_fin,
     municipio: e.municipio, quien: e.quien, notas: e.notas,
     origen_tabla: e.origen_tabla || null, origen_id: e.origen_id || null,
+    relatoria: e.relatoria || null, delegacion_nro: e.delegacion_nro || null,
   }));
   renderCalendario();
 }
@@ -3276,9 +3279,52 @@ guardarEdicion = async function() {
         const capIdx = CAPS.findIndex(c => c.id === origenId);
         if(capIdx >= 0) CAPS[capIdx] = { ...CAPS[capIdx], titulo: cambios.asunto, fecha: cambios.fecha };
       } else if(origen === 'delegacion_actividad') {
-        await sb.from('delegacion_actividad').update({ fecha: cambios.fecha, descripcion: cambios.notas||cambios.asunto }).eq('id', origenId);
+        const descDeleg = cambios.notas || cambios.asunto;
+        await sb.from('delegacion_actividad').update({ fecha: cambios.fecha, descripcion: descDeleg }).eq('id', origenId);
+        // Actualizar array local DELEG_ACT
+        const delegNro = REUNIONES[eventoActivoIdx].delegacion_nro;
+        if(delegNro && DELEG_ACT[delegNro]) {
+          const dIdx = DELEG_ACT[delegNro].findIndex(a => a.id === origenId);
+          if(dIdx >= 0) {
+            DELEG_ACT[delegNro][dIdx].fecha = cambios.fecha;
+            DELEG_ACT[delegNro][dIdx].desc  = descDeleg;
+          }
+        }
+        // Fallback: buscar en todas las delegaciones si no hay delegacion_nro
+        if(!delegNro) {
+          Object.keys(DELEG_ACT).forEach(nro => {
+            const dIdx = DELEG_ACT[nro].findIndex(a => a.id === origenId);
+            if(dIdx >= 0) {
+              DELEG_ACT[nro][dIdx].fecha = cambios.fecha;
+              DELEG_ACT[nro][dIdx].desc  = descDeleg;
+            }
+          });
+        }
+        if(delegActual) renderActividadDeleg();
+
       } else if(origen === 'sede_actividad') {
-        await sb.from('sede_actividad').update({ fecha: cambios.fecha, descripcion: cambios.notas||cambios.asunto }).eq('id', origenId);
+        const descSede = cambios.notas || cambios.asunto;
+        await sb.from('sede_actividad').update({ fecha: cambios.fecha, descripcion: descSede }).eq('id', origenId);
+        // Actualizar array local SEDE_ACT
+        const relat = REUNIONES[eventoActivoIdx].relatoria;
+        if(relat && SEDE_ACT[relat]) {
+          const sIdx = SEDE_ACT[relat].findIndex(a => a.id === origenId);
+          if(sIdx >= 0) {
+            SEDE_ACT[relat][sIdx].fecha = cambios.fecha;
+            SEDE_ACT[relat][sIdx].desc  = descSede;
+          }
+        }
+        // Fallback: buscar en todas las relatorías si no hay relatoria en memoria
+        if(!relat) {
+          Object.keys(SEDE_ACT).forEach(r => {
+            const sIdx = SEDE_ACT[r].findIndex(a => a.id === origenId);
+            if(sIdx >= 0) {
+              SEDE_ACT[r][sIdx].fecha = cambios.fecha;
+              SEDE_ACT[r][sIdx].desc  = descSede;
+            }
+          });
+        }
+        if(sedeActual) renderActividadSedeR();
       }
     }
     await logAct('editar','evento',`Editó: ${asunto}`);
@@ -3311,6 +3357,7 @@ guardarActividadSede = async function() {
       notas: desc, autor_id: usuarioActual?.id,
       origen_tabla: 'sede_actividad',
       origen_id: data?.id || null,
+      relatoria: sedeActual,
     }).select().single();
     if(ev) {
       REUNIONES.push({
@@ -3318,6 +3365,7 @@ guardarActividadSede = async function() {
         hora_inicio: ev.hora_inicio, hora_fin: ev.hora_fin,
         municipio: ev.municipio, quien: ev.quien, notas: ev.notas,
         origen_tabla: 'sede_actividad', origen_id: data?.id,
+        relatoria: sedeActual,
       });
       // Guardar evento_id en sede_actividad
       if(data?.id) {
@@ -3455,6 +3503,7 @@ guardarActividadDeleg = async function() {
       autor_id: usuarioActual?.id,
       origen_tabla: 'delegacion_actividad',
       origen_id: data?.id || null,
+      delegacion_nro: delegActual,
     }).select().single();
     if(ev) {
       REUNIONES.push({
@@ -3462,6 +3511,7 @@ guardarActividadDeleg = async function() {
         hora_inicio: ev.hora_inicio, hora_fin: ev.hora_fin,
         municipio: ev.municipio, quien: ev.quien, notas: ev.notas,
         origen_tabla: 'delegacion_actividad', origen_id: data?.id,
+        delegacion_nro: delegActual,
       });
       // Guardar evento_id en delegacion_actividad
       if(data?.id) {
@@ -3806,10 +3856,8 @@ let NOTIF_PENDIENTES = 0;
 let _notifTimer = null;
 
 function simularNotificacionNueva() {
-  // Simula que otro usuario publicó un mensaje
-  NOTIF_PENDIENTES++;
-  actualizarPuntoNotif();
-  mostrarBannerNotif('Dra. García publicó un nuevo comunicado');
+  // Función reservada para notificaciones reales vía Supabase Realtime
+  // No llamar directamente — usar dispararNotifNuevoMensaje()
 }
 
 function actualizarPuntoNotif() {
@@ -3945,8 +3993,42 @@ function insertarMencion(taId, nombre) {
   if(dd) dd.remove();
 }
 
-// Simular notificación nueva cada 45 segundos (demo)
-setTimeout(() => simularNotificacionNueva(), 45000);
+// ── Notificaciones reales ────────────────────────────────────────────────────
+// Se llama cuando otro usuario publica un mensaje nuevo (Supabase Realtime
+// o al recibir un INSERT en la tabla mensajes).
+function dispararNotifNuevoMensaje(autorNombre) {
+  NOTIF_PENDIENTES++;
+  actualizarPuntoNotif();
+  mostrarBannerNotif(`${autorNombre} publicó un nuevo comunicado`);
+}
+
+// Suscripción Supabase Realtime: escucha INSERT en mensajes
+// Se inicializa dentro de initSupabase() cuando la conexión está lista.
+function suscribirMensajesRealtime() {
+  if(!SUPABASE_LISTO || !sb) return;
+  sb.channel('mensajes-nuevos')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensajes' }, payload => {
+      const nuevo = payload.new;
+      const yo = getUserName();
+      // Solo notificar si el autor es otro usuario
+      if(nuevo.autor_nombre && nuevo.autor_nombre !== yo) {
+        // Agregar al array local y re-renderizar
+        MENSAJES.unshift({
+          id: nuevo.id,
+          autor: nuevo.autor_nombre,
+          cargo: nuevo.cargo || '',
+          nivel: nuevo.nivel,
+          titulo: nuevo.titulo,
+          cuerpo: nuevo.cuerpo,
+          fecha: nuevo.fecha || hoy(),
+          lecturas: [],
+        });
+        renderMensajes();
+        dispararNotifNuevoMensaje(nuevo.autor_nombre);
+      }
+    })
+    .subscribe();
+}
 
 function getUserName() {
   if(perfilActual?.nombre) return perfilActual.nombre;
