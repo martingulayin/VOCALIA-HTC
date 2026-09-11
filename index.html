@@ -2025,7 +2025,21 @@ table td, table th { font-size:.88rem !important; }
         </select>
       </div>
       <div class="form-field"><label>Descripción</label><textarea id="h-desc" rows="3" placeholder="Describí brevemente para qué sirve esta herramienta…"></textarea></div>
-      <div class="form-field"><label>Link / URL</label><input type="url" id="h-link" placeholder="https://…"></div>
+      <div class="form-field">
+        <label>Subir archivo <span style="font-weight:400;color:var(--muted);">(ZIP, PDF, EXE, etc. — máx. 50 MB)</span></label>
+        <input type="file" id="h-archivo" accept=".zip,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.exe,.msi,.dmg,.apk,.txt,.csv"
+          style="font-size:.78rem;padding:.35rem 0;color:var(--text);" onchange="document.getElementById('h-link').value=''; document.getElementById('h-accion').value='descargar';">
+        <div id="h-archivo-prog" style="display:none;margin-top:.4rem;">
+          <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+            <div id="h-archivo-bar" style="height:100%;width:0%;background:var(--gold);transition:width .3s;"></div>
+          </div>
+          <div id="h-archivo-stat" style="font-size:.68rem;color:var(--muted);margin-top:.3rem;"></div>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>O link externo <span style="font-weight:400;color:var(--muted);">(Drive, OneDrive, web…)</span></label>
+        <input type="url" id="h-link" placeholder="https://…" oninput="if(this.value) document.getElementById('h-archivo').value='';">
+      </div>
       <div class="form-field"><label>Acción del botón</label>
         <select id="h-accion">
           <option value="abrir">↗ Abrir en nueva pestaña</option>
@@ -4700,38 +4714,78 @@ function renderHerramientas() {
 }
 
 async function guardarHerramienta() {
-  const nombre = document.getElementById('h-nombre').value.trim();
-  const desc   = document.getElementById('h-desc').value.trim();
-  const link   = document.getElementById('h-link').value.trim();
-  const tipo   = document.getElementById('h-tipo').value;
-  const accion = document.getElementById('h-accion').value;
-  if(!nombre){ setMsg('h-msg','Ingresá el nombre.','err'); return; }
+  const nombre  = document.getElementById('h-nombre').value.trim();
+  const desc    = document.getElementById('h-desc').value.trim();
+  let   link    = document.getElementById('h-link').value.trim();
+  const tipo    = document.getElementById('h-tipo').value;
+  let   accion  = document.getElementById('h-accion').value;
+  const archivo = document.getElementById('h-archivo')?.files[0];
   const editIdx = document.getElementById('h-edit-idx').value;
+
+  if(!nombre){ setMsg('h-msg','Ingresá el nombre.','err'); return; }
+  if(!archivo && !link){ setMsg('h-msg','Subí un archivo o ingresá un link.','err'); return; }
+
+  // Subir archivo a Storage si hay uno seleccionado
+  if(archivo && SUPABASE_LISTO) {
+    const prog = document.getElementById('h-archivo-prog');
+    const bar  = document.getElementById('h-archivo-bar');
+    const stat = document.getElementById('h-archivo-stat');
+    prog.style.display = 'block'; bar.style.width = '30%';
+    stat.textContent = 'Subiendo archivo…';
+    const filePath = `herramientas/${Date.now()}_${archivo.name}`;
+    const { data: upData, error: upErr } = await sb.storage
+      .from('documentos Vocalia')
+      .upload(filePath, archivo, { cacheControl: '3600', upsert: false });
+    if(upErr) {
+      prog.style.display='none'; bar.style.width='0%';
+      setMsg('h-msg','❌ Error al subir: ' + upErr.message,'err'); return;
+    }
+    bar.style.width = '80%'; stat.textContent = 'Generando link…';
+    const { data: signed } = await sb.storage.from('documentos Vocalia').createSignedUrl(filePath, 31536000);
+    link = signed?.signedUrl || filePath;
+    accion = 'descargar';
+    bar.style.width = '100%'; stat.textContent = '✅ Archivo subido.';
+    setTimeout(()=>{ prog.style.display='none'; bar.style.width='0%'; stat.textContent=''; }, 2000);
+  }
+
+  const fechaHoy = new Date().toLocaleDateString('es-AR');
 
   if(SUPABASE_LISTO) {
     if(editIdx !== '') {
+      // Editar existente
       const h = HERRAMIENTAS[parseInt(editIdx)];
-      await sb.from('herramientas').update({
+      const { error } = await sb.from('herramientas').update({
         nombre, tipo, descripcion: desc, link, accion,
-        actualizado: new Date().toISOString().split('T')[0],
+        actualizado: fechaHoy,
       }).eq('id', h.id);
+      if(error){ setMsg('h-msg','❌ Error al actualizar: ' + error.message,'err'); return; }
+      HERRAMIENTAS[parseInt(editIdx)] = { ...h, nombre, tipo, desc, link, accion, actualizado: fechaHoy };
       setMsg('h-msg','✅ Actualizada.','ok');
     } else {
-      const { data } = await sb.from('herramientas').insert({
+      // Crear nueva
+      const { data, error } = await sb.from('herramientas').insert({
         nombre, tipo, descripcion: desc, link, accion,
-        actualizado: new Date().toISOString().split('T')[0],
+        actualizado: fechaHoy,
         autor_id: usuarioActual?.id,
       }).select().single();
-      if(data) HERRAMIENTAS.unshift({ id:data.id, nombre, tipo, desc, link, accion, actualizado: data.actualizado });
+      if(error){ setMsg('h-msg','❌ Error al guardar: ' + error.message,'err'); return; }
+      HERRAMIENTAS.unshift({ id: data.id, nombre, tipo, desc, link, accion, actualizado: fechaHoy });
       setMsg('h-msg','✅ Herramienta agregada.','ok');
     }
   } else {
-    const nueva = { id: Date.now(), nombre, tipo, desc, link, accion, actualizado: hoy() };
+    const nueva = { id: Date.now(), nombre, tipo, desc, link, accion, actualizado: fechaHoy };
     if(editIdx !== '') HERRAMIENTAS[parseInt(editIdx)] = { ...HERRAMIENTAS[parseInt(editIdx)], ...nueva };
     else HERRAMIENTAS.unshift(nueva);
     setMsg('h-msg','✅ Herramienta agregada.','ok');
   }
-  setTimeout(()=>{ cerrarModal('modal-herramienta'); renderHerramientas(); limpiar(['h-nombre','h-desc','h-link']); document.getElementById('h-edit-idx').value=''; document.getElementById('modal-herramienta-titulo').textContent='Nueva herramienta digital'; setMsg('h-msg','',''); },1000);
+  setTimeout(()=>{
+    cerrarModal('modal-herramienta'); renderHerramientas();
+    limpiar(['h-nombre','h-desc','h-link']);
+    if(document.getElementById('h-archivo')) document.getElementById('h-archivo').value='';
+    document.getElementById('h-edit-idx').value='';
+    document.getElementById('modal-herramienta-titulo').textContent='Nueva herramienta digital';
+    setMsg('h-msg','','');
+  },1000);
 }
 
 function editarHerramienta(idx) {
@@ -4742,6 +4796,8 @@ function editarHerramienta(idx) {
   document.getElementById('h-link').value   = h.link||'';
   document.getElementById('h-accion').value = h.accion||'abrir';
   document.getElementById('h-edit-idx').value = idx;
+  if(document.getElementById('h-archivo')) document.getElementById('h-archivo').value = '';
+  document.getElementById('h-archivo-prog').style.display = 'none';
   document.getElementById('modal-herramienta-titulo').textContent = 'Editar herramienta';
   abrirModal('modal-herramienta');
 }
