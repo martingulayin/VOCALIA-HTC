@@ -3255,7 +3255,7 @@ async function cargarPdfInstitucional() {
   try {
     const { data, error } = await sb.storage
       .from('documentos Vocalia')
-      .createSignedUrl('institucional/quienes-somos.pdf', 31536000); // 1 año
+      .createSignedUrl('La vocalia/quienes-somos.pdf', 31536000); // 1 año
     if (error || !data?.signedUrl) {
       console.error('No se pudo generar el link del PDF institucional:', error);
       return;
