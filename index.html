@@ -923,6 +923,22 @@ table td, table th { font-size:.88rem !important; }
 }
 .acceso-directo-btn:hover{border-color:var(--gold);background:var(--navy2);}
 
+
+/* Corrección de un bug del original: en mobile el hero de Inicio desbordaba
+   25px de ancho (título a 3.4rem y grilla de 2 columnas sobre 390px). */
+@media(max-width:768px){
+  #portada-hero{
+    grid-template-columns:1fr !important;
+    padding:1.5rem 1rem 1.4rem !important;
+    gap:1.2rem !important;
+  }
+  #portada-hero > div:first-child > div:nth-child(2){
+    font-size:2.1rem !important; line-height:1.05 !important;
+  }
+  #portada-hero > div:last-child{ grid-template-columns:1fr 1fr !important; }
+  #portada-stats{ padding:1rem .9rem !important; }
+  #portada-stats > div > div:first-child{ font-size:1.9rem !important; }
+}
 </style>
 <body>
 
@@ -978,7 +994,7 @@ table td, table th { font-size:.88rem !important; }
     <div style="display:flex;align-items:center;gap:.3rem;flex-wrap:nowrap;">
       <button class="tb-btn" onclick="switchTab('documentos')">📁 DOCS</button>
       <button class="tb-btn" onclick="abrirModalAviso()">📢 AVISOS</button>
-      <button class="tb-btn" id="btn-actividad" onclick="abrirModalActividad()">📋 ACTIVIDAD</button>
+      <button class="tb-btn" id="btn-actividad" onclick="abrirModalActividad()" style="display:none;">📋 ACTIVIDAD</button>
       <button class="tb-btn" id="btn-usuarios" onclick="abrirPanelUsuarios()" style="display:none;">👤 USUARIOS</button>
       <div style="width:1px;height:16px;background:rgba(255,255,255,.15);margin:0 .15rem;"></div>
       <span style="font-size:.7rem;font-weight:700;color:var(--gold);cursor:pointer;" id="topbar-username" onclick="abrirPerfil()">Demo</span>
@@ -1001,8 +1017,8 @@ table td, table th { font-size:.88rem !important; }
   <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
     <button class="tb-btn" onclick="switchTab('documentos');cerrarMenuMobile()">📁 DOCS</button>
     <button class="tb-btn" onclick="abrirModalAviso();cerrarMenuMobile()">📢 AVISOS</button>
-    <button class="tb-btn" id="btn-actividad-mobile" onclick="abrirModalActividad();cerrarMenuMobile()">📋 ACTIVIDAD</button>
-    <button class="tb-btn tb-btn-disabled">👤 USUARIOS</button>
+    <button class="tb-btn" id="btn-actividad-mobile" onclick="abrirModalActividad();cerrarMenuMobile()" style="display:none;">📋 ACTIVIDAD</button>
+    <button class="tb-btn" id="btn-usuarios-mobile" onclick="abrirPanelUsuarios();cerrarMenuMobile()" style="display:none;">👤 USUARIOS</button>
     <button class="tb-btn tb-btn-salir" onclick="doLogout()">SALIR</button>
   </div>
   <div style="display:flex;flex-wrap:wrap;gap:.4rem;padding-top:.4rem;border-top:1px solid rgba(255,255,255,.07);">
@@ -2460,6 +2476,39 @@ table td, table th { font-size:.88rem !important; }
 </div><!-- /portal-wrap -->
 
 <script>
+// ══ SEGURIDAD — ESCAPE DE HTML ═════════════════════════════════════════════
+// Neutraliza cualquier HTML/JS almacenado en la base antes de inyectarlo con
+// innerHTML. Se aplica a TODO dato que provenga de Supabase o del usuario.
+// Sin esto, un mensaje con <img src=x onerror="..."> se ejecuta en el
+// navegador de todos los usuarios del portal (XSS almacenado).
+function esc(v) {
+  if (v === null || v === undefined) return '';
+  return String(v)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+// Para valores que van dentro de atributos JS inline: onclick="fn('${escJs(x)}')"
+function escJs(v) {
+  if (v === null || v === undefined) return '';
+  return String(v)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\r?\n/g, ' ');
+}
+// Para URLs: bloquea javascript: y data: (salvo imágenes y PDF legítimos)
+function escUrl(v) {
+  const s = String(v || '').trim();
+  if (/^(https?:|mailto:|tel:|#|\/|\.\/)/i.test(s)) return esc(s);
+  if (/^data:(image\/(png|jpe?g|gif|webp|svg\+xml)|application\/pdf);base64,/i.test(s)) return esc(s);
+  return '#';
+}
+
 // ══ DATOS DEMO ════════════════════════════════════════════════════════════
 let MENSAJES = [];
 
@@ -2531,6 +2580,7 @@ async function doLogin() {
   }
   mostrarPortal();
   aplicarPermisos();
+  reiniciarVigilanciaInactividad();
   await logAct('login', 'acceso', `Ingresó al portal`);
   await iniciarBanner();
   cargarTodosLosDatos();
@@ -2557,6 +2607,7 @@ document.addEventListener('DOMContentLoaded', () => {
       await sb.from('perfiles_vocalia').update({ ultimo_acceso: new Date().toISOString() }).eq('id', session.user.id);
       mostrarPortal();
       aplicarPermisos();
+      reiniciarVigilanciaInactividad();
       await cargarTodosLosDatos();
       suscribirMensajesRealtime();
     }
@@ -2609,7 +2660,7 @@ function mostrarSugerencias() {
       window._busqAcciones.push(()=>{switchTab('mensajes');cerrarBuscador();});
       return `<div class="busq-item" onclick="window._busqAcciones[${idx}]()">
         <span class="busq-item-icon">📣</span>
-        <div class="busq-item-info"><div class="busq-item-titulo">${m.titulo}</div><div class="busq-item-meta">${m.fecha}</div></div>
+        <div class="busq-item-info"><div class="busq-item-titulo">${esc(m.titulo)}</div><div class="busq-item-meta">${esc(m.fecha)}</div></div>
         <span class="busq-item-tag busq-tag-mensaje">mensaje</span>
       </div>`;
     }).join('');
@@ -2625,7 +2676,7 @@ function mostrarSugerencias() {
       window._busqAcciones.push(()=>{switchTab('cronograma');cerrarBuscador();});
       return `<div class="busq-item" onclick="window._busqAcciones[${idx}]()">
         <span class="busq-item-icon">📅</span>
-        <div class="busq-item-info"><div class="busq-item-titulo">${ev.asunto}</div><div class="busq-item-meta">${ev.fecha}</div></div>
+        <div class="busq-item-info"><div class="busq-item-titulo">${esc(ev.asunto)}</div><div class="busq-item-meta">${esc(ev.fecha)}</div></div>
         <span class="busq-item-tag busq-tag-evento">evento</span>
       </div>`;
     }).join('');
@@ -2658,8 +2709,10 @@ function buscarPortal(q) {
 }
 
 function hl(texto, q) {
+  // SEGURIDAD: se escapa primero y recién después se inserta el <mark>.
+  const seguro = esc(texto);
   const re = new RegExp('('+norm(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')', 'gi');
-  return texto.replace(new RegExp(re.source, 'gi'), '<mark>$1</mark>');
+  return seguro.replace(new RegExp(re.source, 'gi'), '<mark>$1</mark>');
 }
 
 function mostrarResultados(q) {
@@ -2741,7 +2794,7 @@ function mostrarResultados(q) {
   const res   = document.getElementById('buscador-resultados');
 
   if(!grupos.length) {
-    inner.innerHTML = `<div class="busq-vacio">Sin resultados para "<strong style="color:#CBD5E0;">${q}</strong>"</div>`;
+    inner.innerHTML = `<div class="busq-vacio">Sin resultados para "<strong style="color:#CBD5E0;">${esc(q)}</strong>"</div>`;
   } else {
     window._busqAcciones = [];
     let html = '';
@@ -2754,8 +2807,8 @@ function mostrarResultados(q) {
         html += `<div class="busq-item" onclick="window._busqAcciones[${idx}]()">
           <span class="busq-item-icon">${it.icon}</span>
           <div class="busq-item-info">
-            <div class="busq-item-titulo">${it.titulo}</div>
-            <div class="busq-item-meta">${it.meta}</div>
+            <div class="busq-item-titulo">${esc(it.titulo)}</div>
+            <div class="busq-item-meta">${esc(it.meta)}</div>
           </div>
           <span class="busq-item-tag ${it.tagCls}">${it.tag}</span>
         </div>`;
@@ -2792,13 +2845,14 @@ let perfilActual = null;
 function esAdmin() { return rolActual === 'admin'; }
 
 function aplicarPermisos() {
-  // Mostrar/ocultar USUARIOS según rol
-  const btnUsuarios = document.getElementById('btn-usuarios');
-  if(btnUsuarios) btnUsuarios.style.display = esAdmin() ? 'inline-flex' : 'none';
-
-  // Mostrar/ocultar ACTIVIDAD según rol
-  const btnActividad = document.getElementById('btn-actividad');
-  if(btnActividad) btnActividad.style.display = esAdmin() ? 'inline-flex' : 'none';
+  // Botones restringidos a admin — DESKTOP Y MOBILE.
+  // Antes sólo se cubrían los de desktop: en el menú mobile, ACTIVIDAD quedaba
+  // visible para cualquier rol y USUARIOS estaba deshabilitado incluso para admin.
+  const soloAdmin = ['btn-usuarios','btn-actividad','btn-usuarios-mobile','btn-actividad-mobile'];
+  soloAdmin.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = esAdmin() ? 'inline-flex' : 'none';
+  });
 }
 
 // ══ LOG DE ACTIVIDAD ═══════════════════════════════════════════════════════
@@ -2827,16 +2881,16 @@ async function cargarUsuarios() {
   if(error || !data) { lista.innerHTML = '<div style="padding:1rem;color:var(--red);">Error al cargar usuarios.</div>'; return; }
   lista.innerHTML = data.map(u => `
     <div style="display:flex;align-items:center;gap:.8rem;padding:.7rem 1.2rem;border-bottom:1px solid var(--border);">
-      <div style="width:36px;height:36px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:var(--gold);flex-shrink:0;">${(u.nombre||'?').charAt(0).toUpperCase()}</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700;color:var(--gold);flex-shrink:0;">${esc((u.nombre||'?').charAt(0).toUpperCase())}</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-size:.82rem;font-weight:600;color:var(--navy);">${u.nombre||'Sin nombre'}</div>
-        <div style="font-size:.68rem;color:var(--muted);">${u.id === usuarioActual?.id ? '(vos) · ' : ''}${u.rol.toUpperCase()} · Último acceso: ${u.ultimo_acceso ? new Date(u.ultimo_acceso).toLocaleDateString('es-AR') : 'Nunca'}</div>
+        <div style="font-size:.82rem;font-weight:600;color:var(--navy);">${esc(u.nombre||'Sin nombre')}</div>
+        <div style="font-size:.68rem;color:var(--muted);">${u.id === usuarioActual?.id ? '(vos) · ' : ''}${esc(String(u.rol||'').toUpperCase())} · Último acceso: ${u.ultimo_acceso ? esc(new Date(u.ultimo_acceso).toLocaleDateString('es-AR')) : 'Nunca'}</div>
       </div>
       <div style="display:flex;gap:.35rem;align-items:center;">
         <span style="font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:4px;${u.activo ? 'background:rgba(30,107,82,.12);color:#1E6B52;' : 'background:rgba(192,57,43,.12);color:#C0392B;'}">${u.activo ? 'Activo' : 'Inactivo'}</span>
         ${u.id !== usuarioActual?.id ? `
-          <button onclick="toggleActivoUsuario('${u.id}',${u.activo})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.18rem .45rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;">${u.activo ? 'Desactivar' : 'Activar'}</button>
-          <button onclick="editarUsuario('${u.id}','${u.nombre||''}','${u.cargo||''}','${u.rol}')" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.18rem .45rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;">✏️</button>
+          <button onclick="toggleActivoUsuario('${escJs(u.id)}',${!!u.activo})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.18rem .45rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;">${u.activo ? 'Desactivar' : 'Activar'}</button>
+          <button onclick="editarUsuario('${escJs(u.id)}','${escJs(u.nombre||'')}','${escJs(u.cargo||'')}','${escJs(u.rol)}')" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.18rem .45rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;">✏️</button>
         ` : '<span style="font-size:.65rem;color:var(--muted);">(tu cuenta)</span>'}
       </div>
     </div>`).join('');
@@ -2972,8 +3026,8 @@ async function abrirModalActividad() {
     lista.innerHTML = ACTIVIDAD_LOG.map(a => `
       <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.65rem 1.2rem;border-bottom:1px solid var(--border);">
         <div style="font-size:1rem;flex-shrink:0;">${iconos[a.seccion]||'📋'}</div>
-        <div style="flex:1;"><div style="font-size:.8rem;font-weight:600;color:var(--navy);">${a.accion}</div><div style="font-size:.7rem;color:var(--muted);">${a.detalle}</div></div>
-        <div style="font-size:.62rem;color:var(--muted);text-align:right;"><div>${a.fecha}</div><div>${a.hora}</div></div>
+        <div style="flex:1;"><div style="font-size:.8rem;font-weight:600;color:var(--navy);">${esc(a.accion)}</div><div style="font-size:.7rem;color:var(--muted);">${esc(a.detalle)}</div></div>
+        <div style="font-size:.62rem;color:var(--muted);text-align:right;"><div>${esc(a.fecha)}</div><div>${esc(a.hora)}</div></div>
       </div>`).join('');
     return;
   }
@@ -2989,8 +3043,8 @@ async function abrirModalActividad() {
     <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.65rem 1.2rem;border-bottom:1px solid var(--border);">
       <div style="font-size:1rem;flex-shrink:0;">${iconos[a.accion]||'📋'}</div>
       <div style="flex:1;">
-        <div style="font-size:.8rem;font-weight:600;color:var(--navy);">${a.usuario_nombre||'Sistema'} · <span style="font-weight:400;color:var(--muted);">${a.seccion}</span></div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:.1rem;">${a.detalle||''}</div>
+        <div style="font-size:.8rem;font-weight:600;color:var(--navy);">${esc(a.usuario_nombre||'Sistema')} · <span style="font-weight:400;color:var(--muted);">${esc(a.seccion)}</span></div>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:.1rem;">${esc(a.detalle||'')}</div>
       </div>
       <div style="font-size:.62rem;color:var(--muted);text-align:right;white-space:nowrap;">
         <div>${new Date(a.created_at).toLocaleDateString('es-AR')}</div>
@@ -3057,6 +3111,13 @@ function cargarBannerAviso() {
 
 async function doLogout() {
   if(!confirm('¿Cerrás sesión?')) return;
+  await cerrarSesion();
+}
+
+// Cierre de sesión sin confirmación (uso interno: inactividad, cuenta desactivada)
+async function cerrarSesion(motivo) {
+  detenerVigilanciaInactividad();
+  try { await logAct('logout', 'acceso', motivo || 'Cerró sesión'); } catch(e) {}
   await sb.auth.signOut();
   document.getElementById('portal-wrap').style.display = 'none';
   document.getElementById('login-overlay').classList.remove('hidden');
@@ -3064,9 +3125,85 @@ async function doLogout() {
   document.getElementById('login-pass').value  = '';
   document.getElementById('login-btn').disabled = false;
   document.getElementById('login-btn').textContent = 'Ingresar al portal';
-  document.getElementById('login-error').classList.remove('show');
+  const err = document.getElementById('login-error');
+  if(motivo === 'inactividad') {
+    err.textContent = 'Se cerró la sesión por inactividad. Volvé a ingresar.';
+    err.classList.add('show');
+  } else {
+    err.classList.remove('show');
+  }
   usuarioActual = null;
+  perfilActual  = null;
+  rolActual     = 'usuario';
 }
+
+// ══ CIERRE POR INACTIVIDAD ═════════════════════════════════════════════════
+// 30 minutos de inactividad → cierre de sesión.
+// A los 28 minutos aparece un aviso con opción de seguir conectado, para que
+// nadie pierda trabajo sin enterarse.
+const INACTIVIDAD_MIN   = 30;
+const AVISO_PREVIO_MIN  = 2;
+let _tmrInactividad = null, _tmrAviso = null, _tmrCuenta = null;
+
+function reiniciarVigilanciaInactividad() {
+  if(!usuarioActual) return;
+  clearTimeout(_tmrInactividad); clearTimeout(_tmrAviso); clearInterval(_tmrCuenta);
+  ocultarAvisoInactividad();
+  _tmrAviso = setTimeout(mostrarAvisoInactividad, (INACTIVIDAD_MIN - AVISO_PREVIO_MIN) * 60000);
+  _tmrInactividad = setTimeout(() => cerrarSesion('inactividad'), INACTIVIDAD_MIN * 60000);
+}
+
+function detenerVigilanciaInactividad() {
+  clearTimeout(_tmrInactividad); clearTimeout(_tmrAviso); clearInterval(_tmrCuenta);
+  ocultarAvisoInactividad();
+}
+
+function mostrarAvisoInactividad() {
+  let box = document.getElementById('aviso-inactividad');
+  if(!box) {
+    box = document.createElement('div');
+    box.id = 'aviso-inactividad';
+    box.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
+    box.innerHTML = `
+      <div style="background:#fff;border-radius:.9rem;max-width:380px;width:100%;padding:1.6rem 1.7rem;box-shadow:0 24px 80px rgba(0,0,0,.25);text-align:center;">
+        <div style="font-size:2rem;margin-bottom:.6rem;">⏳</div>
+        <div style="font-size:1.05rem;font-weight:700;color:var(--navy);margin-bottom:.4rem;">Tu sesión está por cerrarse</div>
+        <div style="font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:1.1rem;">
+          Por seguridad, la sesión se cierra tras ${INACTIVIDAD_MIN} minutos sin actividad.
+          Se cerrará en <strong id="inact-cuenta" style="color:var(--red);">2:00</strong>.
+        </div>
+        <div style="display:flex;gap:.6rem;justify-content:center;">
+          <button onclick="reiniciarVigilanciaInactividad()" class="btn-accion" style="font-size:.78rem;padding:.5rem 1.1rem;">Seguir conectado</button>
+          <button onclick="cerrarSesion()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:.5rem 1.1rem;font-size:.78rem;font-weight:600;color:var(--muted);cursor:pointer;">Cerrar sesión</button>
+        </div>
+      </div>`;
+    document.body.appendChild(box);
+  }
+  box.style.display = 'flex';
+  let restante = AVISO_PREVIO_MIN * 60;
+  const span = document.getElementById('inact-cuenta');
+  clearInterval(_tmrCuenta);
+  _tmrCuenta = setInterval(() => {
+    restante--;
+    if(span) span.textContent = Math.floor(restante/60) + ':' + String(restante%60).padStart(2,'0');
+    if(restante <= 0) clearInterval(_tmrCuenta);
+  }, 1000);
+}
+
+function ocultarAvisoInactividad() {
+  const box = document.getElementById('aviso-inactividad');
+  if(box) box.style.display = 'none';
+}
+
+// Cualquier señal de actividad reinicia el contador.
+// El aviso NO se cierra solo con el mouse: exige un click explícito en el modal.
+['click','keydown','touchstart'].forEach(ev => {
+  document.addEventListener(ev, () => {
+    const box = document.getElementById('aviso-inactividad');
+    if(box && box.style.display === 'flex') return; // el modal decide
+    reiniciarVigilanciaInactividad();
+  }, { passive: true });
+});
 
 // ══ CARGA DE DATOS DESDE SUPABASE ══════════════════════════════════════════
 function iniciarBanner() {
@@ -3258,10 +3395,10 @@ async function cargarHerramientas() {
 eliminarEvento = async function() {
   if(eventoActivoIdx === null) return;
   const ev = REUNIONES[eventoActivoIdx];
-  if(!confirm(`¿Eliminás el evento "${ev.asunto}"?`)) return;
+  if(!confirm(`¿Eliminás el evento "${esc(ev.asunto)}"?`)) return;
   if(SUPABASE_LISTO && ev.id) {
     await sb.from('eventos').delete().eq('id', ev.id);
-    await logAct('eliminar', 'evento', `Eliminó: ${ev.asunto}`);
+    await logAct('eliminar', 'evento', `Eliminó: ${esc(ev.asunto)}`);
   }
   REUNIONES.splice(eventoActivoIdx, 1);
   cerrarPanelEvento(); renderCalendario();
@@ -3839,8 +3976,8 @@ function renderWidgetsInicio() {
     const nv = nivelCfg[m.nivel]||nivelCfg.informativo;
     return `<div style="padding:.42rem 0;border-bottom:1px solid var(--border);">
       <span style="font-size:.55rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.1rem .32rem;border-radius:3px;background:${nv.bg};color:${nv.cls};display:inline-block;margin-bottom:.15rem;">${nv.label}</span>
-      <div style="font-size:.72rem;font-weight:600;color:var(--navy);line-height:1.35;">${m.titulo}</div>
-      <div style="font-size:.6rem;color:var(--muted);margin-top:.06rem;">${m.fecha}</div>
+      <div style="font-size:.72rem;font-weight:600;color:var(--navy);line-height:1.35;">${esc(m.titulo)}</div>
+      <div style="font-size:.6rem;color:var(--muted);margin-top:.06rem;">${esc(m.fecha)}</div>
     </div>`;
   }).join('') || '<div style="font-size:.78rem;color:var(--muted);font-style:italic;padding:.5rem 0;">Sin mensajes.</div>';
 
@@ -3854,12 +3991,12 @@ function renderWidgetsInicio() {
     const cfg = TIPO_CFG[ev.tipo]||TIPO_CFG.reunion;
     return `<div style="display:flex;gap:.55rem;align-items:flex-start;padding:.42rem 0;border-bottom:1px solid var(--border);">
       <div style="flex-shrink:0;background:var(--navy);border-radius:5px;padding:.25rem .4rem;text-align:center;min-width:34px;">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:.95rem;font-weight:700;color:var(--gold);line-height:1;">${dia}</div>
-        <div style="font-size:.5rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4A6A8A;">${mes}</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:.95rem;font-weight:700;color:var(--gold);line-height:1;">${esc(dia)}</div>
+        <div style="font-size:.5rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4A6A8A;">${esc(mes)}</div>
       </div>
       <div>
-        <div style="font-size:.72rem;font-weight:600;color:var(--navy);line-height:1.3;">${ev.asunto}</div>
-        <div style="font-size:.6rem;color:var(--muted);margin-top:.08rem;">${cfg.icon} ${cfg.label}${ev.hora_inicio?' · '+ev.hora_inicio.slice(0,5)+' hs.':''}</div>
+        <div style="font-size:.72rem;font-weight:600;color:var(--navy);line-height:1.3;">${esc(ev.asunto)}</div>
+        <div style="font-size:.6rem;color:var(--muted);margin-top:.08rem;">${cfg.icon} ${cfg.label}${ev.hora_inicio?' · '+esc(String(ev.hora_inicio).slice(0,5))+' hs.':''}</div>
       </div>
     </div>`;
   }).join('') : '<div style="font-size:.78rem;color:var(--muted);font-style:italic;padding:.5rem 0;">Sin eventos próximos.</div>';
@@ -3870,8 +4007,8 @@ function renderWidgetsInicio() {
     <div style="display:flex;gap:.45rem;align-items:flex-start;padding:.42rem 0;border-bottom:1px solid var(--border);">
       <div style="width:6px;height:6px;border-radius:50%;background:${catColors[n.cat]||'var(--muted)'};flex-shrink:0;margin-top:.3rem;"></div>
       <div>
-        <div style="font-size:.72rem;font-weight:600;color:var(--navy);line-height:1.35;">${n.titulo}</div>
-        <div style="font-size:.6rem;color:var(--muted);margin-top:.06rem;">${n.cat.charAt(0).toUpperCase()+n.cat.slice(1)} · ${n.fecha}</div>
+        <div style="font-size:.72rem;font-weight:600;color:var(--navy);line-height:1.35;">${esc(n.titulo)}</div>
+        <div style="font-size:.6rem;color:var(--muted);margin-top:.06rem;">${esc(String(n.cat||'').charAt(0).toUpperCase()+String(n.cat||'').slice(1))} · ${esc(n.fecha)}</div>
       </div>
     </div>`).join('') || '<div style="font-size:.78rem;color:var(--muted);font-style:italic;">Sin novedades.</div>';
 
@@ -3939,7 +4076,7 @@ function mostrarBannerNotif(texto) {
     const lista = document.getElementById('msg-list');
     if(lista) lista.parentNode.insertBefore(banner, lista);
   }
-  banner.innerHTML = `<span style="font-size:1rem;">🔔</span> <span><b>Nuevo mensaje</b> — ${texto}</span> <span style="margin-left:auto;font-size:.65rem;opacity:.7;">Click para ver →</span>`;
+  banner.innerHTML = `<span style="font-size:1rem;">🔔</span> <span><b>Nuevo mensaje</b> — ${esc(texto)}</span> <span style="margin-left:auto;font-size:.65rem;opacity:.7;">Click para ver →</span>`;
 }
 
 async function marcarLeido(msgId) {
@@ -3973,11 +4110,11 @@ function renderLecturas(m) {
   const total = TOTAL_USUARIOS || m.total_usuarios || 8;
   const yoLeyo = m.lecturas.find(l => l.nombre === yo);
   const avatares = m.lecturas.slice(0,4).map(l =>
-    `<div class="lectura-avatar" title="${l.nombre}">${l.nombre.charAt(0).toUpperCase()}</div>`
+    `<div class="lectura-avatar" title="${esc(l.nombre)}">${esc(String(l.nombre||'?').charAt(0).toUpperCase())}</div>`
   ).join('');
   const resto = n > 4 ? `<div class="lectura-avatar" style="background:rgba(74,158,224,.15);">+${n-4}</div>` : '';
   return `
-    <div class="lectura-bar" onclick="marcarLeido('${m.id}')" style="cursor:${yoLeyo?'default':'pointer'};" title="${yoLeyo?'Ya leíste este mensaje':'Click para marcar como leído'}">
+    <div class="lectura-bar" onclick="marcarLeido('${escJs(m.id)}')" style="cursor:${yoLeyo?'default':'pointer'};" title="${yoLeyo?'Ya leíste este mensaje':'Click para marcar como leído'}">
       <span>👁</span>
       <div class="lectura-avatares">${avatares}${resto}</div>
       <span class="lectura-texto">Visto por <b>${n}</b> de <b>${total}</b></span>
@@ -3988,8 +4125,11 @@ function renderLecturas(m) {
 // ── Parsear menciones en el texto ──
 function parsearMenciones(texto) {
   const yo = getUserName();
+  // SEGURIDAD: se escapa el texto ANTES de insertar el markup de las menciones.
+  // Si se escapara después, el <span> de la mención quedaría neutralizado.
+  const seguro = esc(texto);
   // Captura @Nombre con espacios, puntos y letras hasta fin o coma/salto
-  return texto.replace(/@([A-Za-záéíóúÁÉÍÓÚñÑ][A-Za-záéíóúÁÉÍÓÚñÑ\. ]*?)(?=\s{2}|,|$|\n)/g, (match, nombre) => {
+  return seguro.replace(/@([A-Za-záéíóúÁÉÍÓÚñÑ][A-Za-záéíóúÁÉÍÓÚñÑ\. ]*?)(?=\s{2}|,|$|\n)/g, (match, nombre) => {
     const n = nombre.trimEnd();
     const esYo = n.toLowerCase().includes(yo.toLowerCase()) ||
                  yo.toLowerCase().includes(n.toLowerCase());
@@ -4024,9 +4164,9 @@ function initMencionesTextarea(taId, containerId) {
         container.appendChild(dropdown);
       }
       dropdown.innerHTML = filtrados.map(u => `
-        <div class="mention-item" onclick="insertarMencion('${taId}','${u.nombre}')">
-          <div class="mention-avatar">${u.inicial}</div>
-          <div><div style="font-weight:600;">${u.nombre}</div><div style="font-size:.62rem;opacity:.6;">${u.cargo}</div></div>
+        <div class="mention-item" onclick="insertarMencion('${escJs(taId)}','${escJs(u.nombre)}')">
+          <div class="mention-avatar">${esc(u.inicial)}</div>
+          <div><div style="font-weight:600;">${esc(u.nombre)}</div><div style="font-size:.62rem;opacity:.6;">${esc(u.cargo)}</div></div>
         </div>`).join('');
     } else {
       if(dropdown) dropdown.remove();
@@ -4099,13 +4239,13 @@ function renderRespuestas(msgId) {
     </div>
     ${resp.map((r,i)=>`
       <div style="display:flex;gap:.6rem;margin-bottom:.55rem;align-items:flex-start;">
-        <div style="width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--gold);flex-shrink:0;">${r.autor.charAt(0).toUpperCase()}</div>
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--gold);flex-shrink:0;">${esc(String(r.autor||'?').charAt(0).toUpperCase())}</div>
         <div style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:6px;padding:.5rem .7rem;">
           <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;">
-            <span style="font-size:.75rem;font-weight:700;color:var(--navy);">${r.autor}</span>
-            <span style="font-size:.6rem;color:var(--muted);">${r.fecha} ${r.hora}</span>
+            <span style="font-size:.75rem;font-weight:700;color:var(--navy);">${esc(r.autor)}</span>
+            <span style="font-size:.6rem;color:var(--muted);">${esc(r.fecha)} ${esc(r.hora)}</span>
           </div>
-          <div style="font-size:.8rem;color:var(--text);line-height:1.55;">${r.texto}</div>
+          <div style="font-size:.8rem;color:var(--text);line-height:1.55;">${parsearMenciones(r.texto||'')}</div>
         </div>
       </div>`).join('')}
   </div>`;
@@ -4170,7 +4310,7 @@ async function guardarMensaje() {
   } else {
     if(SUPABASE_LISTO) {
       const { data } = await sb.from('mensajes').insert({
-        autor_nombre: autor||getUserName(), cargo: document.getElementById('topbar-role')?.textContent||'',
+        autor_nombre: autor||getUserName(), cargo: perfilActual?.cargo || '',
         nivel, titulo, cuerpo, autor_id: usuarioActual?.id,
       }).select().single();
       if(data) MENSAJES.unshift({ id:data.id, autor:data.autor_nombre, cargo:data.cargo||'', nivel, titulo, cuerpo, fecha: hoy() });
@@ -4193,25 +4333,25 @@ function renderMensajes() {
     const msgId = m.id || idx;
     const domId = idx; // usar índice numérico para el DOM
     const nResp = (RESPUESTAS[msgId]||[]).length;
-    return `<div class="msg-card nv-${m.nivel}">
+    return `<div class="msg-card nv-${esc(m.nivel)}">
       <div class="msg-header">
         <div class="msg-avatar">🎙️</div>
         <div class="msg-meta">
-          <div class="msg-autor">${m.autor}</div>
-          <div class="msg-cargo">${m.cargo}</div>
+          <div class="msg-autor">${esc(m.autor)}</div>
+          <div class="msg-cargo">${esc(m.cargo)}</div>
         </div>
         <span class="nivel-badge ${nv.cls}">${nv.badge}</span>
-        <div class="msg-fecha">${m.fecha}</div>
+        <div class="msg-fecha">${esc(m.fecha)}</div>
       </div>
-      <div class="msg-titulo">${m.titulo}</div>
-      <div class="msg-cuerpo">${parsearMenciones(m.cuerpo)}</div>
+      <div class="msg-titulo">${esc(m.titulo)}</div>
+      <div class="msg-cuerpo">${parsearMenciones(m.cuerpo||'')}</div>
 
       ${renderRespuestas(msgId)}
 
       <!-- Form de respuesta (oculto por defecto) -->
       <div id="resp-form-${domId}" style="display:none;margin-top:.7rem;">
         <div style="display:flex;gap:.5rem;align-items:flex-start;">
-          <div style="width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--gold);flex-shrink:0;">${getUserName().charAt(0).toUpperCase()}</div>
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--gold);flex-shrink:0;">${esc(String(getUserName()||'?').charAt(0).toUpperCase())}</div>
           <div id="resp-wrap-${domId}" style="flex:1;position:relative;">
             <textarea id="resp-text-${domId}" rows="2"
               placeholder="Escribí tu respuesta… Usá @nombre para mencionar a alguien"
@@ -4320,7 +4460,7 @@ function cerrarPanelEvento() {
 function eliminarEvento() {
   if(eventoActivoIdx === null) return;
   const ev = REUNIONES[eventoActivoIdx];
-  if(!confirm(`¿Eliminás el evento "${ev.asunto}"?`)) return;
+  if(!confirm(`¿Eliminás el evento "${esc(ev.asunto)}"?`)) return;
   REUNIONES.splice(eventoActivoIdx, 1);
   cerrarPanelEvento();
   renderCalendario();
@@ -4410,9 +4550,9 @@ function renderCalendario() {
       const cfg = TIPO_CFG[ev.tipo]||TIPO_CFG.reunion;
       const hora = ev.hora_inicio ? ev.hora_inicio.slice(0,5)+' · ' : '';
       const tooltip = [ev.asunto, ev.municipio, ev.quien].filter(Boolean).join(' · ');
-      html += `<span class="cal-ev ${cls}" title="${tooltip}" onclick="event.stopPropagation();abrirPanelEvento(${idx})">
+      html += `<span class="cal-ev ${cls}" title="${esc(tooltip)}" onclick="event.stopPropagation();abrirPanelEvento(${idx})">
         <span style="display:block;font-size:.54rem;opacity:.75;margin-bottom:.05rem;">${cfg.icon} ${cfg.label}</span>
-        <span style="display:block;">${hora}${ev.asunto}</span>
+        <span style="display:block;">${esc(hora)}${esc(ev.asunto)}</span>
       </span>`;
     });
     html += `</div>`;
@@ -4444,8 +4584,8 @@ function abrirPanelDia(fStr) {
     return `<div onclick="abrirPanelEvento(${idx})" style="display:flex;gap:.7rem;align-items:flex-start;padding:.65rem .5rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;" onmouseover="this.style.background='#FAFAFA'" onmouseout="this.style.background='transparent'">
       <span style="font-size:1rem;">${cfg.icon}</span>
       <div>
-        <div style="font-size:.75rem;font-weight:600;color:var(--navy);">${ev.asunto}</div>
-        <div style="font-size:.65rem;color:var(--muted);">${cfg.label}${ev.hora_inicio?' · '+ev.hora_inicio.slice(0,5)+' hs.':''}</div>
+        <div style="font-size:.75rem;font-weight:600;color:var(--navy);">${esc(ev.asunto)}</div>
+        <div style="font-size:.65rem;color:var(--muted);">${cfg.label}${ev.hora_inicio?' · '+esc(String(ev.hora_inicio).slice(0,5))+' hs.':''}</div>
       </div>
       <span style="margin-left:auto;font-size:.7rem;color:var(--gold);">→</span>
     </div>`;
@@ -4561,7 +4701,7 @@ function switchRelatoria(nro) {
       </div>
       <div style="background:var(--cream);border-radius:6px;padding:.8rem 1rem;">
         <div style="font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;">Responsable</div>
-        <div style="font-size:.85rem;color:var(--navy);">${r.responsable||'<span style="color:var(--muted);font-style:italic;">Sin asignar</span>'}</div>
+        <div style="font-size:.85rem;color:var(--navy);">${r.responsable?esc(r.responsable):'<span style="color:var(--muted);font-style:italic;">Sin asignar</span>'}</div>
       </div>
     </div>`;
   switchSedeTab('info');
@@ -4583,8 +4723,8 @@ function renderDocsSedeR() {
   lista.innerHTML = docs.map((d,i)=>`
     <div class="doc-item">
       <span class="doc-icon">📄</span>
-      <div class="doc-info"><div class="doc-name">${d.titulo}</div><div class="doc-meta">${d.fecha}</div></div>
-      ${d.link?`<a href="${d.link}" target="_blank" class="doc-dl">↗ Abrir</a>`:''}
+      <div class="doc-info"><div class="doc-name">${esc(d.titulo)}</div><div class="doc-meta">${esc(d.fecha)}</div></div>
+      ${d.link?`<a href="${escUrl(d.link)}" target="_blank" class="doc-dl">↗ Abrir</a>`:''}
       <button class="doc-del" onclick="eliminarDocSede(${i})">🗑</button>
     </div>`).join('');
 }
@@ -4595,8 +4735,8 @@ function renderActividadSedeR() {
   if(!acts.length){ lista.innerHTML='<div class="docs-empty">No hay actividad registrada.</div>'; return; }
   lista.innerHTML = acts.map((a,i)=>`
     <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.65rem 0;border-bottom:1px solid var(--border);">
-      <div style="flex-shrink:0;font-size:.72rem;font-weight:700;color:var(--gold);min-width:80px;">${a.fecha}</div>
-      <div style="flex:1;"><div style="font-size:.8rem;font-weight:600;color:var(--navy);">${a.desc}</div></div>
+      <div style="flex-shrink:0;font-size:.72rem;font-weight:700;color:var(--gold);min-width:80px;">${esc(a.fecha)}</div>
+      <div style="flex:1;"><div style="font-size:.8rem;font-weight:600;color:var(--navy);">${esc(a.desc)}</div></div>
       <button class="doc-del" onclick="eliminarActSede(${i})">🗑</button>
     </div>`).join('');
 }
@@ -4692,14 +4832,14 @@ function renderHerramientas() {
       <div style="background:var(--navy);padding:1rem 1.2rem;display:flex;align-items:center;gap:.8rem;">
         <div style="font-size:1.8rem;">${t.icon}</div>
         <div style="flex:1;">
-          <div style="font-size:.88rem;font-weight:700;color:#fff;">${h.nombre}</div>
+          <div style="font-size:.88rem;font-weight:700;color:#fff;">${esc(h.nombre)}</div>
           <div style="font-size:.6rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-top:.15rem;">${t.label}</div>
         </div>
       </div>
       <!-- Cuerpo -->
       <div style="padding:1rem 1.2rem;flex:1;">
-        <div style="font-size:.8rem;color:var(--text);line-height:1.65;margin-bottom:.8rem;">${h.desc}</div>
-        <div style="font-size:.62rem;color:var(--muted);">🕐 Última actualización: <strong>${h.actualizado}</strong></div>
+        <div style="font-size:.8rem;color:var(--text);line-height:1.65;margin-bottom:.8rem;">${esc(h.desc)}</div>
+        <div style="font-size:.62rem;color:var(--muted);">🕐 Última actualización: <strong>${esc(h.actualizado)}</strong></div>
       </div>
       <!-- Footer card -->
       <div style="padding:.75rem 1.2rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:.5rem;">
@@ -4707,7 +4847,7 @@ function renderHerramientas() {
           <button onclick="editarHerramienta(${idx})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.22rem .55rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">✏️ Editar</button>
           <button onclick="eliminarHerramienta(${idx})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.22rem .55rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">🗑 Eliminar</button>
         </div>
-        ${h.link ? `<a href="${h.link}" target="${h.accion==='abrir'?'_blank':'_self'}" ${h.accion==='descargar'?'download':''} class="btn-accion" style="font-size:.72rem;padding:.4rem .9rem;">${h.accion==='descargar'?'⬇ Descargar':'↗ Abrir'}</a>` : ''}
+        ${h.link ? `<a href="${escUrl(h.link)}" target="${h.accion==='abrir'?'_blank':'_self'}" ${h.accion==='descargar'?'download':''} class="btn-accion" style="font-size:.72rem;padding:.4rem .9rem;">${h.accion==='descargar'?'⬇ Descargar':'↗ Abrir'}</a>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -4872,10 +5012,10 @@ function renderDocsDeleg() {
     <div class="doc-item">
       <span class="doc-icon">${TIPO_DOC_DELEG[d.tipo]?.split(' ')[0]||'📎'}</span>
       <div class="doc-info">
-        <div class="doc-name">${d.titulo}</div>
-        <div class="doc-meta">${TIPO_DOC_DELEG[d.tipo]||'Otro'} · ${d.fecha}${d.desc?' · '+d.desc:''}</div>
+        <div class="doc-name">${esc(d.titulo)}</div>
+        <div class="doc-meta">${TIPO_DOC_DELEG[d.tipo]||'Otro'} · ${esc(d.fecha)}${d.desc?' · '+d.desc:''}</div>
       </div>
-      ${d.link?`<a href="${d.link}" target="_blank" class="doc-dl">↗ Abrir</a>`:''}
+      ${d.link?`<a href="${escUrl(d.link)}" target="_blank" class="doc-dl">↗ Abrir</a>`:''}
       <button class="doc-del" onclick="eliminarDocDeleg(${i})">🗑</button>
     </div>`).join('');
 }
@@ -4886,10 +5026,10 @@ function renderActividadDeleg() {
   if(!acts.length){ lista.innerHTML='<div class="docs-empty">No hay actividad registrada.</div>'; return; }
   lista.innerHTML = acts.map((a,i)=>`
     <div style="display:flex;gap:.8rem;align-items:flex-start;padding:.65rem 0;border-bottom:1px solid var(--border);">
-      <div style="flex-shrink:0;font-size:.72rem;font-weight:700;color:var(--gold);min-width:80px;">${a.fecha}</div>
+      <div style="flex-shrink:0;font-size:.72rem;font-weight:700;color:var(--gold);min-width:80px;">${esc(a.fecha)}</div>
       <div style="flex:1;">
-        <div style="font-size:.8rem;font-weight:600;color:var(--navy);">${TIPO_ACT_DELEG[a.tipo]||''} ${a.desc}</div>
-        ${a.municipio?`<div style="font-size:.68rem;color:var(--muted);margin-top:.15rem;">📍 ${a.municipio}</div>`:''}
+        <div style="font-size:.8rem;font-weight:600;color:var(--navy);">${TIPO_ACT_DELEG[a.tipo]||''} ${esc(a.desc)}</div>
+        ${a.municipio?`<div style="font-size:.68rem;color:var(--muted);margin-top:.15rem;">📍 ${esc(a.municipio)}</div>`:''}
       </div>
       <button class="doc-del" onclick="eliminarActDeleg(${i})">🗑</button>
     </div>`).join('');
@@ -4923,10 +5063,10 @@ function renderPapeles() {
     <div class="doc-item">
       <span class="doc-icon">📝</span>
       <div class="doc-info">
-        <div class="doc-name">${p.titulo}</div>
-        <div class="doc-meta">${tipoLabel[p.tipo]||'Otro'} · ${p.anio}${p.ref?' · '+p.ref:''}${p.desc?' · '+p.desc:''}</div>
+        <div class="doc-name">${esc(p.titulo)}</div>
+        <div class="doc-meta">${tipoLabel[p.tipo]||'Otro'} · ${esc(p.anio)}${p.ref?' · '+esc(p.ref):''}${p.desc?' · '+esc(p.desc):''}</div>
       </div>
-      ${p.link?`<a href="${p.link}" target="_blank" class="doc-dl">↗ Abrir</a>`:''}
+      ${p.link?`<a href="${escUrl(p.link)}" target="_blank" class="doc-dl">↗ Abrir</a>`:''}
       <button class="doc-del" onclick="eliminarPapel(${i})">🗑</button>
     </div>`).join('');
 }
@@ -5004,11 +5144,11 @@ function renderNormativa() {
           <div class="norm-item">
             <span class="norm-item-icon">${cfg.icon}</span>
             <div class="norm-item-info">
-              <div class="norm-item-titulo">${n.titulo}</div>
-              <div class="norm-item-desc">${n.desc}</div>
+              <div class="norm-item-titulo">${esc(n.titulo)}</div>
+              <div class="norm-item-desc">${esc(n.desc)}</div>
             </div>
-            <span class="norm-item-anio">${n.anio}</span>
-            ${n.link?`<a href="${n.link}" target="_blank" class="norm-item-link">↗ Ver</a>`:''}
+            <span class="norm-item-anio">${esc(n.anio)}</span>
+            ${n.link?`<a href="${escUrl(n.link)}" target="_blank" class="norm-item-link">↗ Ver</a>`:''}
             <button class="norm-item-del" onclick="eliminarNormativa(${n.id})" title="Eliminar">🗑</button>
           </div>`).join('')}
       </div>
@@ -5033,7 +5173,7 @@ function guardarNormativa() {
 
 function eliminarNormativa(id) {
   const n = NORMATIVA.find(x=>x.id===id);
-  if(!n||!confirm(`¿Eliminás "${n.titulo}"?`)) return;
+  if(!n||!confirm(`¿Eliminás "${esc(n.titulo)}"?`)) return;
   NORMATIVA = NORMATIVA.filter(x=>x.id!==id);
   renderNormativa();
 }
@@ -5046,12 +5186,12 @@ function renderDocs() {
     <div class="doc-item">
       <span class="doc-icon">${iconDoc(d.nombre)}</span>
       <div class="doc-info">
-        <div class="doc-name" title="${d.nombre}">${d.nombre}</div>
-        <div class="doc-meta">${d.size} · ${d.fecha} · ${d.autor||''}</div>
+        <div class="doc-name" title="${esc(d.nombre)}">${esc(d.nombre)}</div>
+        <div class="doc-meta">${esc(d.size)} · ${esc(d.fecha)} · ${esc(d.autor||'')}</div>
       </div>
       ${d.storagePath || d.downloadUrl
-        ? `<button class="doc-dl" onclick="descargarDoc('${d.storagePath||''}','${d.nombre}')">↓ Bajar</button>`
-        : d.link ? `<a href="${d.link}" target="_blank" class="doc-dl">↗ Abrir</a>` : ''
+        ? `<button class="doc-dl" onclick="descargarDoc('${d.storagePath||''}','${esc(d.nombre)}')">↓ Bajar</button>`
+        : d.link ? `<a href="${escUrl(d.link)}" target="_blank" class="doc-dl">↗ Abrir</a>` : ''
       }
       <button class="doc-del" onclick="eliminarDoc('${d.id||d.nombre}','${d.storagePath||''}')" title="Eliminar">🗑</button>
     </div>`).join('')||'<div class="docs-empty">No hay documentos cargados.</div>';
@@ -5201,13 +5341,13 @@ function poblarFiltroMat() {
   const sel = document.getElementById('mat-filtro');
   const curr = sel.value;
   sel.innerHTML = '<option value="">Todas</option>' +
-    CAPS.map(c => `<option value="${c.id}"${c.id===curr?' selected':''}>${c.titulo} — ${formatFechaCorta(c.fecha)}</option>`).join('');
+    CAPS.map(c => `<option value="${esc(c.id)}"${c.id===curr?' selected':''}>${esc(c.titulo)} — ${esc(formatFechaCorta(c.fecha))}</option>`).join('');
 
   // Select del modal: poblar con CAPS
   const ref = document.getElementById('mat-cap-ref');
   if(ref) {
     ref.innerHTML = '<option value="">— Seleccioná una capacitación —</option>' +
-      CAPS.map(c => `<option value="${c.id}">${c.titulo} — ${formatFechaCorta(c.fecha)}</option>`).join('');
+      CAPS.map(c => `<option value="${esc(c.id)}">${esc(c.titulo)} — ${esc(formatFechaCorta(c.fecha))}</option>`).join('');
   }
 }
 
@@ -5227,7 +5367,7 @@ function renderMaterial() {
   // Obtener nombre real de la capacitación
   function getNombreCap(capId) {
     const c = CAPS.find(x => x.id === capId);
-    return c ? `${c.titulo} — ${formatFechaCorta(c.fecha)}` : capId;
+    return c ? `${esc(c.titulo)} — ${formatFechaCorta(c.fecha)}` : capId;
   }
   cont.innerHTML = Object.entries(grupos).map(([capId, items]) => `
     <div class="mat-grupo">
@@ -5240,11 +5380,11 @@ function renderMaterial() {
           <div class="mat-item">
             <span class="mat-item-icon">${TIPO_MAT_ICON[m.tipo]||'📎'}</span>
             <div class="mat-item-info">
-              <div class="mat-item-titulo">${m.titulo}</div>
-              ${m.desc?`<div class="mat-item-desc">${m.desc}</div>`:''}
+              <div class="mat-item-titulo">${esc(m.titulo)}</div>
+              ${m.desc?`<div class="mat-item-desc">${esc(m.desc)}</div>`:''}
             </div>
             <span class="mat-item-badge mat-badge-${m.tipo}">${TIPO_MAT_LABEL[m.tipo]||'Otro'}</span>
-            ${m.link?`<a href="${m.link}" target="_blank" class="mat-item-link">↗ Abrir</a>`:''}
+            ${m.link?`<a href="${escUrl(m.link)}" target="_blank" class="mat-item-link">↗ Abrir</a>`:''}
             <button class="mat-item-del" onclick="eliminarMaterial('${m.id}')" title="Eliminar">🗑</button>
           </div>`).join('')}
       </div>
@@ -5382,11 +5522,11 @@ function renderCaps() {
     return `<div class="cap-card">
       <div class="cap-fecha-box"><div class="cap-dia">${dia}</div><div class="cap-mes">${mes}</div></div>
       <div class="cap-info">
-        <div class="cap-titulo">${c.titulo}</div>
-        <div class="cap-desc">${c.desc||''}</div>
+        <div class="cap-titulo">${esc(c.titulo)}</div>
+        <div class="cap-desc">${esc(c.desc||'')}</div>
         <div class="cap-tags">
-          <span class="cap-tag tag-${c.modalidad||'presencial'}">${(c.modalidad||'presencial').charAt(0).toUpperCase()+(c.modalidad||'presencial').slice(1)}</span>
-          ${c.area?`<span class="cap-tag tag-area">${c.area}</span>`:''}
+          <span class="cap-tag tag-${esc(c.modalidad||'presencial')}">${(c.modalidad||'presencial').charAt(0).toUpperCase()+(c.modalidad||'presencial').slice(1)}</span>
+          ${c.area?`<span class="cap-tag tag-area">${esc(c.area)}</span>`:''}
         </div>
         <div style="display:flex;gap:.5rem;margin-top:.6rem;">
           <button onclick="editarCap(${idx})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.2rem .55rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">✏️ Editar</button>
@@ -5422,10 +5562,10 @@ function renderNovedades(){
   document.getElementById('nov-list').innerHTML = NOVEDADES.map((n,idx)=>`
     <div class="nov-card">
       <div class="nov-cat cat-${n.cat}">${catLabel[n.cat]||'General'}</div>
-      <div class="nov-titulo">${n.titulo}</div>
-      <div class="nov-texto">${n.texto}</div>
+      <div class="nov-titulo">${esc(n.titulo)}</div>
+      <div class="nov-texto">${esc(n.texto)}</div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.5rem;">
-        <div class="nov-fecha">${n.fecha}</div>
+        <div class="nov-fecha">${esc(n.fecha)}</div>
         <div style="display:flex;gap:.4rem;">
           <button onclick="editarNovedad(${idx})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.2rem .55rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">✏️ Editar</button>
           <button onclick="eliminarNovedad(${idx})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.2rem .55rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">🗑 Eliminar</button>
@@ -5586,7 +5726,7 @@ function renderJornadas() {
       <div class="comision-card">
         <div class="comision-head">
           <span class="comision-num">Comisión ${i+1}</span>
-          <span class="comision-titulo">${c.titulo}</span>
+          <span class="comision-titulo">${esc(c.titulo)}</span>
         </div>
         <div class="comision-body">
           ${c.integrantes.map(p => `
@@ -5608,9 +5748,9 @@ function renderJornadas() {
       <div class="trabajo-item">
         <div class="trabajo-num">${i+1}</div>
         <div class="trabajo-info">
-          <div class="trabajo-titulo">${t.titulo}</div>
-          <div class="trabajo-autor">${t.autor} · ${t.delegacion}</div>
-          <span class="trabajo-comision">${t.comision}</span>
+          <div class="trabajo-titulo">${esc(t.titulo)}</div>
+          <div class="trabajo-autor">${esc(t.autor)} · ${esc(t.delegacion)}</div>
+          <span class="trabajo-comision">${esc(t.comision)}</span>
         </div>
       </div>`).join('');
   }
