@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Portal · Vocalía Municipalidades "B"</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -33,7 +33,7 @@ body{
   width:52px;height:52px;border-radius:8px;
   background:rgba(74,158,224,.15);border:1px solid rgba(74,158,224,.3);
   display:flex;align-items:center;justify-content:center;
-  font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:700;color:var(--gold);
+  font-family:'Inter',sans-serif;font-size:1.55rem;font-weight:700;color:var(--gold);
 }
 /* Eyebrow: label uppercase pequeño */
 .topbar-eyebrow{font-size:.65rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#4A6A8A;margin-bottom:.15rem;}
@@ -108,7 +108,7 @@ main{flex:1;}
   padding:2.2rem 2.5rem 1.8rem;border-bottom:2px solid rgba(201,150,58,.2);
 }
 .inicio-eyebrow{font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(201,150,58,.7);margin-bottom:.4rem;}
-.inicio-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:#fff;line-height:1.1;margin-bottom:.35rem;}
+.inicio-title{font-family:'Inter',sans-serif;font-size:2rem;font-weight:700;color:#fff;line-height:1.1;margin-bottom:.35rem;}
 .inicio-title span{color:var(--gold);}
 .inicio-sub{font-size:.8rem;color:#4A6A8A;max-width:560px;}
 .inicio-body{padding:1.8rem 2.5rem;}
@@ -165,7 +165,7 @@ main{flex:1;}
 /* ══ SECCIÓN GENÉRICA ══ */
 .seccion-wrap{padding:1.8rem 2.5rem;}
 .seccion-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4rem;flex-wrap:wrap;gap:.8rem;}
-.seccion-title{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:700;color:var(--navy);}
+.seccion-title{font-family:'Inter',sans-serif;font-size:1.45rem;font-weight:700;color:var(--navy);}
 .btn-accion{
   display:inline-flex;align-items:center;gap:.4rem;
   padding:.5rem 1.1rem;background:var(--gold);color:#0D1B2A;
@@ -275,7 +275,7 @@ main{flex:1;}
 /* ══ CRONOGRAMA ══ */
 .cron-toolbar{display:flex;align-items:center;gap:.8rem;margin-bottom:1.3rem;flex-wrap:wrap;}
 .cron-mes-nav{display:flex;align-items:center;gap:.5rem;}
-.cron-mes-label{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--navy);min-width:190px;text-align:center;}
+.cron-mes-label{font-family:'Inter',sans-serif;font-size:1.2rem;font-weight:700;color:var(--navy);min-width:190px;text-align:center;}
 .cron-nav-btn{
   background:var(--white);border:1px solid var(--border);border-radius:5px;
   width:30px;height:30px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;
@@ -328,7 +328,7 @@ main{flex:1;}
   border-bottom:1px solid var(--border);flex-shrink:0;
 }
 .ev-panel-tipo{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem;}
-.ev-panel-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;color:var(--navy);}
+.ev-panel-title{font-family:'Inter',sans-serif;font-size:1.15rem;font-weight:700;color:var(--navy);}
 .ev-panel-close{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:.2rem;}
 .ev-panel-close:hover{color:var(--text);}
 .ev-panel-body{padding:1.2rem 1.3rem;flex:1;overflow-y:auto;}
@@ -391,7 +391,7 @@ main{flex:1;}
 .cap-list{display:flex;flex-direction:column;gap:.8rem;}
 .cap-card{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:1.1rem 1.4rem;display:flex;align-items:flex-start;gap:1rem;}
 .cap-fecha-box{flex-shrink:0;background:var(--navy);border-radius:6px;padding:.5rem .7rem;text-align:center;min-width:50px;}
-.cap-dia{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--gold);line-height:1;}
+.cap-dia{font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:700;color:var(--gold);line-height:1;}
 .cap-mes{font-size:.57rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4A6A8A;}
 .cap-info{flex:1;}
 .cap-titulo{font-size:.9rem;font-weight:700;color:var(--navy);margin-bottom:.22rem;}
@@ -420,7 +420,7 @@ main{flex:1;}
 .modal-box{background:#fff;border-radius:.9rem;width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.18);animation:slideUp .3s ease;}
 @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .modal-head{padding:1.1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.modal-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--navy);}
+.modal-title{font-family:'Inter',sans-serif;font-size:1.2rem;font-weight:700;color:var(--navy);}
 .modal-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;line-height:1;}
 .modal-close:hover{color:var(--text);}
 .modal-body{padding:1.3rem 1.5rem;overflow-y:auto;flex:1;}
@@ -483,7 +483,7 @@ main{flex:1;}
 /* Programa días */
 .jornada-dia{background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
 .jornada-dia-head{background:var(--navy);padding:.6rem 1rem;display:flex;align-items:center;gap:.7rem;}
-.jornada-dia-num{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--gold);}
+.jornada-dia-num{font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:700;color:var(--gold);}
 .jornada-dia-titulo{font-size:.78rem;font-weight:700;color:#fff;}
 .jornada-dia-fecha{font-size:.65rem;color:#4A6A8A;margin-left:auto;}
 .jornada-bloque{display:flex;gap:.8rem;padding:.65rem 1rem;border-bottom:1px solid var(--border);align-items:flex-start;}
@@ -507,7 +507,7 @@ main{flex:1;}
 
 /* Trabajos */
 .trabajo-item{background:var(--white);border:1px solid var(--border);border-radius:7px;padding:.8rem 1rem;display:flex;gap:.8rem;align-items:flex-start;}
-.trabajo-num{flex-shrink:0;background:var(--navy);color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;width:34px;height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.trabajo-num{flex-shrink:0;background:var(--navy);color:var(--gold);font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:700;width:34px;height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;}
 .trabajo-info{flex:1;}
 .trabajo-titulo{font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:.2rem;}
 .trabajo-autor{font-size:.72rem;color:var(--muted);}
@@ -757,11 +757,11 @@ main{flex:1;}
   width:52px;height:52px;border-radius:10px;
   background:rgba(74,158,224,.15);border:1px solid rgba(74,158,224,.3);
   display:flex;align-items:center;justify-content:center;
-  font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--gold);
+  font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:700;color:var(--gold);
   margin:0 auto 1.2rem;
 }
 .login-eyebrow{font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(74,158,224,.6);text-align:center;margin-bottom:.5rem;}
-.login-title{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;color:#fff;text-align:center;line-height:1.1;margin-bottom:.25rem;}
+.login-title{font-family:'Inter',sans-serif;font-size:1.7rem;font-weight:700;color:#fff;text-align:center;line-height:1.1;margin-bottom:.25rem;}
 .login-title span{color:var(--gold);}
 .login-sub{font-size:.75rem;color:#4A6A8A;text-align:center;margin-bottom:2rem;}
 .login-field{margin-bottom:1.1rem;}
@@ -797,13 +797,13 @@ main{flex:1;}
   border-radius:6px;font-size:.72rem;color:#4A9EE0;text-align:center;
 }
 /* ══ AJUSTES TIPOGRÁFICOS — SISTEMA UNIFICADO ══
-   Base: Inter 16px | Títulos elegantes: Cormorant Garamond
+   Base: Inter 16px | Títulos: Inter (antes Cormorant Garamond, se unificó todo a Inter)
    ══════════════════════════════════════════════════════ */
 
 /* Título principal portal (topbar) — Inter 900 */
 .topbar-titulo-principal {
   font-family:'Inter',sans-serif !important;
-  font-size:1.6rem !important;
+  font-size:2rem !important;
   font-weight:900 !important;
   letter-spacing:-.02em !important;
   color:#fff !important;
@@ -811,10 +811,10 @@ main{flex:1;}
 }
 .topbar-titulo-principal span { color:var(--gold) !important; }
 
-/* Títulos de sección y modal — Cormorant Garamond 1.2–1.8rem */
+/* Títulos de sección y modal — Inter 1.2–1.8rem */
 .seccion-title,
 .modal-title {
-  font-family:'Cormorant Garamond',serif !important;
+  font-family:'Inter',sans-serif !important;
   font-size:1.6rem !important;
   font-weight:700 !important;
 }
@@ -862,11 +862,11 @@ table td, table th { font-size:.88rem !important; }
   font-size:.7rem !important;
 }
 
-/* Títulos vocalia/inicio — Cormorant Garamond elegante */
+/* Títulos vocalia/inicio — Inter */
 .inicio-title,
 #panel-vocalia .inicio-title,
 .vocal-card .vocal-nombre {
-  font-family:'Cormorant Garamond',serif !important;
+  font-family:'Inter',sans-serif !important;
   font-weight:700 !important;
 }
 
@@ -990,9 +990,9 @@ table td, table th { font-size:.88rem !important; }
 
   <!-- Izquierda: título -->
   <div style="flex-shrink:0;min-width:0;">
-    <div style="font-size:.55rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#4A6A8A;margin-bottom:.15rem;">H. Tribunal de Cuentas · Prov. de Buenos Aires</div>
+    <div style="font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#4A6A8A;margin-bottom:.2rem;">H. Tribunal de Cuentas · Prov. de Buenos Aires</div>
     <div class="topbar-titulo-principal">Vocalía <span>Municipalidades "B"</span></div>
-    <div style="font-size:.6rem;color:#2A3A4A;margin-top:.1rem;">Portal interno</div>
+    <div style="font-size:.78rem;color:#5A7A99;margin-top:.15rem;">Portal interno</div>
   </div>
 
   <!-- Derecha PC: dos filas de botones -->
@@ -1088,39 +1088,39 @@ table td, table th { font-size:.88rem !important; }
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
       <div onclick="switchTab('mensajes')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:10px;padding:1.1rem 1rem;cursor:pointer;position:relative;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
         <span id="badge-inicio-msg" style="position:absolute;top:.55rem;right:.55rem;font-size:.55rem;font-weight:700;background:#C0392B;color:#fff;border-radius:8px;padding:.1rem .35rem;">3</span>
-        <div style="font-size:1.5rem;margin-bottom:.45rem;">📣</div>
-        <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Mensajes</div>
-        <div style="font-size:.62rem;color:#4A6A8A;">Comunicados</div>
+        <div style="font-size:2.1rem;margin-bottom:.5rem;">📣</div>
+        <div style="font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:.25rem;">Mensajes</div>
+        <div style="font-size:.82rem;color:#7A9AB9;">Comunicados</div>
       </div>
       <div onclick="switchTab('novedades')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:10px;padding:1.1rem 1rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
-        <div style="font-size:1.5rem;margin-bottom:.45rem;">📰</div>
-        <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Novedades</div>
-        <div style="font-size:.62rem;color:#4A6A8A;">Avisos</div>
+        <div style="font-size:2.1rem;margin-bottom:.5rem;">📰</div>
+        <div style="font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:.25rem;">Novedades</div>
+        <div style="font-size:.82rem;color:#7A9AB9;">Avisos</div>
       </div>
       <div onclick="switchTab('documentos')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:10px;padding:1.1rem 1rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
-        <div style="font-size:1.5rem;margin-bottom:.45rem;">📚</div>
-        <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Biblioteca</div>
-        <div style="font-size:.62rem;color:#4A6A8A;">Docs y normativa</div>
+        <div style="font-size:2.1rem;margin-bottom:.5rem;">📚</div>
+        <div style="font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:.25rem;">Biblioteca</div>
+        <div style="font-size:.82rem;color:#7A9AB9;">Docs y normativa</div>
       </div>
       <div onclick="switchTab('herramientas')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:10px;padding:1.1rem 1rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
-        <div style="font-size:1.5rem;margin-bottom:.45rem;">🛠️</div>
-        <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Herramientas</div>
-        <div style="font-size:.62rem;color:#4A6A8A;">Links digitales</div>
+        <div style="font-size:2.1rem;margin-bottom:.5rem;">🛠️</div>
+        <div style="font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:.25rem;">Herramientas</div>
+        <div style="font-size:.82rem;color:#7A9AB9;">Links digitales</div>
       </div>
       <div onclick="switchTab('delegaciones')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:10px;padding:1.1rem 1rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
-        <div style="font-size:1.5rem;margin-bottom:.45rem;">📍</div>
-        <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Delegaciones</div>
-        <div style="font-size:.62rem;color:#4A6A8A;">Zonales y Sede</div>
+        <div style="font-size:2.1rem;margin-bottom:.5rem;">📍</div>
+        <div style="font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:.25rem;">Delegaciones</div>
+        <div style="font-size:.82rem;color:#7A9AB9;">Zonales y Sede</div>
       </div>
       <div onclick="switchTab('cronograma')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:10px;padding:1.1rem 1rem;cursor:pointer;position:relative;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
-        <div style="font-size:1.5rem;margin-bottom:.45rem;">📅</div>
-        <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Cronograma</div>
-        <div style="font-size:.62rem;color:#4A6A8A;">Eventos del mes</div>
+        <div style="font-size:2.1rem;margin-bottom:.5rem;">📅</div>
+        <div style="font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:.25rem;">Cronograma</div>
+        <div style="font-size:.82rem;color:#7A9AB9;">Eventos del mes</div>
       </div>
       <div onclick="switchTab('capacitaciones')" style="background:rgba(255,255,255,.05);border:.5px solid rgba(74,158,224,.2);border-radius:10px;padding:1.1rem 1rem;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(74,158,224,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
-        <div style="font-size:1.5rem;margin-bottom:.45rem;">🎓</div>
-        <div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Capacitaciones</div>
-        <div style="font-size:.62rem;color:#4A6A8A;">Cursos y material</div>
+        <div style="font-size:2.1rem;margin-bottom:.5rem;">🎓</div>
+        <div style="font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:.25rem;">Capacitaciones</div>
+        <div style="font-size:.82rem;color:#7A9AB9;">Cursos y material</div>
       </div>
     </div>
   </div>
@@ -1244,24 +1244,24 @@ table td, table th { font-size:.88rem !important; }
     <!-- Estadísticas -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:2rem;">
       <div style="background:var(--navy);border-radius:8px;padding:1.2rem;text-align:center;border-bottom:3px solid var(--gold);">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">100</div>
+        <div style="font-family:'Inter',sans-serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">100</div>
         <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-top:.3rem;">Estudios a cargo</div>
         <div style="font-size:.6rem;color:#2A3A4A;margin-top:.2rem;">66 mun · 23 entes · 11 SAPEM</div>
       </div>
       <div style="background:var(--navy);border-radius:8px;padding:1.2rem;text-align:center;border-bottom:3px solid var(--gold);">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">66</div>
+        <div style="font-family:'Inter',sans-serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">66</div>
         <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-top:.3rem;">Municipios</div>
       </div>
       <div style="background:var(--navy);border-radius:8px;padding:1.2rem;text-align:center;border-bottom:3px solid var(--gold);">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">23</div>
+        <div style="font-family:'Inter',sans-serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">23</div>
         <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-top:.3rem;">Entes descentralizados</div>
       </div>
       <div style="background:var(--navy);border-radius:8px;padding:1.2rem;text-align:center;border-bottom:3px solid var(--gold);">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">11</div>
+        <div style="font-family:'Inter',sans-serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">11</div>
         <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-top:.3rem;">SAPEM</div>
       </div>
       <div style="background:var(--navy);border-radius:8px;padding:1.2rem;text-align:center;border-bottom:3px solid var(--gold);">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">10</div>
+        <div style="font-family:'Inter',sans-serif;font-size:2.5rem;font-weight:700;color:var(--gold);line-height:1;">10</div>
         <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-top:.3rem;">Delegaciones zonales</div>
       </div>
     </div>
@@ -1931,7 +1931,7 @@ table td, table th { font-size:.88rem !important; }
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.8rem;margin-bottom:1.3rem;">
             <div style="background:var(--navy);border-radius:7px;padding:.9rem;text-align:center;">
               <div style="font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-bottom:.3rem;">Edición</div>
-              <div style="font-size:1.3rem;font-weight:700;color:var(--gold);font-family:'Cormorant Garamond',serif;" id="ji-edicion">—</div>
+              <div style="font-size:1.3rem;font-weight:700;color:var(--gold);font-family:'Inter',sans-serif;" id="ji-edicion">—</div>
             </div>
             <div style="background:var(--navy);border-radius:7px;padding:.9rem;text-align:center;">
               <div style="font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-bottom:.3rem;">Fechas</div>
@@ -1943,7 +1943,7 @@ table td, table th { font-size:.88rem !important; }
             </div>
             <div style="background:var(--navy);border-radius:7px;padding:.9rem;text-align:center;">
               <div style="font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-bottom:.3rem;">Trabajos</div>
-              <div style="font-size:1.3rem;font-weight:700;color:var(--gold);font-family:'Cormorant Garamond',serif;" id="ji-ntrabajos">—</div>
+              <div style="font-size:1.3rem;font-weight:700;color:var(--gold);font-family:'Inter',sans-serif;" id="ji-ntrabajos">—</div>
             </div>
           </div>
           <div style="background:var(--cream);border-radius:7px;padding:1rem 1.2rem;">
@@ -4091,7 +4091,7 @@ function renderWidgetsInicio() {
     const cfg = TIPO_CFG[ev.tipo]||TIPO_CFG.reunion;
     return `<div style="display:flex;gap:.55rem;align-items:flex-start;padding:.42rem 0;border-bottom:1px solid var(--border);">
       <div style="flex-shrink:0;background:var(--navy);border-radius:5px;padding:.25rem .4rem;text-align:center;min-width:34px;">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:.95rem;font-weight:700;color:var(--gold);line-height:1;">${esc(dia)}</div>
+        <div style="font-family:'Inter',sans-serif;font-size:.95rem;font-weight:700;color:var(--gold);line-height:1;">${esc(dia)}</div>
         <div style="font-size:.5rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4A6A8A;">${esc(mes)}</div>
       </div>
       <div>
