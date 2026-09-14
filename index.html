@@ -2548,14 +2548,46 @@ async function doLogin() {
   err.classList.remove('show');
   if(!email || !pass) { err.textContent = 'Completá email y contraseña.'; err.classList.add('show'); return; }
   btn.disabled = true; btn.textContent = 'Ingresando…';
-  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-  if(error) {
+
+  // El login pasa por la Edge Function "hyper-processor" (el código es el
+  // mismo que "login-seguro" — Supabase le asignó ese nombre al desplegarla
+  // y el nombre no se puede cambiar desde el dashboard, así que el HTML
+  // quedó apuntando al nombre real en vez de pelear con la interfaz).
+  // Aplica el límite de 5 intentos fallidos ANTES de validar la contraseña
+  // contra Supabase Auth. Si falla la Edge Function en sí (no desplegada,
+  // red caída), se avisa con un mensaje distinto para no confundirlo con
+  // "contraseña incorrecta".
+  const { data: resultado, error: fnError } = await sb.functions.invoke('hyper-processor', {
+    body: { email, password: pass }
+  });
+
+  if(fnError) {
     btn.disabled = false; btn.textContent = 'Ingresar al portal';
-    err.textContent = 'Email o contraseña incorrectos.'; err.classList.add('show');
+    err.textContent = 'No se pudo conectar con el servidor de login. Probá de nuevo en un momento.';
+    err.classList.add('show');
     return;
   }
-  usuarioActual = data.user;
-  const { data: perfil } = await sb.from('perfiles_vocalia').select('*').eq('id', data.user.id).single();
+  if(!resultado?.ok) {
+    btn.disabled = false; btn.textContent = 'Ingresar al portal';
+    err.textContent = resultado?.mensaje || 'Email o contraseña incorrectos.';
+    err.classList.add('show');
+    return;
+  }
+
+  // La Edge Function ya validó todo — acá sólo se establece la sesión en
+  // el cliente con los tokens que devolvió.
+  const { data: sesion, error: sesionError } = await sb.auth.setSession({
+    access_token: resultado.access_token,
+    refresh_token: resultado.refresh_token,
+  });
+  if(sesionError || !sesion?.user) {
+    btn.disabled = false; btn.textContent = 'Ingresar al portal';
+    err.textContent = 'No se pudo iniciar sesión. Probá de nuevo.'; err.classList.add('show');
+    return;
+  }
+
+  usuarioActual = sesion.user;
+  const { data: perfil } = await sb.from('perfiles_vocalia').select('*').eq('id', sesion.user.id).single();
 
   // Verificar si el usuario está activo
   if(perfil && !perfil.activo) {
@@ -2572,7 +2604,7 @@ async function doLogin() {
   document.getElementById('topbar-role').textContent = rolActual.toUpperCase();
 
   // Actualizar último acceso
-  await sb.from('perfiles_vocalia').update({ ultimo_acceso: new Date().toISOString() }).eq('id', data.user.id);
+  await sb.from('perfiles_vocalia').update({ ultimo_acceso: new Date().toISOString() }).eq('id', sesion.user.id);
 
   if(!remember) {
     // Sin recordarme: sesión dura hasta cerrar el navegador (no F5)
