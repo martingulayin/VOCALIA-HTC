@@ -3240,6 +3240,35 @@ async function cerrarSesion(motivo) {
   rolActual     = 'usuario';
 }
 
+// ══ LIMPIEZA DE STORAGE AL ELIMINAR ═════════════════════════════════════════
+// Documentos, Sede, Delegaciones, Papeles, Normativa y Material aceptan DOS
+// formas de "link": un archivo subido a Storage (queda como signed URL, con
+// token) o un link externo pegado a mano (Google Drive, etc). Al eliminar el
+// registro, si el link es nuestro (Storage) hay que borrar también el
+// archivo — si es externo, no hay nada nuestro que borrar.
+//
+// Orden elegido a propósito: primero se borra la fila de la base, recién
+// después el archivo de Storage. Si algo se corta a la mitad, preferimos
+// quedarnos con un archivo huérfano invisible en Storage (se puede limpiar
+// después) antes que con una fila que apunta a un archivo que ya no existe
+// (eso sí lo nota un usuario al hacer clic).
+function extraerPathStorage(link) {
+  if (!link || typeof link !== 'string') return null;
+  const m = link.match(/\/object\/sign\/documentos(?:%20|\s)Vocalia\/([^?]+)/);
+  if (!m) return null; // no es una signed URL de nuestro bucket → es un link externo
+  try { return decodeURIComponent(m[1]); } catch (e) { return m[1]; }
+}
+
+async function borrarArchivoSiCorresponde(link) {
+  const path = extraerPathStorage(link);
+  if (!path) return;
+  try {
+    await sb.storage.from('documentos Vocalia').remove([path]);
+  } catch (e) {
+    console.error('No se pudo borrar el archivo de Storage:', path, e);
+  }
+}
+
 // ══ PDF INSTITUCIONAL — "Quiénes somos" ═══════════════════════════════════
 // El PDF vive en Supabase Storage (bucket "documentos Vocalia", mismo bucket
 // y mismas políticas RLS que el resto de los documentos del portal — sólo
@@ -3690,6 +3719,7 @@ eliminarDocSede = async function(idx) {
   if(!confirm('¿Eliminás?')) return;
   const doc = SEDE_DOCS[sedeActual][idx];
   if(SUPABASE_LISTO && doc.id) await sb.from('sede_docs').delete().eq('id', doc.id);
+  await borrarArchivoSiCorresponde(doc.link);
   SEDE_DOCS[sedeActual].splice(idx,1); renderDocsSedeR();
 };
 
@@ -3761,6 +3791,7 @@ eliminarDocDeleg = async function(idx) {
   if(!confirm('¿Eliminás?')) return;
   const doc = DELEG_DOCS[delegActual][idx];
   if(SUPABASE_LISTO && doc.id) await sb.from('delegacion_docs').delete().eq('id', doc.id);
+  await borrarArchivoSiCorresponde(doc.link);
   DELEG_DOCS[delegActual].splice(idx,1); renderDocsDeleg();
 };
 
@@ -3892,7 +3923,9 @@ guardarPapel = async function() {
 
 eliminarPapel = async function(idx) {
   if(!confirm('¿Eliminás?')) return;
-  if(SUPABASE_LISTO && PAPELES[idx].id) await sb.from('papeles').delete().eq('id', PAPELES[idx].id);
+  const doc = PAPELES[idx];
+  if(SUPABASE_LISTO && doc.id) await sb.from('papeles').delete().eq('id', doc.id);
+  await borrarArchivoSiCorresponde(doc.link);
   PAPELES.splice(idx,1); renderPapeles();
 };
 
@@ -3919,7 +3952,9 @@ guardarNormativa = async function() {
 
 eliminarNormativa = async function(id) {
   if(!confirm('¿Eliminás esta normativa?')) return;
+  const item = NORMATIVA.find(n => n.id === id);
   if(SUPABASE_LISTO) await sb.from('normativa').delete().eq('id', id);
+  await borrarArchivoSiCorresponde(item?.link);
   NORMATIVA = NORMATIVA.filter(n => n.id !== id); renderNormativa();
 };
 
@@ -4078,8 +4113,10 @@ guardarMaterial = async function() {
 
 eliminarMaterial = async function(id) {
   if(!confirm('¿Eliminás este material?')) return;
+  const item = MATERIAL.find(m => m.id === id);
   const { error } = await sb.from('material_capacitaciones').delete().eq('id', id);
   if(error){ alert('Error al eliminar: ' + error.message); return; }
+  await borrarArchivoSiCorresponde(item?.link);
   MATERIAL = MATERIAL.filter(m => m.id !== id);
   await logAct('eliminar','material',`Material ${id} eliminado`);
   renderMaterial(); poblarFiltroMat();
@@ -5362,8 +5399,8 @@ async function eliminarDoc(idOrNombre, storagePath){
   const nombre = DOCS.find(d => (d.id||d.nombre) === idOrNombre)?.nombre || idOrNombre;
   if(SUPABASE_LISTO) {
     if(storagePath) {
-      await sb.storage.from('documentos Vocalia').remove([storagePath]);
       await sb.from('documentos').delete().eq('link', storagePath);
+      await sb.storage.from('documentos Vocalia').remove([storagePath]);
     } else if(idOrNombre) {
       await sb.from('documentos').delete().eq('id', idOrNombre);
     }
