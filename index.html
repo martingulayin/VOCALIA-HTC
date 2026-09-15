@@ -1683,11 +1683,11 @@ table td, table th { font-size:.88rem !important; }
           <select id="sede-selector" onchange="switchRelatoria(this.value)"
             style="flex:1;max-width:320px;padding:.55rem .9rem;font-size:.85rem;border:1.5px solid var(--gold);border-radius:6px;outline:none;color:var(--navy);font-family:'Inter',sans-serif;font-weight:600;background:#fff;">
             <option value="">— Elegí una Relatoría —</option>
-            <option value="R1">Relatoría 1</option>
-            <option value="R2">Relatoría 2</option>
-            <option value="R3">Relatoría 3</option>
-            <option value="R4">Relatoría 4</option>
-            <option value="R5">Relatoría 5</option>
+            <option value="R1">Relatoría 1 — Cr. Santander</option>
+            <option value="R2">Relatoría 2 — Cr. Garbinni</option>
+            <option value="R3">Relatoría 3 — Cra. Chiaraluce</option>
+            <option value="R4">Relatoría 4 — Cr. Dovigo</option>
+            <option value="R5">Relatoría 5 — Cra. Zapatel</option>
           </select>
         </div>
       </div>
@@ -4811,11 +4811,11 @@ function switchDepTab(tab) {
 
 // ══ SEDE CENTRAL — RELATORÍAS ══════════════════════════════════════════════
 const RELATORIAS = {
-  R1:{ nombre:'Relatoría 1', responsable:'', tel:'', mail:'', desc:'Municipios y entes a cargo de la Relatoría 1.' },
-  R2:{ nombre:'Relatoría 2', responsable:'', tel:'', mail:'', desc:'Municipios y entes a cargo de la Relatoría 2.' },
-  R3:{ nombre:'Relatoría 3', responsable:'', tel:'', mail:'', desc:'Municipios y entes a cargo de la Relatoría 3.' },
-  R4:{ nombre:'Relatoría 4', responsable:'', tel:'', mail:'', desc:'Municipios y entes a cargo de la Relatoría 4.' },
-  R5:{ nombre:'Relatoría 5', responsable:'', tel:'', mail:'', desc:'Municipios y entes a cargo de la Relatoría 5.' },
+  R1:{ nombre:'Relatoría 1', responsable:'Cr. Sebastián Santander', tel:'', mail:'', desc:'Delegaciones: Mar del Plata · Quilmes' },
+  R2:{ nombre:'Relatoría 2', responsable:'Cr. Juan Manuel Garbinni', tel:'', mail:'', desc:'Delegaciones: Vicente López · Zárate' },
+  R3:{ nombre:'Relatoría 3', responsable:'Cra. Carolina Chiaraluce', tel:'', mail:'', desc:'Delegaciones: Ituzaingó · Chascomús' },
+  R4:{ nombre:'Relatoría 4', responsable:'Cr. Adrián Dovigo', tel:'', mail:'', desc:'Delegaciones: La Plata · Pigüé' },
+  R5:{ nombre:'Relatoría 5', responsable:'Cra. María del Pilar Zapatel', tel:'', mail:'', desc:'Delegaciones: Morón · Azul' },
 };
 const SEDE_DOCS = { R1:[], R2:[], R3:[], R4:[], R5:[] };
 const SEDE_ACT  = { R1:[], R2:[], R3:[], R4:[], R5:[] };
@@ -4835,15 +4835,18 @@ function switchRelatoria(nro) {
         <div style="font-size:1.1rem;font-weight:700;color:#fff;">${r.nombre}</div>
       </div>
     </div>`;
+  const delegNames = r.desc.replace('Delegaciones:','').split('·').map(s=>s.trim()).filter(Boolean);
   document.getElementById('sede-info-grid').innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
       <div style="background:var(--cream);border-radius:6px;padding:.8rem 1rem;">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;">Descripción</div>
-        <div style="font-size:.85rem;color:var(--navy);">${r.desc}</div>
+        <div style="font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;">Relator/a Responsable</div>
+        <div style="font-size:.88rem;font-weight:600;color:var(--navy);">${r.responsable?esc(r.responsable):'<span style="color:var(--muted);font-style:italic;">Sin asignar</span>'}</div>
       </div>
       <div style="background:var(--cream);border-radius:6px;padding:.8rem 1rem;">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;">Responsable</div>
-        <div style="font-size:.85rem;color:var(--navy);">${r.responsable?esc(r.responsable):'<span style="color:var(--muted);font-style:italic;">Sin asignar</span>'}</div>
+        <div style="font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;">Delegaciones a cargo</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
+          ${delegNames.map(d=>`<span style="background:rgba(74,158,224,.12);border:1px solid rgba(74,158,224,.25);color:var(--gold);font-size:.75rem;font-weight:600;border-radius:4px;padding:.2rem .6rem;">${esc(d)}</span>`).join('')}
+        </div>
       </div>
     </div>`;
   switchSedeTab('info');
