@@ -4453,9 +4453,17 @@ guardarCapacitacion = async function() {
 };
 
 eliminarCap = async function(idx) {
-  if(!confirm(`¿Eliminás "${CAPS[idx].titulo}"?`)) return;
+  if(!confirm(`¿Eliminás "${CAPS[idx].titulo}"? Se eliminará también todo su material.`)) return;
   const cap = CAPS[idx];
   if(SUPABASE_LISTO && cap.id) {
+    // Primero eliminar material asociado (archivos de Storage + registros)
+    const materialCap = MATERIAL.filter(m => m.cap === cap.id || m.cap_id === cap.id);
+    for(const mat of materialCap) {
+      await sb.from('material_capacitaciones').delete().eq('id', mat.id);
+      await borrarArchivoSiCorresponde(mat.link);
+    }
+    MATERIAL = MATERIAL.filter(m => m.cap !== cap.id && m.cap_id !== cap.id);
+    // Luego eliminar la capacitación
     await sb.from('capacitaciones').delete().eq('id', cap.id);
     if(cap.eventoId) {
       await sb.from('eventos').delete().eq('id', cap.eventoId);
@@ -4463,7 +4471,7 @@ eliminarCap = async function(idx) {
       if(evIdx >= 0) { REUNIONES.splice(evIdx, 1); renderCalendario(); }
     }
   }
-  CAPS.splice(idx,1); renderCaps();
+  CAPS.splice(idx,1); renderCaps(); poblarFiltroMat();
 };
 
 // MATERIAL CAPACITACIONES
