@@ -1175,12 +1175,24 @@ table td, table th { font-size:.88rem !important; }
 <div id="panel-inicio" class="tab-panel active">
 
   <!-- ══ HERO DIVIDIDO ══ -->
-  <div style="background:var(--navy);display:grid;grid-template-columns:1fr 1fr;gap:.6rem;padding:2.4rem 2rem 2rem;align-items:center;" id="portada-hero">
+  <div style="background:var(--navy);display:grid;grid-template-columns:1fr 1fr;gap:.6rem;padding:.9rem 2rem 2rem;align-items:stretch;" id="portada-hero">
     <!-- Izquierda -->
-    <div>
-      <div style="font-size:.6rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(74,158,224,.6);margin-bottom:.9rem;">Portal interno · 2026</div>
-      <div style="font-size:3.4rem;font-weight:900;color:#fff;line-height:1.0;letter-spacing:-.03em;margin-bottom:.6rem;">Vocalía<br><span style="color:var(--gold);">Municipalidades<br>"B"</span></div>
-      <div style="font-size:.78rem;color:#4A6A8A;font-weight:500;">H. Tribunal de Cuentas · Prov. de Buenos Aires</div>
+    <div style="display:flex;flex-direction:column;min-height:160px;">
+
+      <!-- Saludo dinámico arriba -->
+      <div>
+        <div id="hero-ctx-line" style="font-size:.56rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(74,158,224,.45);margin-bottom:.55rem;">PORTAL INTERNO · EJERCICIO 2026 · SEMANA 38</div>
+        <div id="hero-saludo" style="font-size:1.55rem;font-weight:700;color:#fff;line-height:1.15;letter-spacing:-.02em;margin-bottom:.35rem;">Bienvenido</div>
+        <div id="hero-fecha" style="font-size:.74rem;color:#4A6A8A;"></div>
+      </div>
+
+      <!-- Título institucional — margin-top fijo para alinearlo con Biblioteca -->
+      <div style="margin-top:2.2rem;">
+        <div style="height:1px;background:rgba(74,158,224,.15);margin-bottom:3rem;"></div>
+        <div style="font-size:3.4rem;font-weight:900;color:#fff;line-height:1.0;letter-spacing:-.03em;margin-bottom:.55rem;">Vocalía<br><span style="color:var(--gold);">Municipalidades<br>"B"</span></div>
+        <div style="font-size:.78rem;color:#4A6A8A;font-weight:500;">H. Tribunal de Cuentas · Prov. de Buenos Aires</div>
+      </div>
+
     </div>
     <!-- Derecha: accesos rápidos -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
@@ -2822,6 +2834,7 @@ async function doLogin() {
   const nombre = perfil?.nombre || email.split('@')[0];
   document.getElementById('topbar-username').textContent = nombre;
   document.getElementById('topbar-role').textContent = rolActual.toUpperCase();
+  initHeroDinamico();
 
   // Actualizar último acceso
   await sb.from('perfiles_vocalia').update({ ultimo_acceso: new Date().toISOString() }).eq('id', sesion.user.id);
@@ -2859,6 +2872,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rolActual = perfil?.rol || 'usuario';
       document.getElementById('topbar-username').textContent = perfil?.nombre || session.user.email.split('@')[0];
       document.getElementById('topbar-role').textContent = rolActual.toUpperCase();
+      initHeroDinamico();
       await sb.from('perfiles_vocalia').update({ ultimo_acceso: new Date().toISOString() }).eq('id', session.user.id);
       mostrarPortal();
       aplicarPermisos();
@@ -3570,7 +3584,11 @@ async function cargarBannerAviso() {
 
 async function doLogout() {
   if(!confirm('¿Cerrás sesión?')) return;
-  await cerrarSesion();
+  try {
+    await cerrarSesion();
+  } catch(e) {
+    console.error('Error al cerrar sesión:', e);
+  }
 }
 
 // Cierre de sesión sin confirmación (uso interno: inactividad, cuenta desactivada)
@@ -6369,6 +6387,26 @@ function renderJornadas() {
   }
 }
 
+// ══ HERO DINÁMICO ══════════════════════════════════════════════════════════
+function initHeroDinamico() {
+  const ahora = new Date();
+  const hora = ahora.getHours();
+  const nombre = (typeof perfilActual !== 'undefined' && perfilActual?.nombre)
+    ? perfilActual.nombre.split(' ')[0]
+    : (document.getElementById('topbar-username')?.textContent?.trim().split(' ')[0] || '');
+  let saludo = hora < 12 ? 'Buenos días' : hora < 18 ? 'Buenas tardes' : 'Buenas noches';
+  if (nombre) saludo += `, ${nombre}`;
+  const elS = document.getElementById('hero-saludo');
+  if (elS) elS.textContent = saludo;
+  const dias = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const elF = document.getElementById('hero-fecha');
+  if (elF) elF.textContent = `${dias[ahora.getDay()]} ${ahora.getDate()} de ${meses[ahora.getMonth()]} de ${ahora.getFullYear()}`;
+  const startOfYear = new Date(ahora.getFullYear(), 0, 1);
+  const semana = Math.ceil(((ahora - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
+  const elC = document.getElementById('hero-ctx-line');
+  if (elC) elC.textContent = `PORTAL INTERNO · EJERCICIO ${ahora.getFullYear()} · SEMANA ${semana}`;
+}
 // ══ INIT ══════════════════════════════════════════════════════════════════
 initMencionesTextarea('m-cuerpo', 'modal-cuerpo-wrap');
 renderMensajes();
@@ -6381,6 +6419,7 @@ renderEstudios('');
 initDeleg();
 renderWidgetsInicio();
 renderHerramientas();
+initHeroDinamico();
 document.getElementById('da-fecha').value = new Date().toISOString().split('T')[0];
 // Inicializar modal evento
 document.getElementById('r-fecha').value = new Date().toISOString().split('T')[0];
@@ -6428,7 +6467,7 @@ let _ultimaVisitaActividad = localStorage.getItem('vocalia_ultima_actividad') ||
 let _intervalActividad = null;
 
 async function checkActividadNueva() {
-  if(!esAdmin() || !SUPABASE_LISTO) return;
+  if(!usuarioActual || !esAdmin() || !SUPABASE_LISTO) return;
   try {
     const { count } = await sb.from('actividad_log')
       .select('*', { count:'exact', head:true })
