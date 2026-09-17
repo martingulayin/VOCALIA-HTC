@@ -6352,42 +6352,46 @@ actualizarFormEvento();
 renderJornadas();
 
 // ══ SCROLL CON MOUSE EN BARRA DE TABS ══════════════════════════════════════
-// Rueda del mouse: scroll vertical → convierte en scroll horizontal.
-// Drag: click + arrastrar.
-(function() {
+// Rueda del mouse: scroll vertical → scroll horizontal.
+// Drag: click sostenido + arrastrar en cualquier parte de la barra.
+document.addEventListener('DOMContentLoaded', () => {
   const nav = document.querySelector('.nav-tabs');
   if(!nav) return;
 
   // Rueda del mouse
   nav.addEventListener('wheel', e => {
     e.preventDefault();
-    nav.scrollLeft += e.deltaY || e.deltaX;
+    nav.scrollLeft += e.deltaY !== 0 ? e.deltaY : e.deltaX;
   }, { passive: false });
 
   // Drag
-  let isDragging = false, startX = 0, scrollStart = 0;
+  let isDragging = false, startX = 0, scrollStart = 0, didDrag = false;
 
   nav.addEventListener('mousedown', e => {
-    // No interferir con clics en los botones
-    if(e.target.closest('.tab-btn')) return;
     isDragging = true;
-    startX = e.pageX - nav.offsetLeft;
+    didDrag    = false;
+    startX     = e.pageX;
     scrollStart = nav.scrollLeft;
     nav.classList.add('dragging');
+    e.preventDefault(); // evita selección de texto
   });
 
   document.addEventListener('mousemove', e => {
     if(!isDragging) return;
-    e.preventDefault();
-    const x = e.pageX - nav.offsetLeft;
-    nav.scrollLeft = scrollStart - (x - startX);
+    const dx = e.pageX - startX;
+    if(Math.abs(dx) > 3) didDrag = true; // umbral mínimo para considerar drag
+    nav.scrollLeft = scrollStart - dx;
   });
 
-  document.addEventListener('mouseup', () => {
+  document.addEventListener('mouseup', e => {
+    if(!isDragging) return;
     isDragging = false;
     nav.classList.remove('dragging');
+    // Si hubo drag real, cancelar el click que dispararía el tab
+    if(didDrag) e.stopPropagation();
   });
-})();
+});
+
 
 </script>
 </body>
