@@ -77,6 +77,29 @@ body{
 .banner-close{background:none;border:none;color:inherit;opacity:.6;cursor:pointer;font-size:1rem;line-height:1;}
 .banner-close:hover{opacity:1;}
 
+/* ══ ALERTAS PRÓXIMOS EVENTOS ══ */
+.cal-alert-wrap{margin-bottom:.8rem;}
+.cal-alert{
+  display:flex;align-items:center;gap:.6rem;
+  background:rgba(74,158,224,.08);border:1px solid rgba(74,158,224,.2);
+  border-left:3px solid var(--gold);border-radius:6px;
+  padding:.5rem .85rem;margin-bottom:.35rem;font-size:.75rem;color:#CBD5E0;
+}
+.cal-alert-icon{font-size:.95rem;flex-shrink:0;}
+.cal-alert-text strong{color:#fff;font-weight:600;}
+.cal-alert-hoy{border-left-color:var(--red);background:rgba(192,57,43,.08);border-color:rgba(192,57,43,.25);}
+.cal-alert-manana{border-left-color:#FFD180;background:rgba(255,209,128,.06);border-color:rgba(255,209,128,.2);}
+
+/* ══ BADGE ACTIVIDAD NUEVA ══ */
+.tb-btn-wrap{position:relative;display:inline-flex;}
+#act-badge-new{
+  display:none;position:absolute;top:-5px;right:-5px;
+  background:var(--red);color:#fff;border-radius:8px;
+  font-size:.55rem;font-weight:700;padding:.1rem .35rem;
+  min-width:16px;text-align:center;line-height:1.4;pointer-events:none;
+}
+#act-badge-new.show{display:inline-block;}
+
 /* ══ MODAL GESTIÓN AVISOS ══ */
 #gestion-overlay{
   position:fixed;inset:0;z-index:9998;
@@ -1072,7 +1095,10 @@ table td, table th { font-size:.88rem !important; }
     <div style="display:flex;align-items:center;gap:.3rem;flex-wrap:nowrap;">
       <button class="tb-btn" onclick="switchTab('documentos')">📁 DOCS</button>
       <button class="tb-btn" onclick="abrirModalAviso()">📢 AVISOS</button>
-      <button class="tb-btn" id="btn-actividad" onclick="abrirModalActividad()" style="display:none;">📋 ACTIVIDAD</button>
+      <div class="tb-btn-wrap">
+        <button class="tb-btn" id="btn-actividad" onclick="abrirModalActividad()" style="display:none;">📋 ACTIVIDAD</button>
+        <span id="act-badge-new"></span>
+      </div>
       <button class="tb-btn" id="btn-usuarios" onclick="abrirPanelUsuarios()" style="display:none;">👤 USUARIOS</button>
       <div style="width:1px;height:16px;background:rgba(255,255,255,.15);margin:0 .15rem;"></div>
       <span style="font-size:.7rem;font-weight:700;color:var(--gold);cursor:pointer;" id="topbar-username" onclick="abrirPerfil()">Demo</span>
@@ -1528,6 +1554,7 @@ table td, table th { font-size:.88rem !important; }
       </div>
       <button class="btn-accion sec" onclick="irHoy()">Hoy</button>
     </div>
+    <div class="cal-alert-wrap" id="cal-alert-wrap"></div>
     <div class="cal-grid">
       <div class="cal-head">
         <div class="cal-head-day">Dom</div><div class="cal-head-day">Lun</div>
@@ -2759,8 +2786,11 @@ async function doLogin() {
   }
   if(!resultado?.ok) {
     btn.disabled = false; btn.textContent = 'Ingresar al portal';
+    _intentosLoginLocal++;
     err.textContent = resultado?.mensaje || 'Email o contraseña incorrectos.';
     err.classList.add('show');
+    // Mostrar barra de intentos si el servidor no bloqueó aún
+    if(!resultado?.bloqueado) mostrarIntentosRestantes(_intentosLoginLocal);
     return;
   }
 
@@ -2800,6 +2830,7 @@ async function doLogin() {
     // Sin recordarme: sesión dura hasta cerrar el navegador (no F5)
     // Supabase maneja esto con persistSession
   }
+  limpiarIntentosLogin();
   mostrarPortal();
   aplicarPermisos();
   reiniciarVigilanciaInactividad();
@@ -2808,6 +2839,7 @@ async function doLogin() {
   await iniciarBanner();
   cargarTodosLosDatos();
   suscribirMensajesRealtime();
+  iniciarPollingActividad();
 }
 
 // Enter en los campos + verificar sesión activa al cargar
@@ -2834,6 +2866,7 @@ document.addEventListener('DOMContentLoaded', () => {
       cargarPdfInstitucional();
       await cargarTodosLosDatos();
       suscribirMensajesRealtime();
+      iniciarPollingActividad();
     }
   });
 });
@@ -3545,6 +3578,8 @@ async function cerrarSesion(motivo) {
   detenerVigilanciaInactividad();
   // Cancelar suscripciones realtime ANTES de cerrar sesión
   cancelarSuscripcionesRealtime();
+  // Detener polling de actividad
+  if(_intervalActividad) { clearInterval(_intervalActividad); _intervalActividad = null; }
   try { await logAct('logout', 'acceso', motivo || 'Cerró sesión'); } catch(e) {}
   await sb.auth.signOut();
   document.getElementById('portal-wrap').style.display = 'none';
@@ -5082,7 +5117,9 @@ function renderCalendario() {
   const resto = (primer+dias)%7===0?0:7-(primer+dias)%7;
   for(let i=1;i<=resto;i++) html+=`<div class="cal-cell otro-mes"><div class="cal-num">${i}</div></div>`;
   document.getElementById('cal-body').innerHTML = html;
+  checkAlertasProximos();
 }
+
 function abrirPanelDia(fStr) {
   // Si hay múltiples eventos en un día, mostrar el primero y el panel lateral
   // con lista de todos los eventos de ese día
@@ -6350,6 +6387,110 @@ document.getElementById('r-fecha').value = new Date().toISOString().split('T')[0
 actualizarFormEvento();
 // Jornadas
 renderJornadas();
+
+// ══ ALERTAS PRÓXIMOS EVENTOS (próximos 3 días) ══════════════════════════════
+const TIPO_CFG_ALERTA = {
+  reunion:    { icon:'🤝', label:'Reunión de sala' },
+  visita:     { icon:'🏛️', label:'Visita a municipio' },
+  vencimiento:{ icon:'⏰', label:'Vencimiento/Plazo' },
+  informe:    { icon:'📄', label:'Informe' },
+  capacitacion:{ icon:'🎓', label:'Capacitación' },
+  institucional:{ icon:'🏢', label:'Institucional' },
+  otro:       { icon:'📌', label:'Evento' },
+};
+
+function checkAlertasProximos() {
+  const wrap = document.getElementById('cal-alert-wrap');
+  if(!wrap) return;
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const en3 = new Date(hoy); en3.setDate(en3.getDate() + 3);
+  const proximos = REUNIONES.filter(ev => {
+    const f = new Date(ev.fecha + 'T00:00:00');
+    return f >= hoy && f <= en3;
+  }).sort((a,b) => a.fecha.localeCompare(b.fecha));
+  if(!proximos.length) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = proximos.map(ev => {
+    const f = new Date(ev.fecha + 'T00:00:00');
+    const diff = Math.round((f - hoy) / 86400000);
+    const cuando = diff === 0 ? 'hoy' : diff === 1 ? 'mañana' : `en ${diff} días`;
+    const cls = diff === 0 ? 'cal-alert-hoy' : diff === 1 ? 'cal-alert-manana' : '';
+    const cfg = TIPO_CFG_ALERTA[ev.tipo] || TIPO_CFG_ALERTA.otro;
+    const hora = ev.hora_inicio ? ` · ${ev.hora_inicio.slice(0,5)} hs` : '';
+    return `<div class="cal-alert ${cls}">
+      <span class="cal-alert-icon">🔔</span>
+      <span class="cal-alert-text"><strong>${esc(ev.asunto)}</strong> — ${cuando}${hora} · ${cfg.icon} ${cfg.label}</span>
+    </div>`;
+  }).join('');
+}
+
+// ══ BADGE DE ACTIVIDAD NUEVA (admin) ════════════════════════════════════════
+let _ultimaVisitaActividad = localStorage.getItem('vocalia_ultima_actividad') || new Date(0).toISOString();
+let _intervalActividad = null;
+
+async function checkActividadNueva() {
+  if(!esAdmin() || !SUPABASE_LISTO) return;
+  try {
+    const { count } = await sb.from('actividad_log')
+      .select('*', { count:'exact', head:true })
+      .gt('created_at', _ultimaVisitaActividad)
+      .neq('usuario_id', usuarioActual?.id);
+    const badge = document.getElementById('act-badge-new');
+    if(!badge) return;
+    if(count > 0) {
+      badge.textContent = count > 9 ? '9+' : String(count);
+      badge.classList.add('show');
+    } else {
+      badge.classList.remove('show');
+    }
+  } catch(e) { console.error('checkActividadNueva:', e); }
+}
+
+// Llamar al abrir el modal de actividad para limpiar el badge
+const _origAbrirModalActividad = abrirModalActividad;
+abrirModalActividad = async function() {
+  _ultimaVisitaActividad = new Date().toISOString();
+  localStorage.setItem('vocalia_ultima_actividad', _ultimaVisitaActividad);
+  const badge = document.getElementById('act-badge-new');
+  if(badge) badge.classList.remove('show');
+  _origAbrirModalActividad();
+};
+
+// Iniciar polling de actividad al cargar el portal
+function iniciarPollingActividad() {
+  checkActividadNueva();
+  if(_intervalActividad) clearInterval(_intervalActividad);
+  _intervalActividad = setInterval(checkActividadNueva, 60000);
+}
+
+// ══ CONTADOR DE INTENTOS RESTANTES EN LOGIN ══════════════════════════════════
+// La Edge Function devuelve el mensaje con los intentos/bloqueo — lo mostramos.
+// Además se agrega un indicador visual de intentos restantes client-side
+// para dar feedback inmediato antes de que responda el servidor.
+let _intentosLoginLocal = 0;
+const _MAX_INTENTOS_LOCAL = 5;
+
+function mostrarIntentosRestantes(intentosFallidos) {
+  const err = document.getElementById('login-error');
+  const restantes = _MAX_INTENTOS_LOCAL - intentosFallidos;
+  if(restantes <= 0 || restantes >= _MAX_INTENTOS_LOCAL) return;
+  // Agregar barra visual de intentos debajo del mensaje
+  let barra = document.getElementById('login-intentos-barra');
+  if(!barra) {
+    barra = document.createElement('div');
+    barra.id = 'login-intentos-barra';
+    barra.style.cssText = 'display:flex;gap:3px;margin-top:.4rem;';
+    err.parentNode.insertBefore(barra, err.nextSibling);
+  }
+  barra.innerHTML = Array.from({length: _MAX_INTENTOS_LOCAL}, (_,i) =>
+    `<div style="flex:1;height:3px;border-radius:2px;background:${i < intentosFallidos ? 'var(--red)' : 'rgba(255,255,255,.15)'};transition:background .3s;"></div>`
+  ).join('');
+}
+
+function limpiarIntentosLogin() {
+  _intentosLoginLocal = 0;
+  const barra = document.getElementById('login-intentos-barra');
+  if(barra) barra.remove();
+}
 
 // ══ SCROLL CON MOUSE EN BARRA DE TABS ══════════════════════════════════════
 // Rueda del mouse: scroll vertical → scroll horizontal.
