@@ -657,11 +657,13 @@ main{flex:1;}
 @media(max-width:1100px){
   .topbar-titulo-principal{font-size:1.25rem !important;}
   #topbar-botones-pc{display:none !important;}
-  #topbar-hamburger{display:block !important;}
+  #topbar-hamburger{display:flex !important;align-items:center;justify-content:center;}
 }
 @media(min-width:1101px){
-  #menu-mobile{display:none !important;}
+  #menu-mobile,#menu-mobile.open{display:none !important;}
 }
+#menu-mobile{display:none;}
+#menu-mobile.open{display:flex !important;}
 @media(max-width:768px){
   .topbar-titulo-principal{font-size:1.05rem !important;}
   .topbar{padding:.6rem .9rem !important;}
@@ -721,19 +723,28 @@ main{flex:1;}
 /* ══ RESPONSIVE MOBILE ══ */
 @media(max-width:768px){
 
-  /* Topbar */
-  .topbar{padding:.55rem .9rem !important;}
-  .topbar-logo{width:40px;height:40px;font-size:1.2rem;}
-  .topbar-eyebrow{font-size:.52rem;}
-  .topbar-titulo-principal{font-size:.95rem !important;letter-spacing:0 !important;}
-  .topbar-titulo-principal span{font-size:.95rem !important;}
+  /* Topbar — override del inline style padding */
+  .topbar{padding:.45rem .75rem !important;gap:.5rem !important;}
+  /* Ocultar sublinea "Portal interno" en mobile */
+  .topbar > div:first-child > div:last-child{display:none !important;}
+  /* Eyebrow HTC más chico */
+  .topbar > div:first-child > div:first-child{font-size:.52rem !important;letter-spacing:.1em !important;margin-bottom:.1rem !important;}
+  .topbar-titulo-principal{font-size:.85rem !important;letter-spacing:0 !important;}
+  .topbar-titulo-principal span{font-size:.85rem !important;}
+  .topbar-logo{width:36px;height:36px;font-size:1.1rem;}
+  .topbar-eyebrow{font-size:.48rem;}
   .user-chip{padding:.22rem .5rem;font-size:.62rem;}
   .role-badge{display:none;}
   .topbar-link{font-size:.6rem;padding:.22rem .45rem;}
   .topbar-link span{display:none;}
 
+  /* Evitar scroll horizontal */
+  html,body{overflow-x:hidden !important;max-width:100vw !important;}
+  #portal-wrap{overflow-x:hidden !important;}
+  .topbar{max-width:100vw !important;overflow:hidden !important;}
+
   /* Padding general */
-  .seccion-wrap,.inicio-hero,.inicio-body{padding-left:.9rem;padding-right:.9rem;}
+  .seccion-wrap,.inicio-hero,.inicio-body{padding-left:.85rem;padding-right:.85rem;}
 
   /* Tabs — más compactos y scrolleables */
   .tab-btn{padding:.6rem .85rem;font-size:.62rem;gap:.25rem;}
@@ -1019,20 +1030,56 @@ table td, table th { font-size:.88rem !important; }
 .acceso-directo-btn:hover{border-color:var(--gold);background:var(--navy2);}
 
 
-/* Corrección de un bug del original: en mobile el hero de Inicio desbordaba
-   25px de ancho (título a 3.4rem y grilla de 2 columnas sobre 390px). */
+/* ══ MOBILE: hero portada ══ */
 @media(max-width:768px){
+  /* Layout general del hero */
   #portada-hero{
     grid-template-columns:1fr !important;
-    padding:1.5rem 1rem 1.4rem !important;
-    gap:1.2rem !important;
+    padding:.9rem .9rem .8rem !important;
+    gap:.7rem !important;
   }
-  #portada-hero > div:first-child > div:nth-child(2){
-    font-size:2.1rem !important; line-height:1.05 !important;
+  /* Bloque saludo: eyebrow más chico */
+  #hero-ctx-line{ font-size:.5rem !important; margin-bottom:.35rem !important; }
+  /* Saludo "Buenas tardes, Martín" */
+  #hero-saludo{ font-size:1.1rem !important; margin-bottom:.2rem !important; }
+  /* Fecha */
+  #hero-fecha{ font-size:.65rem !important; }
+  /* Separador y título institucional: ocultar en mobile (ya se ve en topbar) */
+  #portada-hero > div:first-child > div:last-child > div:first-child{ display:none !important; }
+  /* Título grande "Vocalía Municipalidades B" */
+  #portada-hero > div:first-child > div:last-child > div:nth-child(2){
+    font-size:1.5rem !important; line-height:1.05 !important; margin-bottom:.3rem !important;
   }
-  #portada-hero > div:last-child{ grid-template-columns:1fr 1fr !important; }
-  #portada-stats{ padding:1rem .9rem !important; }
-  #portada-stats > div > div:first-child{ font-size:1.9rem !important; }
+  /* Subtítulo HTC */
+  #portada-hero > div:first-child > div:last-child > div:nth-child(3){
+    font-size:.65rem !important;
+  }
+  /* Grid de tarjetas de acceso: 2 columnas compactas */
+  #portada-hero > div:last-child{
+    grid-template-columns:1fr 1fr !important;
+    gap:.4rem !important;
+  }
+  /* Tarjetas de acceso */
+  #portada-hero > div:last-child > div{
+    padding:.65rem .7rem !important;
+    border-radius:8px !important;
+  }
+  /* Emojis */
+  #portada-hero > div:last-child > div > div:first-child{
+    font-size:1.35rem !important; margin-bottom:.25rem !important;
+  }
+  /* Título de tarjeta */
+  #portada-hero > div:last-child > div > div:nth-child(2){
+    font-size:.78rem !important; margin-bottom:.12rem !important;
+  }
+  /* Subtítulo de tarjeta */
+  #portada-hero > div:last-child > div > div:nth-child(3){
+    font-size:.62rem !important;
+  }
+  /* Stats */
+  #portada-stats{ padding:.65rem .8rem !important; }
+  #portada-stats > div > div:first-child{ font-size:1.5rem !important; }
+  #portada-stats > div > div:nth-child(2){ font-size:.48rem !important; }
 }
 .video-inst-thumb.activo{border-color:var(--gold) !important;background:rgba(74,158,224,.08);}
 .video-inst-thumb:hover{border-color:rgba(74,158,224,.35) !important;background:rgba(74,158,224,.05);}
@@ -1113,7 +1160,7 @@ table td, table th { font-size:.88rem !important; }
   </div>
 
   <!-- Mobile: hamburguesa -->
-  <button id="topbar-hamburger" onclick="toggleMenuMobile()" style="display:none;margin-left:auto;background:none;border:1.5px solid rgba(255,255,255,.2);border-radius:6px;color:#CBD5E0;font-size:1.2rem;padding:.35rem .55rem;cursor:pointer;">☰</button>
+  <button id="topbar-hamburger" onclick="toggleMenuMobile()" style="display:none;margin-left:auto;flex-shrink:0;background:transparent;border:1px solid rgba(74,158,224,.35);border-radius:5px;color:var(--gold);font-size:.7rem;padding:.32rem .55rem;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;letter-spacing:.05em;white-space:nowrap;">☰ MENÚ</button>
 </div>
 
 <!-- Menú mobile desplegable -->
@@ -3102,11 +3149,10 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') cerrarBuscador(
 
 // ══ TABS ══════════════════════════════════════════════════════════════════
 function toggleMenuMobile() {
-  const menu = document.getElementById('menu-mobile');
-  menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+  document.getElementById('menu-mobile').classList.toggle('open');
 }
 function cerrarMenuMobile() {
-  document.getElementById('menu-mobile').style.display = 'none';
+  document.getElementById('menu-mobile').classList.remove('open');
 }
 
 // ══ SISTEMA DE USUARIOS Y PERMISOS ════════════════════════════════════════
