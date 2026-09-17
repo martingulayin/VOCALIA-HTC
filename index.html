@@ -77,11 +77,83 @@ body{
 .banner-close{background:none;border:none;color:inherit;opacity:.6;cursor:pointer;font-size:1rem;line-height:1;}
 .banner-close:hover{opacity:1;}
 
+/* ══ MODAL GESTIÓN AVISOS ══ */
+#gestion-overlay{
+  position:fixed;inset:0;z-index:9998;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;padding:1.5rem;
+}
+#gestion-overlay.open{display:flex;}
+.gestion-modal{
+  background:var(--navy);border:1px solid rgba(74,158,224,.25);
+  border-radius:.9rem;width:100%;max-width:680px;
+  max-height:88vh;display:flex;flex-direction:column;
+  box-shadow:0 24px 80px rgba(0,0,0,.6);
+}
+.gestion-modal-head{
+  padding:1.2rem 1.6rem;border-bottom:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.gestion-modal-title{font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:700;color:#fff;}
+.gestion-modal-close{background:none;border:none;color:#718096;font-size:1.2rem;cursor:pointer;}
+.gestion-modal-close:hover{color:#fff;}
+.gestion-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;}
+.gestion-tab{
+  padding:.65rem 1.2rem;font-family:'Inter',sans-serif;font-size:.68rem;font-weight:600;
+  letter-spacing:.07em;text-transform:uppercase;color:#4A6A8A;
+  border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;
+}
+.gestion-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.gestion-tab:hover{color:var(--gold2);}
+.gestion-modal-body{padding:1.2rem 1.6rem;overflow-y:auto;flex:1;}
+.gestion-panel{display:none;}
+.gestion-panel.active{display:block;}
+.gestion-form{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  border-radius:8px;padding:1rem 1.1rem;margin-bottom:1.2rem;
+}
+.gestion-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.7rem;}
+.gestion-field label{display:block;font-size:.6rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4A6A8A;margin-bottom:.3rem;}
+.gestion-field input,.gestion-field select,.gestion-field textarea{
+  width:100%;padding:.5rem .75rem;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:5px;color:#fff;font-family:'Inter',sans-serif;font-size:.8rem;
+  outline:none;transition:border-color .2s;resize:vertical;
+}
+.gestion-field input:focus,.gestion-field select:focus,.gestion-field textarea:focus{border-color:var(--gold);}
+.gestion-field select option{background:#0F2340;}
+.gestion-btn{
+  padding:.48rem 1rem;background:var(--gold);color:#fff;
+  border:none;border-radius:5px;font-family:'Inter',sans-serif;
+  font-size:.72rem;font-weight:700;cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:background .2s;
+}
+.gestion-btn:hover{background:var(--gold2);}
+.gestion-btn:disabled{background:#4A5568;cursor:not-allowed;}
+.gestion-msg{font-size:.72rem;margin-top:.5rem;min-height:.9rem;}
+.gestion-msg.ok{color:#48BB78;} .gestion-msg.err{color:#F1948A;}
+.gestion-section-title{font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem;margin-top:.2rem;}
+.aviso-item{
+  display:flex;align-items:center;gap:.75rem;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+  border-radius:6px;padding:.6rem .85rem;margin-bottom:.4rem;
+}
+.aviso-item-info{flex:1;min-width:0;}
+.aviso-item-titulo{font-size:.82rem;color:#E2E8F0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.aviso-item-meta{font-size:.62rem;color:#4A5568;margin-top:.1rem;}
+.aviso-toggle-btn{font-size:.62rem;font-weight:700;padding:.18rem .5rem;border-radius:4px;border:none;cursor:pointer;flex-shrink:0;}
+.aviso-toggle-btn.activo{background:rgba(30,107,82,.2);color:#48BB78;border:1px solid rgba(30,107,82,.3);}
+.aviso-toggle-btn.inactivo{background:rgba(192,57,43,.15);color:#F1948A;border:1px solid rgba(192,57,43,.3);}
+.aviso-del-btn{background:none;border:none;color:#4A5568;cursor:pointer;font-size:.85rem;flex-shrink:0;}
+.aviso-del-btn:hover{color:#F1948A;}
+.hist-empty{text-align:center;padding:2rem;color:#4A5568;font-size:.8rem;font-style:italic;}
+
 /* ══ TABS ══ */
 .nav-tabs{
   background:var(--navy2);border-bottom:1px solid rgba(255,255,255,.07);
   display:flex;overflow-x:auto;scrollbar-width:none;
+  cursor:grab;user-select:none;
 }
+.nav-tabs.dragging{cursor:grabbing;}
 .nav-tabs::-webkit-scrollbar{display:none;}
 .tab-btn{
   padding:.75rem 1.25rem;font-family:'Inter',sans-serif;font-size:.7rem;font-weight:600;
@@ -1872,27 +1944,76 @@ table td, table th { font-size:.88rem !important; }
 </div>
 
 <!-- ══ MODAL AVISO GLOBAL ══ -->
-<div class="modal-overlay" id="modal-aviso-global">
-  <div class="modal-box" style="max-width:480px;">
-    <div class="modal-head">
-      <div class="modal-title">📢 Publicar aviso global</div>
-      <button class="modal-close" onclick="cerrarModal('modal-aviso-global')">✕</button>
+<!-- ══ MODAL GESTIÓN AVISOS ══ -->
+<div id="gestion-overlay">
+  <div class="gestion-modal">
+    <div class="gestion-modal-head">
+      <div class="gestion-modal-title">📢 Gestión de avisos</div>
+      <button class="gestion-modal-close" onclick="closeGestion()">✕</button>
     </div>
-    <div class="modal-body">
-      <div class="form-field"><label>Título del aviso</label><input type="text" id="aviso-titulo" placeholder="Ej: Recordatorio reunión…"></div>
-      <div class="form-field"><label>Contenido</label><textarea id="aviso-contenido" rows="3" placeholder="Texto del aviso…"></textarea></div>
-      <div class="form-field"><label>Nivel</label>
-        <select id="aviso-nivel">
-          <option value="informativo">🔵 Informativo</option>
-          <option value="importante">🟡 Importante</option>
-          <option value="urgente">🔴 Urgente</option>
-        </select>
+    <div class="gestion-tabs">
+      <button class="gestion-tab active" onclick="switchGestionTab('avisos',this)">📢 Avisos</button>
+      <button class="gestion-tab" onclick="switchGestionTab('historial',this)">📋 Historial</button>
+    </div>
+    <div class="gestion-modal-body">
+
+      <!-- Panel Avisos -->
+      <div class="gestion-panel active" id="gestion-panel-avisos">
+
+        <!-- Vista admin: formulario + lista -->
+        <div id="gestion-avisos-admin">
+          <div class="gestion-section-title">Nuevo aviso</div>
+          <div class="gestion-form">
+            <div class="gestion-form-grid">
+              <div class="gestion-field">
+                <label>Título</label>
+                <input type="text" id="av-titulo" placeholder="Ej: Recordatorio reunión…" maxlength="120">
+              </div>
+              <div class="gestion-field">
+                <label>Nivel</label>
+                <select id="av-nivel">
+                  <option value="informativo">🔵 Informativo</option>
+                  <option value="importante">🟡 Importante</option>
+                  <option value="urgente">🔴 Urgente</option>
+                </select>
+              </div>
+            </div>
+            <div class="gestion-form-grid">
+              <div class="gestion-field">
+                <label>Vence el <span style="font-size:.58rem;color:#4A5568;">(opcional)</span></label>
+                <input type="date" id="av-vencimiento">
+              </div>
+              <div class="gestion-field">
+                <label>Estado</label>
+                <select id="av-estado">
+                  <option value="publicado">Publicado</option>
+                  <option value="borrador">Borrador</option>
+                </select>
+              </div>
+            </div>
+            <div class="gestion-field" style="margin-bottom:.7rem;">
+              <label>Contenido</label>
+              <textarea id="av-contenido" rows="3" placeholder="Describí el aviso…" maxlength="600"></textarea>
+            </div>
+            <button class="gestion-btn" id="btn-crear-aviso" onclick="crearAviso()">Publicar aviso</button>
+            <div class="gestion-msg" id="av-msg"></div>
+          </div>
+          <div class="gestion-section-title">Avisos publicados</div>
+          <div id="avisos-admin-list"><div class="hist-empty">Cargando…</div></div>
+        </div>
+
+        <!-- Vista usuario: solo lectura -->
+        <div id="gestion-avisos-usuario" style="display:none;">
+          <div class="gestion-section-title">Avisos activos</div>
+          <div id="avisos-usuario-list"><div class="hist-empty">Cargando…</div></div>
+        </div>
       </div>
-      <div class="form-msg" id="aviso-msg"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-accion sec" onclick="cerrarModal('modal-aviso-global')">Cancelar</button>
-      <button class="btn-accion" onclick="publicarAviso()">Publicar</button>
+
+      <!-- Panel Historial -->
+      <div class="gestion-panel" id="gestion-panel-historial">
+        <div id="avisos-historial-list"><div class="hist-empty">Cargando…</div></div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -3170,53 +3291,216 @@ function logActividad(accion, detalle, seccion) {
 }
 
 // ══ AVISOS GLOBALES ════════════════════════════════════════════════════════
-function abrirModalAviso() {
-  abrirModal('modal-aviso-global');
+// ══ SISTEMA DE AVISOS — gestión completa con Supabase ═══════════════════════
+// Constantes de iconos/labels compartidas
+const nivelIconos  = { informativo:'🔵', importante:'🟡', urgente:'🔴' };
+const nivelLabels  = { informativo:'Informativo', importante:'Importante', urgente:'Urgente' };
+
+// Abrir modal de gestión (reemplaza al viejo abrirModalAviso)
+function abrirModalAviso() { openGestion(); }
+
+function openGestion() {
+  document.getElementById('gestion-overlay').classList.add('open');
+  const admin = esAdmin();
+  document.getElementById('gestion-avisos-admin').style.display  = admin ? 'block' : 'none';
+  document.getElementById('gestion-avisos-usuario').style.display = admin ? 'none'  : 'block';
+  const primerTab = document.querySelector('.gestion-tab');
+  switchGestionTab('avisos', primerTab);
 }
 
-// ── Avisos globales — ahora persisten en Supabase (tabla "avisos"), no en
-// localStorage. Todos los usuarios ven el mismo aviso vigente en tiempo real.
-// Al cerrar el banner se guarda el ID en localStorage para no mostrarlo de
-// nuevo al mismo usuario en el mismo dispositivo — solo ese comportamiento
-// sigue en localStorage, el aviso en sí vive en la base.
-async function publicarAviso() {
-  const titulo    = document.getElementById('aviso-titulo').value.trim();
-  const contenido = document.getElementById('aviso-contenido').value.trim();
-  const nivel     = document.getElementById('aviso-nivel').value;
-  if(!titulo || !contenido) { setMsg('aviso-msg','Completá título y contenido.','err'); return; }
-  if(titulo.length > 120)   { setMsg('aviso-msg','El título no puede superar 120 caracteres.','err'); return; }
-  if(contenido.length > 600){ setMsg('aviso-msg','El contenido no puede superar 600 caracteres.','err'); return; }
+function closeGestion() {
+  document.getElementById('gestion-overlay').classList.remove('open');
+}
 
-  const btn = document.querySelector('#modal-aviso-global .btn-accion:not(.sec)');
-  if(btn) { btn.disabled = true; btn.textContent = 'Publicando…'; }
+function switchGestionTab(tab, el) {
+  document.querySelectorAll('.gestion-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.gestion-panel').forEach(p => p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('gestion-panel-' + tab).classList.add('active');
+  if(tab === 'avisos') { esAdmin() ? loadAvisosAdmin() : loadAvisosUsuario(); }
+  else { loadAvisosHistorial(); }
+}
+
+// ── Helpers de formato ──────────────────────────────────────────────────────
+function avisoVigente(a) {
+  if(!a.activo || a.estado !== 'publicado') return false;
+  if(a.fecha_vencimiento) {
+    const hoyD = new Date(); hoyD.setHours(0,0,0,0);
+    if(new Date(a.fecha_vencimiento + 'T00:00:00') < hoyD) return false;
+  }
+  return true;
+}
+
+function formatVencimiento(fecha) {
+  if(!fecha) return '';
+  const hoyD = new Date(); hoyD.setHours(0,0,0,0);
+  const vence = new Date(fecha + 'T00:00:00');
+  const diff = Math.round((vence - hoyD) / 86400000);
+  if(diff < 0)  return ' · <span style="color:#F1948A;">Vencido</span>';
+  if(diff === 0) return ' · <span style="color:#F1948A;">Vence hoy</span>';
+  if(diff <= 3)  return ` · <span style="color:#FFD180;">Vence en ${diff} día${diff>1?'s':''}</span>`;
+  return ' · Vence ' + vence.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+
+function formatFechaAviso(iso) {
+  if(!iso) return '';
+  return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+// ── Crear aviso ─────────────────────────────────────────────────────────────
+async function crearAviso() {
+  const titulo    = document.getElementById('av-titulo').value.trim();
+  const contenido = document.getElementById('av-contenido').value.trim();
+  const nivel     = document.getElementById('av-nivel').value;
+  const estado    = document.getElementById('av-estado').value;
+  const venc      = document.getElementById('av-vencimiento').value || null;
+  const msg       = document.getElementById('av-msg');
+  const btn       = document.getElementById('btn-crear-aviso');
+
+  if(!titulo)    { msg.textContent='El título es obligatorio.';    msg.className='gestion-msg err'; return; }
+  if(!contenido) { msg.textContent='El contenido es obligatorio.'; msg.className='gestion-msg err'; return; }
+  if(titulo.length > 120)    { msg.textContent='Título: máx. 120 caracteres.';    msg.className='gestion-msg err'; return; }
+  if(contenido.length > 600) { msg.textContent='Contenido: máx. 600 caracteres.'; msg.className='gestion-msg err'; return; }
+  if(venc) {
+    const hoyD = new Date(); hoyD.setHours(0,0,0,0);
+    if(new Date(venc + 'T00:00:00') < hoyD) { msg.textContent='La fecha de vencimiento no puede ser anterior a hoy.'; msg.className='gestion-msg err'; return; }
+  }
+
+  btn.disabled = true; btn.textContent = 'Publicando…';
+  msg.textContent = ''; msg.className = 'gestion-msg';
 
   try {
-    // Desactivar avisos activos anteriores antes de insertar el nuevo
-    await sb.from('avisos').update({ activo: false }).eq('activo', true);
-
-    const { data, error } = await sb.from('avisos').insert({
-      titulo, contenido: contenido, nivel,
-      activo: true,
+    const { error } = await sb.from('avisos').insert({
+      titulo, contenido, nivel, estado,
+      activo: estado === 'publicado',
+      fecha_vencimiento: venc,
       autor_id: usuarioActual?.id,
       autor_nombre: perfilActual?.nombre || usuarioActual?.email || 'Admin',
-    }).select().single();
-
+    });
     if(error) throw error;
-
-    // Limpiar el "cerrado" local para que el nuevo aviso se muestre a todos
-    localStorage.removeItem('vocalia_aviso_cerrado_id');
-    mostrarBannerAviso({ id: data.id, titulo: data.titulo, contenido: data.contenido, nivel: data.nivel });
     await logAct('publicar', 'avisos', `Publicó aviso: ${titulo}`);
-    setMsg('aviso-msg','✅ Aviso publicado para todos los usuarios.','ok');
-    setTimeout(()=>{ cerrarModal('modal-aviso-global'); limpiar(['aviso-titulo','aviso-contenido']); setMsg('aviso-msg','',''); },1100);
+    msg.textContent = '✅ Aviso ' + (estado === 'publicado' ? 'publicado.' : 'guardado como borrador.');
+    msg.className = 'gestion-msg ok';
+    document.getElementById('av-titulo').value = '';
+    document.getElementById('av-contenido').value = '';
+    document.getElementById('av-nivel').value = 'informativo';
+    document.getElementById('av-estado').value = 'publicado';
+    document.getElementById('av-vencimiento').value = '';
+    loadAvisosAdmin();
+    await cargarBannerAviso();
   } catch(e) {
-    console.error('Error publicando aviso:', e);
-    setMsg('aviso-msg','No se pudo publicar el aviso. Intentá de nuevo.','err');
+    console.error('Error creando aviso:', e);
+    msg.textContent = 'No se pudo publicar. Intentá de nuevo.';
+    msg.className = 'gestion-msg err';
   } finally {
-    if(btn) { btn.disabled = false; btn.textContent = 'Publicar'; }
+    btn.disabled = false; btn.textContent = 'Publicar aviso';
   }
 }
 
+// ── Cargar lista admin ──────────────────────────────────────────────────────
+async function loadAvisosAdmin() {
+  const list = document.getElementById('avisos-admin-list');
+  list.innerHTML = '<div class="hist-empty">Cargando…</div>';
+  const { data, error } = await sb.from('avisos')
+    .select('*').order('created_at', { ascending: false }).limit(30);
+  if(error || !data || !data.length) {
+    list.innerHTML = '<div class="hist-empty">No hay avisos registrados.</div>'; return;
+  }
+  list.innerHTML = data.map(a => {
+    const vigente = avisoVigente(a);
+    const estadoLabel = a.estado === 'archivado' ? 'Archivado' : a.estado === 'borrador' ? 'Borrador' : vigente ? 'Vigente' : 'Vencido/Inactivo';
+    return `
+    <div class="aviso-item">
+      <div style="font-size:1.1rem;flex-shrink:0;">${nivelIconos[a.nivel]||'ℹ️'}</div>
+      <div class="aviso-item-info">
+        <div class="aviso-item-titulo">${esc(a.titulo)}</div>
+        <div class="aviso-item-meta">${esc(nivelLabels[a.nivel]||'')} · ${esc(estadoLabel)} · ${esc(a.autor_nombre||'Admin')} · ${formatFechaAviso(a.created_at)}${a.fecha_vencimiento ? formatVencimiento(a.fecha_vencimiento) : ''}</div>
+      </div>
+      ${a.estado !== 'archivado' ? `<button class="aviso-toggle-btn ${vigente?'activo':'inactivo'}" onclick="toggleAviso('${escJs(a.id)}','${escJs(a.estado)}')">${vigente?'Activo':'Inactivo'}</button>` : ''}
+      <button class="aviso-del-btn" onclick="archivarAviso('${escJs(a.id)}','${escJs(a.estado)}')" title="${a.estado==='archivado'?'Eliminar':'Archivar'}">${a.estado==='archivado'?'🗑':'📦'}</button>
+    </div>`;
+  }).join('');
+}
+
+// ── Toggle publicado/borrador ───────────────────────────────────────────────
+async function toggleAviso(id, estadoActual) {
+  const nuevoEstado = estadoActual === 'publicado' ? 'borrador' : 'publicado';
+  const { error } = await sb.from('avisos')
+    .update({ estado: nuevoEstado, activo: nuevoEstado === 'publicado' }).eq('id', id);
+  if(error) { console.error(error); return; }
+  await logAct('editar', 'avisos', `Cambió estado de aviso a ${nuevoEstado}`);
+  loadAvisosAdmin();
+  await cargarBannerAviso();
+}
+
+// ── Archivar / eliminar ─────────────────────────────────────────────────────
+async function archivarAviso(id, estadoActual) {
+  if(estadoActual === 'archivado') {
+    if(!confirm('¿Eliminar definitivamente este aviso? No se puede deshacer.')) return;
+    const { error } = await sb.from('avisos').delete().eq('id', id);
+    if(error) { console.error(error); return; }
+    await logAct('eliminar', 'avisos', `Eliminó aviso archivado (id: ${id})`);
+  } else {
+    if(!confirm('¿Archivar este aviso? Quedará inactivo pero se conservará el registro.')) return;
+    const { error } = await sb.from('avisos').update({ estado:'archivado', activo:false }).eq('id', id);
+    if(error) { console.error(error); return; }
+    await logAct('archivar', 'avisos', `Archivó aviso (id: ${id})`);
+  }
+  loadAvisosAdmin();
+  await cargarBannerAviso();
+}
+
+// ── Vista usuario ───────────────────────────────────────────────────────────
+async function loadAvisosUsuario() {
+  const list = document.getElementById('avisos-usuario-list');
+  list.innerHTML = '<div class="hist-empty">Cargando…</div>';
+  const hoy = new Date().toISOString().split('T')[0];
+  const { data, error } = await sb.from('avisos').select('*')
+    .eq('activo', true).eq('estado', 'publicado')
+    .or(`fecha_vencimiento.is.null,fecha_vencimiento.gte.${hoy}`)
+    .order('created_at', { ascending: false });
+  if(error || !data || !data.length) {
+    list.innerHTML = '<div class="hist-empty">No hay avisos activos.</div>'; return;
+  }
+  list.innerHTML = data.map(a => `
+    <div class="aviso-item">
+      <div style="font-size:1.1rem;flex-shrink:0;">${nivelIconos[a.nivel]||'ℹ️'}</div>
+      <div class="aviso-item-info">
+        <div class="aviso-item-titulo">${esc(a.titulo)}</div>
+        <div class="aviso-item-meta">${esc(a.contenido)}</div>
+        <div class="aviso-item-meta" style="margin-top:.2rem;">${esc(a.autor_nombre||'Admin')} · ${formatFechaAviso(a.created_at)}${a.fecha_vencimiento ? formatVencimiento(a.fecha_vencimiento) : ''}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Historial de avisos ─────────────────────────────────────────────────────
+async function loadAvisosHistorial() {
+  const list = document.getElementById('avisos-historial-list');
+  list.innerHTML = '<div class="hist-empty">Cargando…</div>';
+  const { data, error } = await sb.from('avisos').select('*')
+    .order('created_at', { ascending: false }).limit(50);
+  if(error || !data || !data.length) {
+    list.innerHTML = '<div class="hist-empty">No hay avisos en el historial.</div>'; return;
+  }
+  list.innerHTML = data.map(a => {
+    const vigente = avisoVigente(a);
+    const estadoBadge = a.estado === 'archivado'
+      ? '<span style="color:#F1948A;">Archivado</span>'
+      : a.estado === 'borrador'
+        ? '<span style="color:#FFD180;">Borrador</span>'
+        : vigente ? '<span style="color:#48BB78;">Vigente</span>' : '<span style="color:#F1948A;">Vencido</span>';
+    return `
+    <div class="aviso-item">
+      <div style="font-size:1.1rem;flex-shrink:0;">${nivelIconos[a.nivel]||'ℹ️'}</div>
+      <div class="aviso-item-info">
+        <div class="aviso-item-titulo">${esc(a.titulo)}</div>
+        <div class="aviso-item-meta">${esc(nivelLabels[a.nivel]||'')} · ${estadoBadge} · ${esc(a.autor_nombre||'Admin')} · ${formatFechaAviso(a.created_at)}${a.fecha_vencimiento ? formatVencimiento(a.fecha_vencimiento) : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Banner ──────────────────────────────────────────────────────────────────
 function mostrarBannerAviso(aviso) {
   const banner = document.getElementById('aviso-banner');
   banner.querySelector('.banner-titulo').textContent = aviso.titulo + ' — ';
@@ -3229,26 +3513,25 @@ function cerrarBannerAviso() {
   const banner = document.getElementById('aviso-banner');
   const avisoId = banner.dataset.avisoId;
   banner.classList.remove('show');
-  // Recordar en este dispositivo que ya cerró este aviso específico
   if(avisoId) localStorage.setItem('vocalia_aviso_cerrado_id', avisoId);
 }
 
 async function cargarBannerAviso() {
   if(!SUPABASE_LISTO) return;
   try {
-    const { data, error } = await sb.from('avisos')
+    const hoy = new Date().toISOString().split('T')[0];
+    const { data } = await sb.from('avisos')
       .select('id, titulo, contenido, nivel')
-      .eq('activo', true)
+      .eq('activo', true).eq('estado', 'publicado')
+      .or(`fecha_vencimiento.is.null,fecha_vencimiento.gte.${hoy}`)
       .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if(error || !data) return;
-    // No mostrar si este usuario ya lo cerró en este dispositivo
+      .limit(1).maybeSingle();
+    if(!data) { document.getElementById('aviso-banner').classList.remove('show'); return; }
     const cerradoId = localStorage.getItem('vocalia_aviso_cerrado_id');
     if(cerradoId === String(data.id)) return;
-    mostrarBannerAviso({ id: data.id, titulo: data.titulo, contenido: data.contenido, nivel: data.nivel });
+    mostrarBannerAviso(data);
   } catch(e) {
-    console.error('Error cargando aviso:', e);
+    console.error('Error cargando aviso banner:', e);
   }
 }
 
@@ -6067,6 +6350,45 @@ document.getElementById('r-fecha').value = new Date().toISOString().split('T')[0
 actualizarFormEvento();
 // Jornadas
 renderJornadas();
+
+// ══ SCROLL CON MOUSE EN BARRA DE TABS ══════════════════════════════════════
+// Rueda del mouse: scroll vertical → convierte en scroll horizontal.
+// Drag: click + arrastrar.
+(function() {
+  const nav = document.querySelector('.nav-tabs');
+  if(!nav) return;
+
+  // Rueda del mouse
+  nav.addEventListener('wheel', e => {
+    e.preventDefault();
+    nav.scrollLeft += e.deltaY || e.deltaX;
+  }, { passive: false });
+
+  // Drag
+  let isDragging = false, startX = 0, scrollStart = 0;
+
+  nav.addEventListener('mousedown', e => {
+    // No interferir con clics en los botones
+    if(e.target.closest('.tab-btn')) return;
+    isDragging = true;
+    startX = e.pageX - nav.offsetLeft;
+    scrollStart = nav.scrollLeft;
+    nav.classList.add('dragging');
+  });
+
+  document.addEventListener('mousemove', e => {
+    if(!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - nav.offsetLeft;
+    nav.scrollLeft = scrollStart - (x - startX);
+  });
+
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+    nav.classList.remove('dragging');
+  });
+})();
+
 </script>
 </body>
 </html>
