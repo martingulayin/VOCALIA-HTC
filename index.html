@@ -3174,19 +3174,47 @@ function abrirModalAviso() {
   abrirModal('modal-aviso-global');
 }
 
-function publicarAviso() {
-  const titulo   = document.getElementById('aviso-titulo').value.trim();
-  const contenido= document.getElementById('aviso-contenido').value.trim();
-  const nivel    = document.getElementById('aviso-nivel').value;
-  if(!titulo||!contenido){ setMsg('aviso-msg','Completá título y contenido.','err'); return; }
-  // Guardar aviso en localStorage con ID único basado en contenido
-  const avisoId = btoa(titulo + contenido).slice(0, 24);
-  const aviso = { id: avisoId, titulo, contenido, nivel };
-  localStorage.setItem('vocalia_aviso_activo', JSON.stringify(aviso));
-  localStorage.removeItem('vocalia_aviso_cerrado');
-  mostrarBannerAviso(aviso);
-  setMsg('aviso-msg','✅ Aviso publicado en el banner.','ok');
-  setTimeout(()=>{ cerrarModal('modal-aviso-global'); limpiar(['aviso-titulo','aviso-contenido']); setMsg('aviso-msg','',''); },1100);
+// ── Avisos globales — ahora persisten en Supabase (tabla "avisos"), no en
+// localStorage. Todos los usuarios ven el mismo aviso vigente en tiempo real.
+// Al cerrar el banner se guarda el ID en localStorage para no mostrarlo de
+// nuevo al mismo usuario en el mismo dispositivo — solo ese comportamiento
+// sigue en localStorage, el aviso en sí vive en la base.
+async function publicarAviso() {
+  const titulo    = document.getElementById('aviso-titulo').value.trim();
+  const contenido = document.getElementById('aviso-contenido').value.trim();
+  const nivel     = document.getElementById('aviso-nivel').value;
+  if(!titulo || !contenido) { setMsg('aviso-msg','Completá título y contenido.','err'); return; }
+  if(titulo.length > 120)   { setMsg('aviso-msg','El título no puede superar 120 caracteres.','err'); return; }
+  if(contenido.length > 600){ setMsg('aviso-msg','El contenido no puede superar 600 caracteres.','err'); return; }
+
+  const btn = document.querySelector('#modal-aviso-global .btn-accion:not(.sec)');
+  if(btn) { btn.disabled = true; btn.textContent = 'Publicando…'; }
+
+  try {
+    // Desactivar avisos activos anteriores antes de insertar el nuevo
+    await sb.from('avisos').update({ activo: false }).eq('activo', true);
+
+    const { data, error } = await sb.from('avisos').insert({
+      titulo, contenido: contenido, nivel,
+      activo: true,
+      autor_id: usuarioActual?.id,
+      autor_nombre: perfilActual?.nombre || usuarioActual?.email || 'Admin',
+    }).select().single();
+
+    if(error) throw error;
+
+    // Limpiar el "cerrado" local para que el nuevo aviso se muestre a todos
+    localStorage.removeItem('vocalia_aviso_cerrado_id');
+    mostrarBannerAviso({ id: data.id, titulo: data.titulo, contenido: data.contenido, nivel: data.nivel });
+    await logAct('publicar', 'avisos', `Publicó aviso: ${titulo}`);
+    setMsg('aviso-msg','✅ Aviso publicado para todos los usuarios.','ok');
+    setTimeout(()=>{ cerrarModal('modal-aviso-global'); limpiar(['aviso-titulo','aviso-contenido']); setMsg('aviso-msg','',''); },1100);
+  } catch(e) {
+    console.error('Error publicando aviso:', e);
+    setMsg('aviso-msg','No se pudo publicar el aviso. Intentá de nuevo.','err');
+  } finally {
+    if(btn) { btn.disabled = false; btn.textContent = 'Publicar'; }
+  }
 }
 
 function mostrarBannerAviso(aviso) {
@@ -3194,22 +3222,34 @@ function mostrarBannerAviso(aviso) {
   banner.querySelector('.banner-titulo').textContent = aviso.titulo + ' — ';
   banner.querySelector('.banner-texto').textContent  = aviso.contenido;
   banner.className = 'show nivel-' + aviso.nivel;
+  banner.dataset.avisoId = aviso.id || '';
 }
 
 function cerrarBannerAviso() {
   const banner = document.getElementById('aviso-banner');
+  const avisoId = banner.dataset.avisoId;
   banner.classList.remove('show');
-  // Guardar qué aviso cerró para no mostrarlo de nuevo
-  const aviso = JSON.parse(localStorage.getItem('vocalia_aviso_activo') || 'null');
-  if(aviso) localStorage.setItem('vocalia_aviso_cerrado', aviso.id);
+  // Recordar en este dispositivo que ya cerró este aviso específico
+  if(avisoId) localStorage.setItem('vocalia_aviso_cerrado_id', avisoId);
 }
 
-function cargarBannerAviso() {
-  const aviso = JSON.parse(localStorage.getItem('vocalia_aviso_activo') || 'null');
-  if(!aviso) return;
-  const cerrado = localStorage.getItem('vocalia_aviso_cerrado');
-  if(cerrado === aviso.id) return; // este usuario ya lo cerró
-  mostrarBannerAviso(aviso);
+async function cargarBannerAviso() {
+  if(!SUPABASE_LISTO) return;
+  try {
+    const { data, error } = await sb.from('avisos')
+      .select('id, titulo, contenido, nivel')
+      .eq('activo', true)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if(error || !data) return;
+    // No mostrar si este usuario ya lo cerró en este dispositivo
+    const cerradoId = localStorage.getItem('vocalia_aviso_cerrado_id');
+    if(cerradoId === String(data.id)) return;
+    mostrarBannerAviso({ id: data.id, titulo: data.titulo, contenido: data.contenido, nivel: data.nivel });
+  } catch(e) {
+    console.error('Error cargando aviso:', e);
+  }
 }
 
 async function doLogout() {
@@ -3220,6 +3260,8 @@ async function doLogout() {
 // Cierre de sesión sin confirmación (uso interno: inactividad, cuenta desactivada)
 async function cerrarSesion(motivo) {
   detenerVigilanciaInactividad();
+  // Cancelar suscripciones realtime ANTES de cerrar sesión
+  cancelarSuscripcionesRealtime();
   try { await logAct('logout', 'acceso', motivo || 'Cerró sesión'); } catch(e) {}
   await sb.auth.signOut();
   document.getElementById('portal-wrap').style.display = 'none';
@@ -3232,6 +3274,9 @@ async function cerrarSesion(motivo) {
   if(motivo === 'inactividad') {
     err.textContent = 'Se cerró la sesión por inactividad. Volvé a ingresar.';
     err.classList.add('show');
+  } else if(motivo === 'sesion_expirada') {
+    err.textContent = 'Tu sesión expiró. Volvé a ingresar.';
+    err.classList.add('show');
   } else {
     err.classList.remove('show');
   }
@@ -3239,6 +3284,29 @@ async function cerrarSesion(motivo) {
   perfilActual  = null;
   rolActual     = 'usuario';
 }
+
+// ── onAuthStateChange — reacciona a eventos externos de sesión:
+// token revocado, cuenta desactivada desde otro lado, sesión expirada.
+// Se registra una sola vez al iniciar el cliente.
+sb.auth.onAuthStateChange(async (event, session) => {
+  if(event === 'SIGNED_OUT' && usuarioActual) {
+    // Cierre externo (no iniciado desde este tab): limpiar estado
+    await cerrarSesion('sesion_expirada');
+  }
+  if(event === 'TOKEN_REFRESHED' && session) {
+    // Token renovado correctamente — sin acción adicional
+  }
+  if(event === 'USER_UPDATED' && session && usuarioActual) {
+    // Re-verificar que el usuario siga activo
+    const { data: perfil } = await sb.from('perfiles_vocalia')
+      .select('activo, rol')
+      .eq('id', session.user.id)
+      .single();
+    if(perfil && !perfil.activo) {
+      await cerrarSesion('cuenta_desactivada');
+    }
+  }
+});
 
 // ══ LIMPIEZA DE STORAGE AL ELIMINAR ═════════════════════════════════════════
 // Documentos, Sede, Delegaciones, Papeles, Normativa y Material aceptan DOS
@@ -3365,8 +3433,8 @@ function ocultarAvisoInactividad() {
 });
 
 // ══ CARGA DE DATOS DESDE SUPABASE ══════════════════════════════════════════
-function iniciarBanner() {
-  cargarBannerAviso();
+async function iniciarBanner() {
+  await cargarBannerAviso();
 }
 
 async function cargarTodosLosDatos() {
@@ -4367,15 +4435,22 @@ function dispararNotifNuevoMensaje(autorNombre) {
 
 // Suscripción Supabase Realtime: escucha INSERT en mensajes
 // Se inicializa dentro de initSupabase() cuando la conexión está lista.
+// ── Realtime mensajes — se guarda referencia al canal para poder cancelarlo
+// al cerrar sesión y evitar que eventos de un usuario lleguen al siguiente.
+let _canalMensajes = null;
+
 function suscribirMensajesRealtime() {
   if(!SUPABASE_LISTO || !sb) return;
-  sb.channel('mensajes-nuevos')
+  // Cancelar suscripción previa si existe (evita duplicados)
+  if(_canalMensajes) {
+    sb.removeChannel(_canalMensajes);
+    _canalMensajes = null;
+  }
+  _canalMensajes = sb.channel('mensajes-nuevos')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensajes' }, payload => {
       const nuevo = payload.new;
       const yo = getUserName();
-      // Solo notificar si el autor es otro usuario
       if(nuevo.autor_nombre && nuevo.autor_nombre !== yo) {
-        // Agregar al array local y re-renderizar
         MENSAJES.unshift({
           id: nuevo.id,
           autor: nuevo.autor_nombre,
@@ -4391,6 +4466,13 @@ function suscribirMensajesRealtime() {
       }
     })
     .subscribe();
+}
+
+function cancelarSuscripcionesRealtime() {
+  if(_canalMensajes) {
+    sb.removeChannel(_canalMensajes);
+    _canalMensajes = null;
+  }
 }
 
 function getUserName() {
@@ -4470,25 +4552,40 @@ async function guardarMensaje() {
   const nivel  = document.getElementById('m-nivel').value;
   const cuerpo = document.getElementById('m-cuerpo').value.trim();
   if(!titulo||!cuerpo){ setMsg('m-msg','Completá título y contenido.','err'); return; }
-  const editIdx = document.getElementById('m-edit-idx').value;
-  if(editIdx !== '') {
-    const m = MENSAJES[parseInt(editIdx)];
-    if(m.id && SUPABASE_LISTO) await sb.from('mensajes').update({ titulo, nivel, cuerpo }).eq('id', m.id);
-    MENSAJES[parseInt(editIdx)] = { ...m, autor: autor||getUserName(), titulo, nivel, cuerpo };
-    setMsg('m-msg','✅ Mensaje actualizado.','ok');
-  } else {
-    if(SUPABASE_LISTO) {
-      const { data } = await sb.from('mensajes').insert({
-        autor_nombre: autor||getUserName(), cargo: perfilActual?.cargo || '',
-        nivel, titulo, cuerpo, autor_id: usuarioActual?.id,
-      }).select().single();
-      if(data) MENSAJES.unshift({ id:data.id, autor:data.autor_nombre, cargo:data.cargo||'', nivel, titulo, cuerpo, fecha: hoy() });
+
+  const btn = document.querySelector('#modal-mensaje .btn-accion:not(.sec)');
+  if(btn) { btn.disabled = true; btn.textContent = 'Guardando…'; }
+
+  try {
+    const editIdx = document.getElementById('m-edit-idx').value;
+    if(editIdx !== '') {
+      const m = MENSAJES[parseInt(editIdx)];
+      if(m.id && SUPABASE_LISTO) {
+        const { error } = await sb.from('mensajes').update({ titulo, nivel, cuerpo }).eq('id', m.id);
+        if(error) throw error;
+      }
+      MENSAJES[parseInt(editIdx)] = { ...m, autor: autor||getUserName(), titulo, nivel, cuerpo };
+      setMsg('m-msg','✅ Mensaje actualizado.','ok');
     } else {
-      MENSAJES.unshift({ id: Date.now(), autor: autor||'Autoridad', cargo:'Vocalía Municipalidades "B"', nivel, titulo, cuerpo, fecha: hoy() });
+      if(SUPABASE_LISTO) {
+        const { data, error } = await sb.from('mensajes').insert({
+          autor_nombre: autor||getUserName(), cargo: perfilActual?.cargo || '',
+          nivel, titulo, cuerpo, autor_id: usuarioActual?.id,
+        }).select().single();
+        if(error) throw error;
+        if(data) MENSAJES.unshift({ id:data.id, autor:data.autor_nombre, cargo:data.cargo||'', nivel, titulo, cuerpo, fecha: hoy() });
+      } else {
+        MENSAJES.unshift({ id: Date.now(), autor: autor||'Autoridad', cargo:'Vocalía Municipalidades "B"', nivel, titulo, cuerpo, fecha: hoy() });
+      }
+      setMsg('m-msg','✅ Mensaje publicado.','ok');
     }
-    setMsg('m-msg','✅ Mensaje publicado.','ok');
+    setTimeout(()=>{ cerrarModal('modal-mensaje'); renderMensajes(); limpiar(['m-autor','m-titulo','m-cuerpo']); document.getElementById('m-edit-idx').value=''; setMsg('m-msg','',''); },1100);
+  } catch(e) {
+    console.error('Error guardando mensaje:', e);
+    setMsg('m-msg','No se pudo guardar el mensaje. Intentá de nuevo.','err');
+  } finally {
+    if(btn) { btn.disabled = false; btn.textContent = 'Publicar'; }
   }
-  setTimeout(()=>{ cerrarModal('modal-mensaje'); renderMensajes(); limpiar(['m-autor','m-titulo','m-cuerpo']); document.getElementById('m-edit-idx').value=''; setMsg('m-msg','',''); },1100);
 }
 
 function renderMensajes() {
@@ -4776,27 +4873,39 @@ async function guardarReunion() {
   const fecha  = document.getElementById('r-fecha').value;
   const asunto = document.getElementById('r-asunto').value.trim();
   if(!fecha||!asunto){ setMsg('r-msg','Completá fecha y descripción.','err'); return; }
-  const nuevo = {
-    fecha,
-    hora_inicio: document.getElementById('r-hora-ini').value || null,
-    hora_fin:    document.getElementById('r-hora-fin').value || null,
-    tipo:        document.getElementById('r-tipo').value,
-    asunto,
-    municipio:   document.getElementById('r-municipio').value.trim() || null,
-    quien:       getUserName(),
-    notas:       document.getElementById('r-convocados').value.trim() || null,
-  };
-  if(SUPABASE_LISTO) {
-    const { data } = await sb.from('eventos').insert({
-      ...nuevo, autor_id: usuarioActual?.id
-    }).select().single();
-    if(data) REUNIONES.push({ ...nuevo, id: data.id });
-    await logAct('crear', 'evento', `Nuevo evento: ${asunto}`);
-  } else {
-    REUNIONES.push(nuevo);
+
+  const btn = document.querySelector('#modal-reunion .btn-accion:not(.sec)');
+  if(btn) { btn.disabled = true; btn.textContent = 'Guardando…'; }
+
+  try {
+    const nuevo = {
+      fecha,
+      hora_inicio: document.getElementById('r-hora-ini').value || null,
+      hora_fin:    document.getElementById('r-hora-fin').value || null,
+      tipo:        document.getElementById('r-tipo').value,
+      asunto,
+      municipio:   document.getElementById('r-municipio').value.trim() || null,
+      quien:       getUserName(),
+      notas:       document.getElementById('r-convocados').value.trim() || null,
+    };
+    if(SUPABASE_LISTO) {
+      const { data, error } = await sb.from('eventos').insert({
+        ...nuevo, autor_id: usuarioActual?.id
+      }).select().single();
+      if(error) throw error;
+      if(data) REUNIONES.push({ ...nuevo, id: data.id });
+      await logAct('crear', 'evento', `Nuevo evento: ${asunto}`);
+    } else {
+      REUNIONES.push(nuevo);
+    }
+    setMsg('r-msg','✅ Evento registrado.','ok');
+    setTimeout(()=>{ cerrarModal('modal-reunion'); renderCalendario(); limpiar(['r-fecha','r-hora-ini','r-hora-fin','r-asunto','r-municipio','r-convocados']); setMsg('r-msg','',''); },1100);
+  } catch(e) {
+    console.error('Error guardando evento:', e);
+    setMsg('r-msg','No se pudo guardar el evento. Intentá de nuevo.','err');
+  } finally {
+    if(btn) { btn.disabled = false; btn.textContent = 'Guardar evento'; }
   }
-  setMsg('r-msg','✅ Evento registrado.','ok');
-  setTimeout(()=>{ cerrarModal('modal-reunion'); renderCalendario(); limpiar(['r-fecha','r-hora-ini','r-hora-fin','r-asunto','r-municipio','r-convocados']); setMsg('r-msg','',''); },1100);
 }
 
 // ══ DOCUMENTOS — SUBTABS ══════════════════════════════════════════════════
@@ -5303,40 +5412,55 @@ function renderDocs() {
         <div class="doc-meta">${esc(d.size)} · ${esc(d.fecha)} · ${esc(d.autor||'')}</div>
       </div>
       ${d.storagePath || d.downloadUrl
-        ? `<button class="doc-dl" onclick="descargarDoc('${d.storagePath||''}','${esc(d.nombre)}')">↓ Bajar</button>`
+        ? `<button class="doc-dl" onclick="descargarDoc('${escJs(d.storagePath||'')}','${escJs(d.nombre)}')">↓ Bajar</button>`
         : d.link ? `<a href="${escUrl(d.link)}" target="_blank" class="doc-dl">↗ Abrir</a>` : ''
       }
-      <button class="doc-del" onclick="eliminarDoc('${d.id||d.nombre}','${d.storagePath||''}')" title="Eliminar">🗑</button>
+      ${esAdmin() ? `<button class="doc-del" onclick="eliminarDoc('${escJs(d.id||d.nombre)}','${escJs(d.storagePath||'')}')" title="Eliminar">🗑</button>` : ''}
     </div>`).join('')||'<div class="docs-empty">No hay documentos cargados.</div>';
 }
 
 async function descargarDoc(storagePath, nombre) {
   if(!storagePath || !SUPABASE_LISTO) return;
+  const stat = document.getElementById('docs-status');
+  const prog = document.getElementById('docs-progress');
   try {
     const { data, error } = await sb.storage
       .from('documentos Vocalia')
       .download(storagePath);
-    if(error || !data) { 
-      // Intentar con signed URL como fallback
-      const { data: signed } = await sb.storage.from('documentos Vocalia').createSignedUrl(storagePath, 300);
+    if(error || !data) {
+      // Fallback: signed URL
+      const { data: signed, error: signErr } = await sb.storage
+        .from('documentos Vocalia')
+        .createSignedUrl(storagePath, 300);
       if(signed?.signedUrl) {
         window.open(signed.signedUrl, '_blank');
       } else {
-        alert('Error al descargar el archivo.');
+        console.error('Error descargando:', signErr);
+        if(stat && prog) {
+          prog.classList.add('show');
+          stat.textContent = '❌ No se pudo descargar el archivo. Intentá de nuevo.';
+          stat.style.color = '#C0392B';
+          setTimeout(()=>{ prog.classList.remove('show'); stat.textContent=''; },3500);
+        }
       }
       return;
     }
-    // Crear blob y descargar
     const url = URL.createObjectURL(data);
     const a = document.createElement('a');
-    a.href = url; a.download = nombre; 
+    a.href = url; a.download = nombre;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     await logAct('descargar', 'documentos', `Descargó: ${nombre}`);
   } catch(e) {
-    alert('Error al descargar: ' + e.message);
+    console.error('Error al descargar:', e);
+    if(stat && prog) {
+      prog.classList.add('show');
+      stat.textContent = '❌ No se pudo descargar el archivo.';
+      stat.style.color = '#C0392B';
+      setTimeout(()=>{ prog.classList.remove('show'); stat.textContent=''; },3500);
+    }
   }
 }
 
@@ -5358,44 +5482,85 @@ async function eliminarDoc(idOrNombre, storagePath){
   });
   renderDocs();
 }
+// ── Upload de documentos con validación completa ──────────────────────────
+// Extensiones permitidas y tamaño máximo configurables en un solo lugar.
+const UPLOAD_EXTS_OK  = ['pdf','docx','doc','xlsx','xls','pptx','ppt','png','jpg','jpeg','gif','webp','txt','csv','zip'];
+const UPLOAD_MAX_MB   = 20; // MB
+
+function nombreArchivoSeguro(nombre) {
+  // Elimina caracteres problemáticos, preserva extensión
+  return nombre
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar tildes
+    .replace(/[^a-zA-Z0-9._\- ]/g, '_')               // solo alfanum + . _ - espacio
+    .replace(/\s+/g, '_')                              // espacios → _
+    .replace(/_+/g, '_')                               // múltiples _ → uno
+    .toLowerCase();
+}
+
 async function simularUpload(file){
   if(!file) return;
   const prog = document.getElementById('docs-progress');
   const bar  = document.getElementById('docs-progress-bar');
   const stat = document.getElementById('docs-status');
+
+  // ── Validaciones antes de tocar el servidor ──
+  const ext = file.name.split('.').pop().toLowerCase();
+  if(!UPLOAD_EXTS_OK.includes(ext)) {
+    stat.textContent = `❌ Tipo de archivo no permitido (.${ext}). Tipos aceptados: ${UPLOAD_EXTS_OK.join(', ')}.`;
+    stat.style.color = '#C0392B';
+    prog.classList.add('show'); bar.style.width='0%';
+    setTimeout(()=>{ prog.classList.remove('show'); stat.textContent=''; },4000);
+    document.getElementById('docs-file-input').value='';
+    return;
+  }
+  const maxBytes = UPLOAD_MAX_MB * 1024 * 1024;
+  if(file.size > maxBytes) {
+    stat.textContent = `❌ El archivo supera el tamaño máximo permitido (${UPLOAD_MAX_MB} MB).`;
+    stat.style.color = '#C0392B';
+    prog.classList.add('show'); bar.style.width='0%';
+    setTimeout(()=>{ prog.classList.remove('show'); stat.textContent=''; },4000);
+    document.getElementById('docs-file-input').value='';
+    return;
+  }
+
   prog.classList.add('show'); bar.style.width='0%';
   stat.textContent='Subiendo…'; stat.style.color='#718096';
 
   if(SUPABASE_LISTO) {
-    // Subida real a Supabase Storage
     bar.style.width='30%';
-    const filePath = `${Date.now()}_${file.name}`;
+
+    // Nombre seguro: timestamp + nombre saneado para evitar colisiones y path traversal
+    const nombreSeguro = nombreArchivoSeguro(file.name);
+    const filePath = `${Date.now()}_${nombreSeguro}`;
+
     const { data, error } = await sb.storage
       .from('documentos Vocalia')
       .upload(filePath, file, { cacheControl:'3600', upsert:false });
 
     if(error) {
-      stat.textContent = '❌ Error al subir: ' + error.message;
+      stat.textContent = '❌ No se pudo subir el archivo. Intentá de nuevo.';
       stat.style.color = '#C0392B';
+      console.error('Storage upload error:', error);
       setTimeout(()=>{ prog.classList.remove('show'); bar.style.width='0%'; stat.textContent=''; },3000);
+      document.getElementById('docs-file-input').value='';
       return;
     }
 
     bar.style.width='70%';
 
-    // Obtener URL de descarga
-    const { data: urlData } = sb.storage.from('documentos Vocalia').getPublicUrl(filePath);
-    const { data: signedData } = await sb.storage.from('documentos Vocalia').createSignedUrl(filePath, 3600);
+    // Bucket privado → solo signed URLs, nunca getPublicUrl
+    const { data: signedData } = await sb.storage
+      .from('documentos Vocalia')
+      .createSignedUrl(filePath, 3600);
     const downloadUrl = signedData?.signedUrl || '';
 
     bar.style.width='90%';
 
-    // Guardar en tabla documentos
-    const ext = file.name.split('.').pop().toLowerCase();
     const { data: docData } = await sb.from('documentos').insert({
-      nombre: file.name, tipo: ext,
+      nombre: file.name,  // nombre original legible para mostrar
+      tipo: ext,
       size: (file.size/1024).toFixed(0)+' KB',
-      link: filePath, // guardamos el path en storage
+      link: filePath,     // path en Storage (sin token)
       autor_id: usuarioActual?.id,
     }).select().single();
 
@@ -5413,14 +5578,12 @@ async function simularUpload(file){
 
     bar.style.width='100%';
     stat.textContent='✅ Archivo subido correctamente.'; stat.style.color='#059669';
-    await logAct('subir', 'documentos', `Subió: ${file.name}`);
+    await logAct('subir', 'documentos', `Subió: ${file.name} (${(file.size/1024).toFixed(0)} KB)`);
 
   } else {
-    // Demo
     let p = 0;
     const t = setInterval(()=>{ p=Math.min(p+12,100); bar.style.width=p+'%'; if(p===100) clearInterval(t); },150);
     await new Promise(r=>setTimeout(r,1800));
-    const ext = file.name.split('.').pop().toLowerCase();
     DOCS.unshift({ nombre:file.name, tipo:ext, size:(file.size/1024).toFixed(0)+' KB', fecha:hoy(), autor:'Demo' });
     stat.textContent='✅ Archivo subido correctamente.'; stat.style.color='#059669';
   }
@@ -5692,28 +5855,40 @@ async function guardarNovedad(){
   const texto  = document.getElementById('n-texto').value.trim();
   const cat    = document.getElementById('n-cat').value;
   if(!titulo||!texto){ setMsg('n-msg','Completá título y texto.','err'); return; }
-  const editIdx = document.getElementById('n-edit-idx').value;
 
-  if(SUPABASE_LISTO) {
-    if(editIdx !== '') {
-      const n = NOVEDADES[parseInt(editIdx)];
-      await sb.from('novedades').update({ titulo, cat, texto }).eq('id', n.id);
-      NOVEDADES[parseInt(editIdx)] = { ...n, titulo, cat, texto };
-      setMsg('n-msg','✅ Novedad actualizada.','ok');
+  const btn = document.querySelector('#modal-novedad .btn-accion:not(.sec)');
+  if(btn) { btn.disabled = true; btn.textContent = 'Guardando…'; }
+
+  try {
+    const editIdx = document.getElementById('n-edit-idx').value;
+    if(SUPABASE_LISTO) {
+      if(editIdx !== '') {
+        const n = NOVEDADES[parseInt(editIdx)];
+        const { error } = await sb.from('novedades').update({ titulo, cat, texto }).eq('id', n.id);
+        if(error) throw error;
+        NOVEDADES[parseInt(editIdx)] = { ...n, titulo, cat, texto };
+        setMsg('n-msg','✅ Novedad actualizada.','ok');
+      } else {
+        const { data, error } = await sb.from('novedades').insert({
+          titulo, cat, texto, autor_id: usuarioActual?.id
+        }).select().single();
+        if(error) throw error;
+        if(data) NOVEDADES.unshift({ id:data.id, titulo, cat, texto, fecha: hoy() });
+        await logAct('crear', 'novedades', `Nueva novedad: ${titulo}`);
+        setMsg('n-msg','✅ Novedad publicada.','ok');
+      }
     } else {
-      const { data } = await sb.from('novedades').insert({
-        titulo, cat, texto, autor_id: usuarioActual?.id
-      }).select().single();
-      if(data) NOVEDADES.unshift({ id:data.id, titulo, cat, texto, fecha: hoy() });
-      await logAct('crear', 'novedades', `Nueva novedad: ${titulo}`);
+      if(editIdx !== '') NOVEDADES[parseInt(editIdx)] = { ...NOVEDADES[parseInt(editIdx)], titulo, cat, texto };
+      else NOVEDADES.unshift({ titulo, cat, texto, fecha: hoy() });
       setMsg('n-msg','✅ Novedad publicada.','ok');
     }
-  } else {
-    if(editIdx !== '') NOVEDADES[parseInt(editIdx)] = { ...NOVEDADES[parseInt(editIdx)], titulo, cat, texto };
-    else NOVEDADES.unshift({ titulo, cat, texto, fecha: hoy() });
-    setMsg('n-msg','✅ Novedad publicada.','ok');
+    setTimeout(()=>{ cerrarModal('modal-novedad'); renderNovedades(); limpiar(['n-titulo','n-texto']); document.getElementById('n-edit-idx').value=''; document.querySelector('#modal-novedad .modal-title').textContent='Nueva novedad'; setMsg('n-msg','',''); },1100);
+  } catch(e) {
+    console.error('Error guardando novedad:', e);
+    setMsg('n-msg','No se pudo guardar la novedad. Intentá de nuevo.','err');
+  } finally {
+    if(btn) { btn.disabled = false; btn.textContent = editIdx !== '' ? 'Guardar cambios' : 'Publicar'; }
   }
-  setTimeout(()=>{ cerrarModal('modal-novedad'); renderNovedades(); limpiar(['n-titulo','n-texto']); document.getElementById('n-edit-idx').value=''; document.querySelector('#modal-novedad .modal-title').textContent='Nueva novedad'; setMsg('n-msg','',''); },1100);
 }
 
 function editarNovedad(idx) {
