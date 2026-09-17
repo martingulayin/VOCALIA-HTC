@@ -3626,14 +3626,26 @@ async function cerrarSesion(motivo) {
 // Se registra una sola vez al iniciar el cliente.
 sb.auth.onAuthStateChange(async (event, session) => {
   if(event === 'SIGNED_OUT' && usuarioActual) {
-    // Cierre externo (no iniciado desde este tab): limpiar estado
-    await cerrarSesion('sesion_expirada');
+    usuarioActual = null;
+    perfilActual  = null;
+    rolActual     = 'usuario';
+    detenerVigilanciaInactividad();
+    cancelarSuscripcionesRealtime();
+    if(_intervalActividad) { clearInterval(_intervalActividad); _intervalActividad = null; }
+    document.getElementById('portal-wrap').style.display = 'none';
+    document.getElementById('login-overlay').classList.remove('hidden');
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-pass').value  = '';
+    document.getElementById('login-btn').disabled = false;
+    document.getElementById('login-btn').textContent = 'Ingresar al portal';
+    const err = document.getElementById('login-error');
+    err.textContent = 'Tu sesión expiró. Volvé a ingresar.';
+    err.classList.add('show');
   }
   if(event === 'TOKEN_REFRESHED' && session) {
     // Token renovado correctamente — sin acción adicional
   }
   if(event === 'USER_UPDATED' && session && usuarioActual) {
-    // Re-verificar que el usuario siga activo
     const { data: perfil } = await sb.from('perfiles_vocalia')
       .select('activo, rol')
       .eq('id', session.user.id)
