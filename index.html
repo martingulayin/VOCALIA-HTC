@@ -3760,24 +3760,65 @@ async function cargarPdfInstitucional() {
 
 // ══ CIERRE POR INACTIVIDAD ═════════════════════════════════════════════════
 // 30 minutos de inactividad → cierre de sesión.
-// A los 28 minutos aparece un aviso con opción de seguir conectado, para que
-// nadie pierda trabajo sin enterarse.
-const INACTIVIDAD_MIN   = 30;
-const AVISO_PREVIO_MIN  = 2;
+// Usa timestamps reales en localStorage para que funcione aunque el browser
+// throttlee los timers (pestaña en segundo plano, cel bloqueado, etc.).
+const INACTIVIDAD_MIN  = 30;
+const AVISO_PREVIO_MIN = 2;
+const _INACT_KEY       = 'portal_last_activity';
 let _tmrInactividad = null, _tmrAviso = null, _tmrCuenta = null;
+let _tmrCheck = null; // chequeo periódico cada 30s
+
+function _marcarActividad() {
+  localStorage.setItem(_INACT_KEY, Date.now().toString());
+}
+
+function _msRestantes() {
+  const last = parseInt(localStorage.getItem(_INACT_KEY) || '0', 10);
+  const elapsed = Date.now() - last;
+  return Math.max(0, INACTIVIDAD_MIN * 60000 - elapsed);
+}
 
 function reiniciarVigilanciaInactividad() {
   if(!usuarioActual) return;
-  clearTimeout(_tmrInactividad); clearTimeout(_tmrAviso); clearInterval(_tmrCuenta);
+  _marcarActividad();
+  clearTimeout(_tmrInactividad); clearTimeout(_tmrAviso);
+  clearInterval(_tmrCuenta); clearInterval(_tmrCheck);
   ocultarAvisoInactividad();
-  _tmrAviso = setTimeout(mostrarAvisoInactividad, (INACTIVIDAD_MIN - AVISO_PREVIO_MIN) * 60000);
-  _tmrInactividad = setTimeout(() => cerrarSesion('inactividad'), INACTIVIDAD_MIN * 60000);
+  const msTotal  = INACTIVIDAD_MIN * 60000;
+  const msAviso  = (INACTIVIDAD_MIN - AVISO_PREVIO_MIN) * 60000;
+  _tmrAviso      = setTimeout(mostrarAvisoInactividad, msAviso);
+  _tmrInactividad = setTimeout(() => cerrarSesion('inactividad'), msTotal);
+  // Chequeo de respaldo cada 30s: cubre el caso de timers throttleados
+  _tmrCheck = setInterval(() => {
+    const restantes = _msRestantes();
+    if(restantes <= 0) {
+      clearInterval(_tmrCheck);
+      cerrarSesion('inactividad');
+    } else if(restantes <= AVISO_PREVIO_MIN * 60000) {
+      const box = document.getElementById('aviso-inactividad');
+      if(!box || box.style.display === 'none') mostrarAvisoInactividad();
+    }
+  }, 30000);
 }
 
 function detenerVigilanciaInactividad() {
-  clearTimeout(_tmrInactividad); clearTimeout(_tmrAviso); clearInterval(_tmrCuenta);
+  clearTimeout(_tmrInactividad); clearTimeout(_tmrAviso);
+  clearInterval(_tmrCuenta); clearInterval(_tmrCheck);
   ocultarAvisoInactividad();
+  localStorage.removeItem(_INACT_KEY);
 }
+
+// Al volver a la pestaña, chequeamos inmediatamente con el timestamp real
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible' && usuarioActual) {
+    const restantes = _msRestantes();
+    if(restantes <= 0) {
+      cerrarSesion('inactividad');
+    } else if(restantes <= AVISO_PREVIO_MIN * 60000) {
+      mostrarAvisoInactividad();
+    }
+  }
+});
 
 function mostrarAvisoInactividad() {
   let box = document.getElementById('aviso-inactividad');
@@ -3822,6 +3863,7 @@ function ocultarAvisoInactividad() {
   document.addEventListener(ev, () => {
     const box = document.getElementById('aviso-inactividad');
     if(box && box.style.display === 'flex') return; // el modal decide
+    _marcarActividad();
     reiniciarVigilanciaInactividad();
   }, { passive: true });
 });
