@@ -680,7 +680,7 @@ main{flex:1;}
   padding:.55rem 1.2rem;cursor:pointer;transition:background .1s;
   border-left:3px solid transparent;
 }
-.busq-item:hover{background:rgba(255,255,255,.05);border-left-color:var(--gold);}
+.busq-item:hover,.busq-item:focus{background:rgba(255,255,255,.05);border-left-color:var(--gold);outline:none;}
 .busq-item-icon{font-size:1rem;flex-shrink:0;margin-top:.05rem;}
 .busq-item-info{flex:1;min-width:0;}
 .busq-item-titulo{font-size:.82rem;font-weight:600;color:#CBD5E0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -1190,17 +1190,18 @@ table td, table th { font-size:.88rem !important; }
 </div>
 
 <!-- BUSCADOR INTEGRAL -->
-<div id="buscador-bar" style="background:#0A1929;border-bottom:1px solid rgba(255,255,255,.06);padding:.55rem 1.8rem;display:none;align-items:center;gap:.8rem;">
-  <span style="font-size:.85rem;color:#4A6A8A;flex-shrink:0;">🔍</span>
-  <input type="text" id="buscador-input" placeholder="Buscar en todo el portal — mensajes, documentos, normativa, novedades, capacitaciones…"
-    oninput="buscarPortal(this.value)" onfocus="abrirBuscador()" autocomplete="off"
-    style="flex:1;background:none;border:none;outline:none;font-family:'Inter',sans-serif;font-size:.8rem;color:#CBD5E0;min-width:0;">
-  <kbd id="buscador-esc" onclick="cerrarBuscador()" style="display:none;font-size:.6rem;color:#4A6A8A;border:1px solid #2A3A4A;border-radius:3px;padding:.1rem .35rem;cursor:pointer;font-family:'Inter',sans-serif;">ESC</kbd>
-</div>
-
-<!-- RESULTADOS BUSCADOR -->
-<div id="buscador-resultados" style="display:none;position:absolute;left:0;right:0;z-index:200;background:#0D1B2A;border-bottom:2px solid var(--gold);max-height:420px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.4);">
-  <div id="buscador-inner" style="padding:.5rem 0;"></div>
+<div style="position:relative;">
+  <div id="buscador-bar" style="background:#0A1929;border-bottom:1px solid rgba(255,255,255,.06);padding:.55rem 1.8rem;display:none;align-items:center;gap:.8rem;">
+    <span style="font-size:.85rem;color:#4A6A8A;flex-shrink:0;">🔍</span>
+    <input type="text" id="buscador-input" placeholder="Buscar en todo el portal — mensajes, documentos, normativa, novedades, capacitaciones…"
+      oninput="buscarPortal(this.value)" onfocus="abrirBuscador()" autocomplete="off"
+      style="flex:1;background:none;border:none;outline:none;font-family:'Inter',sans-serif;font-size:.8rem;color:#CBD5E0;min-width:0;">
+    <kbd id="buscador-esc" onclick="cerrarBuscador()" style="display:none;font-size:.6rem;color:#4A6A8A;border:1px solid #2A3A4A;border-radius:3px;padding:.1rem .35rem;cursor:pointer;font-family:'Inter',sans-serif;">ESC</kbd>
+  </div>
+  <!-- RESULTADOS BUSCADOR -->
+  <div id="buscador-resultados" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:200;background:#0D1B2A;border-bottom:2px solid var(--gold);max-height:420px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.4);">
+    <div id="buscador-inner" style="padding:.5rem 0;"></div>
+  </div>
 </div>
 
 <!-- TABS -->
@@ -2944,6 +2945,7 @@ function norm(str) {
 }
 
 function activarBuscador() {
+  _busqIgnoreClick = true; // ignorar el click que disparó esta función
   const input = document.getElementById('buscador-input');
   const bar = document.getElementById('buscador-bar');
   if(bar) { bar.style.display = 'flex'; }
@@ -2968,7 +2970,7 @@ function mostrarSugerencias() {
   const res   = document.getElementById('buscador-resultados');
   let html = '';
   // Tip de uso
-  html += `<div style="padding:.5rem 1.2rem .3rem;font-size:.65rem;color:#4A6A8A;letter-spacing:.06em;">💡 Escribí para buscar en mensajes, documentos, normativa, novedades, capacitaciones y cronograma</div>`;
+  html += `<div style="padding:.5rem 1.2rem .3rem;font-size:.65rem;color:#4A6A8A;letter-spacing:.06em;">💡 Busca en mensajes, documentos, normativa, papeles, novedades, capacitaciones, cronograma, delegaciones y herramientas</div>`;
   // Últimos mensajes
   if(MENSAJES.length) {
     html += `<div class="busq-grupo"><div class="busq-grupo-titulo">Últimos mensajes</div>`;
@@ -3019,11 +3021,15 @@ function cerrarBuscador() {
   document.getElementById('buscador-bar').style.display = 'none';
 }
 
+let _busqTimer = null;
+let _busqIgnoreClick = false; // evita que el click del botón BUSCAR cierre el buscador al instante
+
 function buscarPortal(q) {
   q = q.trim();
   const res = document.getElementById('buscador-resultados');
-  if(q.length < 2) { res.style.display = 'none'; return; }
-  mostrarResultados(q);
+  if(q.length < 2) { res.style.display = 'none'; clearTimeout(_busqTimer); return; }
+  clearTimeout(_busqTimer);
+  _busqTimer = setTimeout(() => mostrarResultados(q), 180);
 }
 
 function hl(texto, q) {
@@ -3038,95 +3044,187 @@ function mostrarResultados(q) {
 
   let grupos = [];
 
-  // Mensajes
+  // ── Mensajes ──────────────────────────────────────────────────────────────
   const msgs = MENSAJES.filter(m =>
-    norm(m.titulo).includes(ql) || norm(m.cuerpo).includes(ql)
+    norm(m.titulo).includes(ql) || norm(m.cuerpo).includes(ql) ||
+    norm(m.autor||'').includes(ql)
   ).slice(0,4);
   if(msgs.length) grupos.push({
     titulo:'Mensajes', items: msgs.map(m => ({
-      icon:'📣', titulo: hl(m.titulo,q), meta: m.autor+' · '+m.fecha,
+      icon:'📣',
+      titulo: hl(m.titulo, q),
+      meta: esc(m.autor) + ' · ' + esc(m.fecha),
       tag:'mensaje', tagCls:'busq-tag-mensaje',
       accion: () => { switchTab('mensajes'); cerrarBuscador(); }
     }))
   });
 
-  // Documentos
-  const docs = DOCS.filter(d => norm(d.nombre).includes(ql)).slice(0,3);
+  // ── Documentos (biblioteca general) ───────────────────────────────────────
+  const docs = DOCS.filter(d =>
+    norm(d.nombre).includes(ql) || norm(d.autor||'').includes(ql)
+  ).slice(0,3);
   if(docs.length) grupos.push({
     titulo:'Documentos', items: docs.map(d => ({
-      icon:'📄', titulo: hl(d.nombre,q), meta: d.size+' · '+d.fecha+' · '+d.autor,
+      icon:'📄',
+      titulo: hl(d.nombre, q),
+      meta: esc(d.size) + ' · ' + esc(d.fecha) + ' · ' + esc(d.autor),
       tag:'doc', tagCls:'busq-tag-doc',
-      accion: () => { switchTab('documentos'); cerrarBuscador(); }
+      accion: () => { switchTab('documentos'); setTimeout(()=>switchDocsTab('docs'),80); cerrarBuscador(); }
     }))
   });
 
-  // Normativa
+  // ── Normativa ─────────────────────────────────────────────────────────────
   const nrms = NORMATIVA.filter(n =>
-    norm(n.titulo).includes(ql) || norm(n.desc).includes(ql)
+    norm(n.titulo).includes(ql) || norm(n.desc||'').includes(ql) || norm(n.anio||'').includes(ql)
   ).slice(0,3);
   if(nrms.length) grupos.push({
     titulo:'Normativa', items: nrms.map(n => ({
-      icon:'📋', titulo: hl(n.titulo,q), meta: n.anio+' · '+n.desc.slice(0,60)+'…',
+      icon:'⚖️',
+      titulo: hl(n.titulo, q),
+      meta: esc(n.anio) + (n.desc ? ' · ' + esc(n.desc.slice(0,70)) + (n.desc.length>70?'…':'') : ''),
       tag:'normativa', tagCls:'busq-tag-normativa',
-      accion: () => { switchTab('documentos'); setTimeout(()=>switchDocsTab('normativa'),100); cerrarBuscador(); }
+      accion: () => { switchTab('documentos'); setTimeout(()=>switchDocsTab('normativa'),80); cerrarBuscador(); }
     }))
   });
 
-  // Novedades
+  // ── Papeles de trabajo ────────────────────────────────────────────────────
+  const papeles = (typeof PAPELES !== 'undefined' ? PAPELES : []).filter(p =>
+    norm(p.titulo||'').includes(ql) || norm(p.ref||'').includes(ql) || norm(p.desc||'').includes(ql)
+  ).slice(0,3);
+  if(papeles.length) grupos.push({
+    titulo:'Papeles de trabajo', items: papeles.map(p => ({
+      icon:'📝',
+      titulo: hl(p.titulo||'', q),
+      meta: esc(p.anio||'') + (p.ref ? ' · ' + esc(p.ref) : '') + (p.tipo ? ' · ' + esc(p.tipo) : ''),
+      tag:'papel', tagCls:'busq-tag-doc',
+      accion: () => { switchTab('documentos'); setTimeout(()=>switchDocsTab('papeles'),80); cerrarBuscador(); }
+    }))
+  });
+
+  // ── Docs de Relatorías (Sede Central) ────────────────────────────────────
+  const sedeDocs = [];
+  if(typeof SEDE_DOCS !== 'undefined') {
+    Object.entries(SEDE_DOCS).forEach(([rel, arr]) => {
+      arr.forEach(d => {
+        if(norm(d.titulo||'').includes(ql) || norm(d.desc||'').includes(ql)) {
+          sedeDocs.push({ ...d, _rel: rel });
+        }
+      });
+    });
+  }
+  const sedeMuestra = sedeDocs.slice(0,3);
+  if(sedeMuestra.length) grupos.push({
+    titulo:'Docs — Sede Central', items: sedeMuestra.map(d => ({
+      icon:'🏛️',
+      titulo: hl(d.titulo||'', q),
+      meta: 'Relatoría ' + esc(d._rel) + (d.tipo ? ' · ' + esc(d.tipo) : '') + (d.fecha ? ' · ' + esc(d.fecha) : ''),
+      tag:'sede', tagCls:'busq-tag-normativa',
+      accion: () => { switchTab('delegaciones'); cerrarBuscador(); }
+    }))
+  });
+
+  // ── Docs de Delegaciones ─────────────────────────────────────────────────
+  const delegDocs = [];
+  if(typeof DELEG_DOCS !== 'undefined') {
+    Object.entries(DELEG_DOCS).forEach(([nro, arr]) => {
+      arr.forEach(d => {
+        if(norm(d.titulo||'').includes(ql) || norm(d.desc||'').includes(ql)) {
+          delegDocs.push({ ...d, _nro: nro });
+        }
+      });
+    });
+  }
+  const delegMuestra = delegDocs.slice(0,3);
+  if(delegMuestra.length) grupos.push({
+    titulo:'Docs — Delegaciones', items: delegMuestra.map(d => ({
+      icon:'📍',
+      titulo: hl(d.titulo||'', q),
+      meta: 'Delegación ' + esc(d._nro) + (d.tipo ? ' · ' + esc(d.tipo) : '') + (d.fecha ? ' · ' + esc(d.fecha) : ''),
+      tag:'delegación', tagCls:'busq-tag-evento',
+      accion: () => { switchTab('delegaciones'); cerrarBuscador(); }
+    }))
+  });
+
+  // ── Novedades ─────────────────────────────────────────────────────────────
   const novs = NOVEDADES.filter(n =>
-    norm(n.titulo).includes(ql) || norm(n.texto).includes(ql)
+    norm(n.titulo).includes(ql) || norm(n.texto||'').includes(ql)
   ).slice(0,3);
   if(novs.length) grupos.push({
     titulo:'Novedades', items: novs.map(n => ({
-      icon:'📰', titulo: hl(n.titulo,q), meta: n.fecha,
+      icon:'📰',
+      titulo: hl(n.titulo, q),
+      meta: esc(n.fecha) + (n.cat ? ' · ' + esc(n.cat) : ''),
       tag:'novedad', tagCls:'busq-tag-novedad',
       accion: () => { switchTab('novedades'); cerrarBuscador(); }
     }))
   });
 
-  // Capacitaciones
+  // ── Capacitaciones ────────────────────────────────────────────────────────
   const caps = CAPS.filter(c =>
-    norm(c.titulo).includes(ql) || norm(c.desc||'').includes(ql)
+    norm(c.titulo).includes(ql) || norm(c.desc||'').includes(ql) || norm(c.modalidad||'').includes(ql)
   ).slice(0,3);
   if(caps.length) grupos.push({
     titulo:'Capacitaciones', items: caps.map(c => ({
-      icon:'🎓', titulo: hl(c.titulo,q), meta: c.fecha+' · '+c.modalidad,
+      icon:'🎓',
+      titulo: hl(c.titulo, q),
+      meta: esc(c.fecha) + (c.modalidad ? ' · ' + esc(c.modalidad) : '') + (c.lugar ? ' · ' + esc(c.lugar) : ''),
       tag:'cap', tagCls:'busq-tag-cap',
       accion: () => { switchTab('capacitaciones'); cerrarBuscador(); }
     }))
   });
 
-  // Cronograma
+  // ── Cronograma ────────────────────────────────────────────────────────────
   const evs = REUNIONES.filter(r =>
-    norm(r.asunto).includes(ql) || norm(r.municipio||'').includes(ql)
+    norm(r.asunto||'').includes(ql) || norm(r.municipio||'').includes(ql) ||
+    norm(r.tipo||'').includes(ql) || norm(r.lugar||'').includes(ql)
   ).slice(0,3);
   if(evs.length) grupos.push({
     titulo:'Cronograma', items: evs.map(e => ({
-      icon:'📅', titulo: hl(e.asunto,q), meta: e.fecha+(e.municipio?' · '+e.municipio:''),
+      icon:'📅',
+      titulo: hl(e.asunto||'', q),
+      meta: esc(e.fecha) + (e.municipio ? ' · ' + esc(e.municipio) : '') + (e.tipo ? ' · ' + esc(e.tipo) : ''),
       tag:'evento', tagCls:'busq-tag-evento',
       accion: () => { switchTab('cronograma'); cerrarBuscador(); }
     }))
   });
 
+  // ── Herramientas ──────────────────────────────────────────────────────────
+  const herrs = (typeof HERRAMIENTAS !== 'undefined' ? HERRAMIENTAS : []).filter(h =>
+    norm(h.nombre||'').includes(ql) || norm(h.desc||'').includes(ql)
+  ).slice(0,2);
+  if(herrs.length) grupos.push({
+    titulo:'Herramientas digitales', items: herrs.map(h => ({
+      icon:'🔧',
+      titulo: hl(h.nombre||'', q),
+      meta: esc(h.desc ? h.desc.slice(0,70)+(h.desc.length>70?'…':'') : ''),
+      tag:'herramienta', tagCls:'busq-tag-normativa',
+      accion: () => { switchTab('herramientas'); cerrarBuscador(); }
+    }))
+  });
+
+  // ── Render ────────────────────────────────────────────────────────────────
   const inner = document.getElementById('buscador-inner');
   const res   = document.getElementById('buscador-resultados');
+  const total = grupos.reduce((s,g)=>s+g.items.length,0);
+
+  window._busqAcciones = [];
 
   if(!grupos.length) {
     inner.innerHTML = `<div class="busq-vacio">Sin resultados para "<strong style="color:#CBD5E0;">${esc(q)}</strong>"</div>`;
   } else {
-    window._busqAcciones = [];
-    let html = '';
+    let html = `<div style="padding:.3rem 1.2rem .2rem;font-size:.62rem;color:#4A6A8A;letter-spacing:.04em;">${total} resultado${total!==1?'s':''} en ${grupos.length} sección${grupos.length!==1?'es':''}</div>`;
     grupos.forEach((g, gi) => {
       if(gi > 0) html += '<hr class="busq-sep">';
       html += `<div class="busq-grupo"><div class="busq-grupo-titulo">${g.titulo}</div>`;
       g.items.forEach((it) => {
         const idx = window._busqAcciones.length;
         window._busqAcciones.push(it.accion);
-        html += `<div class="busq-item" onclick="window._busqAcciones[${idx}]()">
+        // IMPORTANTE: it.titulo ya contiene HTML con <mark> de hl() — NO usar esc() sobre él
+        html += `<div class="busq-item" tabindex="-1" onclick="window._busqAcciones[${idx}]()">
           <span class="busq-item-icon">${it.icon}</span>
           <div class="busq-item-info">
-            <div class="busq-item-titulo">${esc(it.titulo)}</div>
-            <div class="busq-item-meta">${esc(it.meta)}</div>
+            <div class="busq-item-titulo">${it.titulo}</div>
+            <div class="busq-item-meta">${it.meta}</div>
           </div>
           <span class="busq-item-tag ${it.tagCls}">${it.tag}</span>
         </div>`;
@@ -3140,12 +3238,32 @@ function mostrarResultados(q) {
 
 // Cerrar al hacer clic fuera
 document.addEventListener('click', e => {
+  if(_busqIgnoreClick) { _busqIgnoreClick = false; return; } // el click que abrió el buscador, ignorarlo
   if(!e.target.closest('#buscador-bar') && !e.target.closest('#buscador-resultados')) {
     cerrarBuscador();
   }
 });
-// Cerrar con ESC
-document.addEventListener('keydown', e => { if(e.key==='Escape') cerrarBuscador(); });
+// Cerrar con ESC + navegación teclado en resultados
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape') { cerrarBuscador(); return; }
+  const res = document.getElementById('buscador-resultados');
+  if(res.style.display==='none') return;
+  const items = [...res.querySelectorAll('.busq-item')];
+  if(!items.length) return;
+  const focused = res.querySelector('.busq-item:focus');
+  const idx = items.indexOf(focused);
+  if(e.key==='ArrowDown') {
+    e.preventDefault();
+    items[idx < items.length-1 ? idx+1 : 0].focus();
+  } else if(e.key==='ArrowUp') {
+    e.preventDefault();
+    if(idx <= 0) { document.getElementById('buscador-input').focus(); }
+    else { items[idx-1].focus(); }
+  } else if(e.key==='Enter' && focused) {
+    e.preventDefault();
+    focused.click();
+  }
+});
 
 // ══ TABS ══════════════════════════════════════════════════════════════════
 function toggleMenuMobile() {
