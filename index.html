@@ -1099,6 +1099,40 @@ table td, table th { font-size:.88rem !important; }
   .video-inst-lista{grid-auto-flow:column;grid-auto-columns:130px;overflow-x:auto;padding-bottom:.3rem;}
 }
 
+/* ══ MARCO NORMATIVO ══════════════════════════════════════════ */
+#marco-normativo{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:.8rem;margin-bottom:.8rem;
+}
+.norma-card{
+  background:var(--white);border:1px solid var(--border);border-radius:8px;
+  padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.45rem;
+  transition:box-shadow .15s,border-color .15s;
+}
+.norma-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.08);border-color:#9FBEDC;}
+.norma-tit{font-size:.85rem;font-weight:700;color:var(--navy);line-height:1.35;}
+.norma-desc{font-size:.72rem;color:var(--muted);line-height:1.55;flex:1;}
+.norma-acc{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-top:.15rem;}
+.norma-btn{
+  display:inline-flex;align-items:center;gap:.3rem;padding:.35rem .7rem;
+  border-radius:6px;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;text-decoration:none;
+  border:1.5px solid transparent;transition:all .15s;white-space:nowrap;
+}
+.norma-btn-ver{background:rgba(74,158,224,.12);border-color:rgba(74,158,224,.45);color:#1F6FB8;}
+.norma-btn-ver:hover{background:rgba(74,158,224,.22);border-color:#4A9EE0;}
+.norma-btn-dl{background:rgba(201,150,58,.14);border-color:rgba(201,150,58,.5);color:#8A5E11;}
+.norma-btn-dl:hover{background:rgba(201,150,58,.26);border-color:#C9963A;}
+.norma-meta{font-size:.62rem;color:#8FA0B2;font-style:italic;}
+.norma-pie{font-size:.68rem;color:var(--muted);margin-bottom:1.8rem;}
+.norma-pie a{color:#1F6FB8;text-decoration:none;font-weight:600;}
+.norma-pie a:hover{text-decoration:underline;}
+@media(max-width:768px){
+  #marco-normativo{grid-template-columns:1fr;}
+  .norma-btn{font-size:.62rem;padding:.4rem .7rem;}
+}
+
+
 /* ══ MAPA PBA (delegaciones) ══════════════════════════════════ */
 #mapa-pba-wrap{
   display:grid;grid-template-columns:1fr 320px;gap:0;
@@ -1661,31 +1695,66 @@ table td, table th { font-size:.88rem !important; }
 
     <!-- Marco normativo -->
     <div class="section-label">Marco normativo</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem;margin-bottom:1.8rem;">
-      <a href="https://www.htc.gba.gov.ar/acerca_del_htc" target="_blank" style="text-decoration:none;">
-        <div style="background:var(--white);border:1px solid var(--border);border-radius:7px;padding:.9rem 1.1rem;transition:box-shadow .15s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'">
-          <div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:.25rem;">📜 Constitución PBA · Art. 159</div>
-          <div style="font-size:.72rem;color:var(--muted);">Base constitucional de las atribuciones del HTC sobre cuentas provinciales y municipales.</div>
+    <div id="marco-normativo">
+      <div class="norma-card">
+        <div class="norma-tit">📜 Constitución de la Provincia de Buenos Aires</div>
+        <div class="norma-desc">Base constitucional del régimen municipal y de las atribuciones del H. Tribunal de Cuentas (art. 159).</div>
+        <div class="norma-acc">
+          <a class="norma-btn norma-btn-ver" href="https://normas.gba.gob.ar/constitucion-de-la-provincia-de-buenos-aires-1994" target="_blank" rel="noopener">Abrir texto ↗</a>
+          <span class="norma-meta">Texto íntegro · 1994</span>
         </div>
-      </a>
-      <a href="https://www.htc.gba.gov.ar/marco_normativo" target="_blank" style="text-decoration:none;">
-        <div style="background:var(--white);border:1px solid var(--border);border-radius:7px;padding:.9rem 1.1rem;transition:box-shadow .15s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'">
-          <div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:.25rem;">📋 Ley Orgánica N° 10.869</div>
-          <div style="font-size:.72rem;color:var(--muted);">Norma principal que regula el funcionamiento, atribuciones y procedimientos del H. Tribunal de Cuentas.</div>
+      </div>
+      <div class="norma-card">
+        <div class="norma-tit">🏛️ Ley Orgánica de las Municipalidades</div>
+        <div class="norma-desc">Decreto-Ley N° 6769/58. Régimen de gobierno y administración de los municipios bonaerenses.</div>
+        <div class="norma-acc">
+          <a class="norma-btn norma-btn-ver" href="https://normas.gba.gob.ar/documentos/OVG48SW0.html" target="_blank" rel="noopener">Abrir texto ↗</a>
+          <span class="norma-meta">Texto actualizado · 167 artículos</span>
         </div>
-      </a>
-      <a href="https://www.htc.gba.gov.ar/biblioteca_virtual" target="_blank" style="text-decoration:none;">
-        <div style="background:var(--white);border:1px solid var(--border);border-radius:7px;padding:.9rem 1.1rem;transition:box-shadow .15s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'">
-          <div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:.25rem;">📚 Biblioteca Virtual HTC</div>
-          <div style="font-size:.72rem;color:var(--muted);">Resoluciones, fallos y normativa del Tribunal disponibles en la biblioteca virtual institucional.</div>
+      </div>
+      <div class="norma-card">
+        <div class="norma-tit">⚙️ RAFAM · Decreto N° 2980/00</div>
+        <div class="norma-desc">Reforma de la Administración Financiera en el Ámbito Municipal. Reglamenta la LOM en materia financiera.</div>
+        <div class="norma-acc">
+          <a class="norma-btn norma-btn-ver" href="https://normas.gba.gob.ar/documentos/BeyJ1C7B.html" target="_blank" rel="noopener">Abrir texto ↗</a>
+          <a class="norma-btn norma-btn-ver" href="https://normas.gba.gob.ar/documentos/VW5JbhYx.pdf" target="_blank" rel="noopener">PDF completo ↗</a>
+          <span class="norma-meta">Texto actualizado</span>
         </div>
-      </a>
-      <a href="https://www.htc.gba.gov.ar/estructura_organica" target="_blank" style="text-decoration:none;">
-        <div style="background:var(--white);border:1px solid var(--border);border-radius:7px;padding:.9rem 1.1rem;transition:box-shadow .15s;" onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'">
-          <div style="font-size:.85rem;font-weight:700;color:var(--navy);margin-bottom:.25rem;">🏢 Estructura orgánica</div>
-          <div style="font-size:.72rem;color:var(--muted);">Organigrama y estructura interna del H. Tribunal de Cuentas de la Provincia de Buenos Aires.</div>
+      </div>
+      <div class="norma-card">
+        <div class="norma-tit">🔄 RAFAM 2 · Decreto N° 1555/22</div>
+        <div class="norma-desc">Modernización del RAFAM. Nuevas Disposiciones de Administración de los Recursos Financieros y Reales, de aplicación progresiva hasta 2030.</div>
+        <div class="norma-acc">
+          <a class="norma-btn norma-btn-ver" href="https://normas.gba.gob.ar/documentos/x6vPp1ug.html" target="_blank" rel="noopener">Abrir decreto ↗</a>
+          <a class="norma-btn norma-btn-ver" href="https://normas.gba.gob.ar/anexos/descargar/qxqKn4V4.pdf" target="_blank" rel="noopener">Disposiciones ↗</a>
+          <a class="norma-btn norma-btn-dl" id="dl-rafam2" href="#" style="display:none;">⬇ Publicación oficial</a>
+          <span class="norma-meta">Anexo único · 11 capítulos</span>
         </div>
-      </a>
+      </div>
+      <div class="norma-card">
+        <div class="norma-tit">⚖️ Ley Orgánica del H. Tribunal de Cuentas</div>
+        <div class="norma-desc">Ley N° 10.869. Funcionamiento, atribuciones y procedimientos del Tribunal.</div>
+        <div class="norma-acc">
+          <a class="norma-btn norma-btn-ver" href="https://normas.gba.gob.ar/documentos/V9rr1UP0.html" target="_blank" rel="noopener">Abrir texto ↗</a>
+          <span class="norma-meta">Texto actualizado</span>
+        </div>
+      </div>
+      <div class="norma-card">
+        <div class="norma-tit">📗 Reglamento de Contabilidad y Disposiciones de Administración</div>
+        <div class="norma-desc">Para las Municipalidades de la Provincia de Buenos Aires. Normas de registración y rendición.</div>
+        <div class="norma-acc">
+          <a class="norma-btn norma-btn-ver" href="https://normas.gba.gob.ar/documentos/VW5JbhYx.pdf" target="_blank" rel="noopener">Abrir PDF ↗</a>
+          <span class="norma-meta">PDF · normas.gba.gob.ar</span>
+        </div>
+      </div>
+    </div>
+    <div class="norma-pie">
+      Los enlaces abren el <strong>texto actualizado</strong> en el sitio oficial de normativa
+      de la Provincia, de modo que reflejan siempre las últimas modificaciones.
+      &nbsp;·&nbsp;
+      <a href="https://www.htc.gba.gov.ar/legislacion_provincial" target="_blank" rel="noopener">Legislación Provincial · HTC</a>
+      &nbsp;·&nbsp;
+      <a href="https://www.htc.gba.gov.ar/biblioteca_virtual" target="_blank" rel="noopener">Biblioteca Virtual HTC</a>
     </div>
 
     <!-- Estudios a cargo -->
@@ -1878,7 +1947,8 @@ table td, table th { font-size:.88rem !important; }
         <button class="norm-filtro" onclick="setFiltroNorm('municipal')">🏛️ Municipal</button>
         <button class="norm-filtro" onclick="setFiltroNorm('htc')">⚖️ HTC</button>
         <button class="norm-filtro" onclick="setFiltroNorm('provincial')">📋 Provincial</button>
-        <button class="norm-filtro" onclick="setFiltroNorm('obras')">🏗️ Obras públicas</button>
+        <button class="norm-filtro" onclick="setFiltroNorm('obras')">🏗️ Obras y contrataciones</button>
+        <button class="norm-filtro" onclick="setFiltroNorm('recursos')">🔍 Doctrina y fallos</button>
       </div>
 
       <div id="norm-lista"></div>
@@ -3353,6 +3423,7 @@ async function doLogin() {
   aplicarPermisos();
   reiniciarVigilanciaInactividad();
   cargarPdfInstitucional();
+  initMarcoNormativo();
   await logAct('login', 'acceso', `Ingresó al portal`);
   await iniciarBanner();
   cargarTodosLosDatos();
@@ -3383,6 +3454,7 @@ document.addEventListener('DOMContentLoaded', () => {
       aplicarPermisos();
       reiniciarVigilanciaInactividad();
       cargarPdfInstitucional();
+  initMarcoNormativo();
       await cargarTodosLosDatos();
       suscribirMensajesRealtime();
       iniciarPollingActividad();
@@ -4516,8 +4588,13 @@ async function cargarDelegAct() {
 
 async function cargarNormativaDB() {
   const { data, error } = await sb.from('normativa').select('*').order('created_at', { ascending: false });
-  if(error || !data || !data.length) return;
-  NORMATIVA = data.map(n => ({ id:n.id, titulo:n.titulo, anio:n.anio, cat:n.cat, desc:n.descripcion, link:n.link }));
+  if(error || !data) return;
+  // Las normas cargadas desde el portal se SUMAN al catálogo base, no lo reemplazan.
+  // Antes lo pisaban: si la tabla tenía una sola fila, desaparecía todo el catálogo.
+  const clave = t => (t||'').toLowerCase().replace(/[^a-z0-9]+/g,'');
+  const deDB  = data.map(n => ({ id:n.id, titulo:n.titulo, anio:n.anio, cat:n.cat, desc:n.descripcion, link:n.link }));
+  const vistos = new Set(deDB.map(n => clave(n.titulo)));
+  NORMATIVA = deDB.concat(NORMATIVA_BASE.filter(n => !vistos.has(clave(n.titulo))));
   if(typeof renderNormativa === 'function') renderNormativa();
 }
 
@@ -5276,6 +5353,39 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-'+tab).classList.add('active');
   document.getElementById('tab-'+tab).classList.add('active');
+}
+
+
+// ══ MARCO NORMATIVO — links de descarga desde Storage ══════════════════════
+const NORMAS_PDF = {
+  // Todas las normas abren en el sitio oficial: no hace falta subir nada.
+  // Este slot es opcional: si se sube la publicación del Ministerio de Hacienda
+  // (decreto + disposiciones en un solo PDF con índice), aparece un botón extra.
+  rafam2 : 'Marco normativo/rafam2-decreto-1555-22.pdf',
+};
+const NORMAS_NOMBRE = {
+  rafam2 : 'RAFAM2_Decreto_1555-22.pdf',
+};
+
+async function initMarcoNormativo() {
+  if (!SUPABASE_LISTO) return;
+  for (const [clave, ruta] of Object.entries(NORMAS_PDF)) {
+    const btn  = document.getElementById('dl-' + clave);
+    const pend = document.getElementById('pend-' + clave);
+    if (!btn) continue;
+    try {
+      const { data, error } = await sb.storage
+        .from('documentos Vocalia')
+        .createSignedUrl(ruta, 31536000); // 1 año
+      if (error || !data?.signedUrl) continue;   // todavía no se subió: queda "PDF no cargado"
+      btn.href = data.signedUrl;
+      btn.setAttribute('download', NORMAS_NOMBRE[clave] || '');
+      btn.style.display = 'inline-flex';
+      if (pend) pend.style.display = 'none';
+    } catch (e) {
+      console.warn('Marco normativo — no se pudo firmar', ruta, e);
+    }
+  }
 }
 
 function irAlMapaDelegaciones() {
@@ -6371,22 +6481,104 @@ const CAT_NORM = {
   municipal:  { label:'Municipal',      icon:'🏛️' },
   htc:        { label:'HTC',            icon:'⚖️' },
   provincial: { label:'Provincial',     icon:'📋' },
-  obras:      { label:'Obras públicas', icon:'🏗️' },
+  obras:      { label:'Obras y contrataciones', icon:'🏗️' },
+  recursos:   { label:'Doctrina, fallos y resoluciones', icon:'🔍' },
 };
 
 let NORMATIVA = [
-  { id:1, titulo:'Decreto-Ley 6769/58 — Ley Orgánica de las Municipalidades (LOM)',           cat:'municipal',  anio:'1958', desc:'Marco normativo general de los municipios bonaerenses. Régimen de gobierno, hacienda y administración.',                           link:'https://www.htc.gba.gov.ar/biblioteca_virtual' },
-  { id:2, titulo:'Decreto 2980/00 — Reglamento de la LOM',                                    cat:'municipal',  anio:'2000', desc:'Reglamentación de la LOM. Regulación de procedimientos administrativos y financieros municipales.',                               link:'https://www.htc.gba.gov.ar/biblioteca_virtual' },
-  { id:3, titulo:'Reglamento de Contabilidad y Disposiciones de Administración — HTC',        cat:'htc',        anio:'1992', desc:'Normas de contabilidad pública para municipalidades de la PBA. Vigente desde el 1/1/1992.',                                         link:'https://www.htc.gba.gov.ar/biblioteca_virtual' },
-  { id:4, titulo:'Ley Orgánica del HTC N° 10.869',                                            cat:'htc',        anio:'1990', desc:'Regula el funcionamiento, atribuciones, procedimientos y sanciones del H. Tribunal de Cuentas PBA.',                               link:'https://www.htc.gba.gov.ar/marco_normativo' },
-  { id:5, titulo:'Decreto 1770/09 — Reglamentación Ley 10.869',                               cat:'htc',        anio:'2009', desc:'Reglamentación de la Ley Orgánica del HTC.',                                                                                        link:'https://www.htc.gba.gov.ar/marco_normativo' },
-  { id:6, titulo:'Ley 6021 — Obras Públicas PBA',                                             cat:'obras',      anio:'1959', desc:'Régimen de obras públicas de la Provincia de Buenos Aires. Contratación, ejecución y control.',                                     link:'https://www.htc.gba.gov.ar/biblioteca_virtual' },
-  { id:7, titulo:'Decreto-Ley 9254/79 — Reglamentación Ley de Obras Públicas',                cat:'obras',      anio:'1979', desc:'Reglamentación de la Ley 6021. Procedimientos licitatorios y de contratación de obras.',                                           link:'https://www.htc.gba.gov.ar/biblioteca_virtual' },
-  { id:8, titulo:'Ley de Procedimiento Administrativo N° 7647/70',                            cat:'provincial', anio:'1970', desc:'Aplicación supletoria en procedimientos del HTC conforme Art. 41 de la Ley 10.869.',                                               link:'' },
-  { id:9, titulo:'Constitución de la PBA — Art. 159 (Tribunal de Cuentas)',                   cat:'provincial', anio:'1994', desc:'Base constitucional de las atribuciones del HTC sobre cuentas provinciales y municipales.',                                          link:'https://www.htc.gba.gov.ar/acerca_del_htc' },
-  { id:10,titulo:'Resolución AG N° 18/16 — Sumarios de responsabilidad provincial',           cat:'htc',        anio:'2016', desc:'Procedimiento para tramitación de sumarios administrativos de responsabilidad provincial en el ámbito del HTC.',                    link:'' },
-  { id:11,titulo:'Resolución AG N° 19/16 — Sumarios en municipalidades',                      cat:'htc',        anio:'2016', desc:'Procedimiento para sumarios administrativos de responsabilidad patrimonial en Municipalidades y Organismos Descentralizados.',        link:'' },
+  // ── Régimen municipal ──
+  { id:1, titulo:'Decreto-Ley 6769/58 — Ley Orgánica de las Municipalidades (LOM)', cat:'municipal', anio:'1958',
+    desc:'Norma base del régimen municipal bonaerense. Texto actualizado con todas sus modificatorias, 167 artículos.',
+    link:'https://normas.gba.gob.ar/documentos/OVG48SW0.html' },
+  { id:2, titulo:'Decreto 2980/00 — RAFAM (reglamenta la LOM)', cat:'municipal', anio:'2000',
+    desc:'Reforma de la Administración Financiera en el Ámbito Municipal. Reglamentación de la LOM en materia financiera.',
+    link:'https://normas.gba.gob.ar/documentos/BeyJ1C7B.html' },
+  { id:3, titulo:'Decreto 2980/00 — Disposiciones de Administración (PDF completo)', cat:'municipal', anio:'2000',
+    desc:'Decreto 2980/00 junto con sus Disposiciones de Administración de los Recursos Financieros y Reales.',
+    link:'https://normas.gba.gob.ar/documentos/VW5JbhYx.pdf' },
+  { id:4, titulo:'Documentación RAFAM — Manuales conceptuales y de usuario', cat:'municipal', anio:'—',
+    desc:'Manuales conceptuales y de usuario de todos los sistemas del RAFAM, en el sitio oficial del programa.',
+    link:'https://www.rafam.ec.gba.gov.ar/software/documentacion' },
+  { id:5, titulo:'Decreto 1555/22 — RAFAM II', cat:'municipal', anio:'2022',
+    desc:'Modernización del RAFAM. Aplicación progresiva en municipios piloto hasta 2030.',
+    link:'https://normas.gba.gob.ar/documentos/x6vPp1ug.html' },
+  { id:6, titulo:'Decreto 1555/22 — Anexo Único · Disposiciones de Administración', cat:'municipal', anio:'2022',
+    desc:'Anexo sustantivo del RAFAM II: Planificación, Presupuesto, Contabilidad, Tesorería, Crédito Público, Contrataciones, Bienes Físicos, Inversión Pública, Personal e Ingresos Fiscales.',
+    link:'https://normas.gba.gob.ar/anexos/descargar/qxqKn4V4.pdf' },
+  { id:7, titulo:'Ley 14.656 — Estatuto para el personal de las Municipalidades', cat:'municipal', anio:'2014',
+    desc:'Régimen de empleo municipal y paritarias. Deroga la Ley 11.757.',
+    link:'https://normas.gba.gob.ar/documentos/xqq2dtpx.html' },
+
+  // ── H. Tribunal de Cuentas ──
+  { id:8, titulo:'Ley 10.869 — Orgánica del H. Tribunal de Cuentas', cat:'htc', anio:'1989',
+    desc:'Funcionamiento, atribuciones, procedimientos y sanciones del HTC. Texto actualizado con todas sus modificatorias.',
+    link:'https://normas.gba.gob.ar/documentos/V9rr1UP0.html' },
+  { id:9, titulo:'Decreto 1770/09 — Reglamentación de la Ley 10.869', cat:'htc', anio:'2009',
+    desc:'Reglamenta la Ley Orgánica del H. Tribunal de Cuentas.',
+    link:'https://normas.gba.gob.ar/documentos/BgNQ1Hpx.html' },
+  { id:10, titulo:'Reglamento de Contabilidad para las Municipalidades', cat:'htc', anio:'1991',
+    desc:'Normas de registración y rendición para las Municipalidades de la PBA.',
+    link:'https://normas.gba.gob.ar/documentos/VW5JbhYx.pdf' },
+  { id:11, titulo:'Resolución AG 18/16 — Sumarios de responsabilidad provincial', cat:'htc', anio:'2016',
+    desc:'Procedimiento para sumarios administrativos de responsabilidad en el ámbito provincial.',
+    link:'https://sistemas.htc.gba.gov.ar/sistemas/summun/busqueda/normativa/4/tipo' },
+  { id:12, titulo:'Resolución AG 19/16 — Sumarios en Municipalidades', cat:'htc', anio:'2016',
+    desc:'Procedimiento para sumarios de responsabilidad patrimonial en Municipalidades y Organismos Descentralizados.',
+    link:'https://sistemas.htc.gba.gov.ar/sistemas/summun/busqueda/normativa/4/tipo' },
+
+  // ── Provincial ──
+  { id:13, titulo:'Constitución de la Provincia de Buenos Aires', cat:'provincial', anio:'1994',
+    desc:'Régimen municipal y base constitucional de las atribuciones del HTC (art. 159). Texto íntegro.',
+    link:'https://normas.gba.gob.ar/constitucion-de-la-provincia-de-buenos-aires-1994' },
+  { id:14, titulo:'Decreto-Ley 7647/70 — Procedimiento Administrativo', cat:'provincial', anio:'1970',
+    desc:'Normas de procedimiento administrativo de la PBA. De aplicación supletoria en el HTC conforme art. 41 de la Ley 10.869.',
+    link:'https://normas.gba.gob.ar/documentos/rVRy2u5B.html' },
+  { id:15, titulo:'Ley 15.230 — Domicilio electrónico y audiencias virtuales', cat:'provincial', anio:'2021',
+    desc:'Sistema de domicilio electrónico y audiencias virtuales en los procedimientos administrativos. Complementa el Decreto-Ley 7647/70.',
+    link:'https://normas.gba.gob.ar/documentos/BjbXmDIy.html' },
+  { id:16, titulo:'Ley 14.828 — Plan estratégico de modernización', cat:'provincial', anio:'2016',
+    desc:'Plan estratégico de modernización de la administración pública provincial. Expediente electrónico.',
+    link:'https://normas.gba.gob.ar/documentos/0X53DSax.html' },
+  { id:17, titulo:'Ley 13.767 — Administración Financiera provincial', cat:'provincial', anio:'2007',
+    desc:'Administración financiera y sistema de control de la administración general del Estado provincial.',
+    link:'https://normas.gba.gob.ar/documentos/BMy1lFqB.html' },
+  { id:18, titulo:'Ley 10.430 — Estatuto del personal de la administración pública provincial', cat:'provincial', anio:'1986',
+    desc:'Estatuto y escalafón para el personal de la administración pública provincial. Texto ordenado por Decreto 1869/96.',
+    link:'https://normas.gba.gob.ar/documentos/VrlKqtOx.html' },
+  { id:19, titulo:'Decreto-Ley 9434/79 — Carta Orgánica del Banco Provincia', cat:'provincial', anio:'1979',
+    desc:'Carta Orgánica del Banco de la Provincia de Buenos Aires. Texto ordenado por Decreto 9166/86, vigente con las reformas de la Ley 15.562.',
+    link:'https://normas.gba.gob.ar/documentos/G05mPF50.html' },
+  { id:20, titulo:'Ley 12.008 — Código Contencioso Administrativo', cat:'provincial', anio:'1997',
+    desc:'Procedimiento contencioso administrativo de la Provincia de Buenos Aires.',
+    link:'https://normas.gba.gob.ar/documentos/BodPyhzV.html' },
+
+  // ── Obras y contrataciones ──
+  { id:21, titulo:'Ley 6021 — Obras Públicas de la PBA', cat:'obras', anio:'1959',
+    desc:'Régimen de obras públicas provinciales: contratación, ejecución y control.',
+    link:'https://normas.gba.gob.ar/documentos/xknjoiA0.html' },
+  { id:22, titulo:'Decreto 5488/59 — Reglamentación de la Ley 6021', cat:'obras', anio:'1959',
+    desc:'Decreto reglamentario de la Ley de Obras Públicas. Procedimientos licitatorios y de contratación.',
+    link:'https://normas.gba.gob.ar/documentos/BdQJX3fD.html' },
+  { id:23, titulo:'Ley 13.981 — Contrataciones del Estado provincial', cat:'obras', anio:'2009',
+    desc:'Subsistema de contrataciones dentro de la administración financiera provincial.',
+    link:'https://normas.gba.gob.ar/documentos/xDZ34hyV.html' },
+
+  // ── Doctrina, fallos y resoluciones (Biblioteca Virtual HTC) ──
+  { id:24, titulo:'Fallos del H. Tribunal de Cuentas', cat:'recursos', anio:'—',
+    desc:'Buscador de fallos de los estudios de cuentas del H. Tribunal de Cuentas.',
+    link:'https://sistemas.htc.gba.gov.ar/sistemas/summun/busqueda/fallohtc/0/buscador' },
+  { id:25, titulo:'Doctrina del H. Tribunal de Cuentas', cat:'recursos', anio:'—',
+    desc:'Buscador de doctrina y consultas del HTC sobre temas municipales.',
+    link:'https://sistemas.htc.gba.gov.ar/sistemas/summun/busqueda/doctrinaconsulta/' },
+  { id:26, titulo:'Jurisprudencia del H. Tribunal de Cuentas', cat:'recursos', anio:'—',
+    desc:'Buscador de jurisprudencia del HTC sobre temas municipales.',
+    link:'https://sistemas.htc.gba.gov.ar/sistemas/summun/busqueda/jurisprudencia/' },
+  { id:27, titulo:'Resoluciones del H. Tribunal de Cuentas', cat:'recursos', anio:'—',
+    desc:'Buscador de resoluciones del HTC sobre temas municipales.',
+    link:'https://sistemas.htc.gba.gov.ar/sistemas/summun/busqueda/normativa/4/tipo' },
 ];
+
+const NORMATIVA_BASE = NORMATIVA.slice();   // catálogo curado que viene en el portal
 
 let filtroNormActivo = '';
 
