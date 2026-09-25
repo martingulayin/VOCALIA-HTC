@@ -296,6 +296,101 @@ main{flex:1;}
 .msg-cuerpo{font-size:.82rem;color:var(--text);line-height:1.65;}
 .lista-empty{text-align:center;padding:3rem;color:var(--muted);font-size:.85rem;font-style:italic;}
 
+/* ══ FORO (Mensajes: comunicados + debates) ══ */
+.foro-sec-label{display:flex;align-items:center;gap:.45rem;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 .5rem;}
+.foro-sec-label .foro-sec-count{font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted);opacity:.8;}
+.foro-box{background:var(--white);border:1px solid var(--border);border-radius:8px;margin-bottom:1.4rem;}
+.foro-com{display:flex;align-items:center;gap:.8rem;padding:.75rem 1rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;}
+.foro-com:last-child{border-bottom:none;}
+.foro-com:hover,.foro-row:hover{background:#F6F9FC;}
+.foro-com.nv-urgente{box-shadow:inset 3px 0 0 var(--red);}
+.foro-com.nv-importante{box-shadow:inset 3px 0 0 #C9963A;}
+.foro-com.nv-informativo{box-shadow:inset 3px 0 0 #2D6A9F;}
+.foro-com-main{flex:1;min-width:0;}
+.foro-com-tit{font-size:.84rem;color:var(--navy);line-height:1.35;}
+.foro-com-meta{font-size:.64rem;color:var(--muted);margin-top:.12rem;}
+.foro-com-side{font-size:.64rem;color:var(--muted);white-space:nowrap;text-align:right;}
+.foro-unread{font-weight:700;}
+.foro-mas{display:block;width:100%;background:none;border:none;border-top:1px solid var(--border);padding:.55rem;font-size:.68rem;font-weight:600;color:var(--gold);cursor:pointer;}
+.foro-mas:hover{background:#F6F9FC;}
+.foro-toolbar{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem;}
+.foro-chip{background:var(--white);border:1px solid var(--border);border-radius:999px;padding:.22rem .7rem;font-size:.66rem;font-weight:600;color:var(--muted);cursor:pointer;}
+.foro-chip.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+.foro-grid{display:grid;grid-template-columns:34px minmax(0,1fr) 170px 170px 78px 34px;gap:.5rem;align-items:center;padding:.7rem .6rem;}
+.foro-head{font-size:.66rem;font-weight:700;color:var(--muted);border-bottom:2px solid var(--border);padding-top:.55rem;padding-bottom:.55rem;}
+.foro-row{border-bottom:1px solid var(--border);cursor:pointer;position:relative;transition:background .12s;}
+.foro-row:last-child{border-bottom:none;}
+.foro-row.fijado{background:rgba(74,158,224,.05);}
+.foro-tema-tit{font-size:.84rem;color:var(--navy);line-height:1.35;}
+.foro-tema-sub{font-size:.64rem;color:var(--muted);margin-top:.15rem;display:none;}
+.foro-persona{display:flex;align-items:center;gap:.5rem;min-width:0;}
+.foro-persona-txt{min-width:0;}
+.foro-persona-nom{font-size:.72rem;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.foro-persona-fec{font-size:.64rem;color:var(--muted);}
+.foro-av{width:30px;height:30px;border-radius:50%;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;}
+.foro-av.sm{width:26px;height:26px;font-size:.66rem;}
+.foro-num{text-align:center;font-size:.82rem;font-weight:600;color:var(--navy);}
+.foro-star,.foro-kebab{background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;line-height:1;padding:.25rem;border-radius:4px;}
+.foro-star.on{color:#C9963A;}
+.foro-star:hover,.foro-kebab:hover{background:var(--cream);color:var(--navy);}
+.foro-pill{display:inline-block;font-size:.56rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:.1rem .4rem;border-radius:3px;vertical-align:middle;margin-left:.3rem;}
+.foro-pill.nuevas{background:rgba(30,107,82,.12);color:var(--green);}
+.foro-pill.cerrado{background:var(--cream);color:var(--muted);border:1px solid var(--border);}
+.foro-pill.fijado{background:rgba(74,158,224,.12);color:#2D6A9F;}
+.foro-pill.debate{background:var(--cream);color:var(--navy);border:1px solid var(--border);}
+.foro-menu-wrap{position:relative;}
+.foro-menu{position:absolute;right:0;top:100%;z-index:30;background:var(--white);border:1px solid var(--border);border-radius:6px;box-shadow:0 6px 20px rgba(15,35,64,.14);min-width:170px;padding:.3rem 0;display:none;}
+.foro-menu.open{display:block;}
+.foro-menu button{display:block;width:100%;text-align:left;background:none;border:none;padding:.45rem .85rem;font-size:.74rem;color:var(--text);cursor:pointer;}
+.foro-menu button:hover{background:var(--cream);}
+.foro-menu button.danger{color:var(--red);}
+.foro-vacio{padding:2rem 1rem;text-align:center;font-size:.8rem;color:var(--muted);}
+/* Vista de tema */
+.foro-tema-bar{display:flex;align-items:center;gap:.5rem;margin-bottom:.9rem;}
+.foro-volver{background:none;border:1px solid var(--border);border-radius:4px;padding:.3rem .7rem;font-size:.7rem;font-weight:600;color:var(--navy);cursor:pointer;}
+.foro-volver:hover{border-color:var(--gold);color:var(--gold);}
+.foro-tema-h{font-size:1.15rem;font-weight:700;color:var(--navy);line-height:1.3;margin:.3rem 0 .9rem;}
+.foro-post{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:.9rem 1.1rem;margin-bottom:.6rem;}
+.foro-post.original{border-left:4px solid var(--navy);}
+.foro-post.original.nv-urgente{border-left-color:var(--red);}
+.foro-post.original.nv-importante{border-left-color:#C9963A;}
+.foro-post.original.nv-informativo{border-left-color:#2D6A9F;}
+.foro-post.nueva{border-color:rgba(30,107,82,.45);}
+.foro-post-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.55rem;}
+.foro-post-autor{font-size:.78rem;font-weight:700;color:var(--navy);}
+.foro-post-fecha{font-size:.64rem;color:var(--muted);}
+.foro-post-body{font-size:.84rem;color:var(--text);line-height:1.65;white-space:pre-wrap;word-wrap:break-word;}
+.foro-post-acc{display:flex;gap:.9rem;margin-top:.6rem;}
+.foro-post-acc button{background:none;border:none;padding:0;font-size:.66rem;font-weight:600;color:var(--muted);cursor:pointer;}
+.foro-post-acc button:hover{color:var(--gold);}
+.foro-post-acc button.danger:hover{color:var(--red);}
+.foro-cita{border-left:3px solid var(--gold);background:var(--cream);border-radius:0;padding:.4rem .7rem;margin-bottom:.55rem;font-size:.74rem;color:var(--muted);line-height:1.5;}
+.foro-cita b{color:var(--navy);}
+.foro-sep-nuevas{display:flex;align-items:center;gap:.6rem;margin:.9rem 0 .6rem;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);}
+.foro-sep-nuevas::before,.foro-sep-nuevas::after{content:"";flex:1;height:1px;background:rgba(30,107,82,.35);}
+.foro-resp-count{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:1.1rem 0 .6rem;}
+.foro-composer{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:.9rem 1.1rem;margin-top:1rem;}
+.foro-composer textarea,.foro-edit textarea{width:100%;padding:.55rem .75rem;font-family:'Inter',sans-serif;font-size:.84rem;border:1.5px solid var(--border);border-radius:6px;outline:none;resize:vertical;color:var(--text);min-height:80px;}
+.foro-composer textarea:focus,.foro-edit textarea:focus{border-color:var(--gold);}
+.foro-composer-foot{display:flex;align-items:center;gap:.6rem;margin-top:.5rem;flex-wrap:wrap;}
+.foro-hint{font-size:.62rem;color:var(--muted);margin-left:auto;}
+.foro-cita-prev{display:flex;align-items:flex-start;gap:.5rem;}
+.foro-cita-prev .foro-cita{flex:1;}
+.foro-cita-x{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;}
+.foro-cerrado-aviso{margin-top:1rem;padding:.8rem 1rem;border:1px dashed var(--border);border-radius:8px;font-size:.78rem;color:var(--muted);text-align:center;}
+.foro-err{font-size:.7rem;color:var(--red);}
+.foro-lbl-corta{display:none;}
+@media(max-width:768px){
+  .foro-grid{grid-template-columns:30px minmax(0,1fr) 44px 30px;}
+  .foro-col-ini,.foro-col-ult{display:none;}
+  .foro-tema-sub{display:block;}
+  .foro-com-side{display:none;}
+  .foro-post{padding:.8rem .85rem;}
+  .foro-hint{display:none;}
+  .foro-lbl-larga{display:none;}
+  .foro-lbl-corta{display:inline;}
+}
+
 /* ══ NOTIFICACIONES TIEMPO REAL ══ */
 .notif-dot{
   position:absolute;top:-4px;right:-4px;width:9px;height:9px;
@@ -1824,10 +1919,10 @@ table td, table th { font-size:.88rem !important; }
 <div id="panel-mensajes" class="tab-panel">
   <div class="seccion-wrap">
     <div class="seccion-header">
-      <div class="seccion-title">Mensajes y Comunicados</div>
-      <button class="btn-accion" onclick="abrirModal('modal-mensaje')">+ Nuevo mensaje</button>
+      <div class="seccion-title">Mensajes</div>
+      <button class="btn-accion" onclick="abrirNuevoTema()">+ Nuevo tema</button>
     </div>
-    <div class="msg-list" id="msg-list"></div>
+    <div id="msg-list"></div>
   </div>
 </div>
 
@@ -3136,17 +3231,23 @@ table td, table th { font-size:.88rem !important; }
   </div>
 </div>
 
-<!-- ══ MODAL MENSAJE ══ -->
+<!-- ══ MODAL MENSAJE (nuevo tema / edición) ══ -->
 <div class="modal-overlay" id="modal-mensaje">
   <div class="modal-box">
     <div class="modal-head">
-      <div class="modal-title">Nuevo comunicado</div>
+      <div class="modal-title">Nuevo tema</div>
       <button class="modal-close" onclick="cerrarModal('modal-mensaje')">✕</button>
     </div>
     <div class="modal-body">
-      <div class="form-field" style="display:none;"><label>Autor / Cargo</label><input type="text" id="m-autor" placeholder="Ej: Dr. Pérez · Vocal"></div>
-      <div class="form-field"><label>Título</label><input type="text" id="m-titulo" placeholder="Asunto del comunicado…"></div>
-      <div class="form-field"><label>Nivel</label>
+      <input type="hidden" id="m-autor">
+      <div class="form-field" id="m-tipo-wrap" style="display:none;"><label>Tipo</label>
+        <select id="m-tipo" onchange="actualizarCamposTema()">
+          <option value="debate">Debate — abierto a la conversación</option>
+          <option value="comunicado">Comunicado oficial — con nivel y control de lectura</option>
+        </select>
+      </div>
+      <div class="form-field"><label>Título</label><input type="text" id="m-titulo" placeholder="Asunto del tema…"></div>
+      <div class="form-field" id="m-nivel-wrap" style="display:none;"><label>Nivel</label>
         <select id="m-nivel">
           <option value="informativo">Informativo</option>
           <option value="importante">Importante</option>
@@ -3155,15 +3256,15 @@ table td, table th { font-size:.88rem !important; }
       </div>
       <div class="form-field"><label>Contenido</label>
         <div id="modal-cuerpo-wrap" style="position:relative;">
-          <textarea id="m-cuerpo" rows="5" placeholder="Texto del comunicado… Usá @nombre para mencionar a alguien"></textarea>
+          <textarea id="m-cuerpo" rows="6" placeholder="Planteá el tema o la consulta… Usá @nombre para mencionar a alguien"></textarea>
           <div style="font-size:.62rem;color:var(--muted);margin-top:.3rem;">💡 Escribí @ para mencionar a un integrante del equipo</div>
         </div>
       </div>
       <div class="form-msg" id="m-msg"></div>
-      <input type="hidden" id="m-edit-idx" value="">
+      <input type="hidden" id="m-edit-id" value="">
     </div>
     <div class="modal-footer">
-      <button class="btn-accion sec" onclick="cerrarModal('modal-mensaje');document.getElementById('m-edit-idx').value='';document.querySelector('#modal-mensaje .modal-title').textContent='Nuevo comunicado';">Cancelar</button>
+      <button class="btn-accion sec" onclick="cerrarModal('modal-mensaje');document.getElementById('m-edit-id').value='';">Cancelar</button>
       <button class="btn-accion" onclick="guardarMensaje()">Publicar</button>
     </div>
   </div>
@@ -3246,6 +3347,26 @@ function esc(v) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
+// ── Borrado verificado ─────────────────────────────────────────────────────
+// Supabase NO devuelve error cuando la seguridad (RLS) impide borrar: responde
+// "ok" con 0 filas afectadas. Por eso se pide la fila borrada de vuelta y se
+// confirma que exista antes de sacarla de la pantalla. Así nada "desaparece"
+// para volver a aparecer al recargar.
+async function borrarRegistro(tabla, columna, valor, etiqueta) {
+  const { data, error } = await sb.from(tabla).delete().eq(columna, valor).select();
+  if(error) {
+    console.error(`Error borrando en ${tabla}:`, error);
+    alert(`No se pudo eliminar ${etiqueta || 'el registro'}: ${error.message}`);
+    return false;
+  }
+  if(!data || !data.length) {
+    console.warn(`Borrado sin efecto en ${tabla} (${columna}=${valor}): sin permiso o inexistente`);
+    alert(`No se pudo eliminar ${etiqueta || 'el registro'}. Es posible que no tengas permiso para borrarlo o que ya no exista. Recargá la página para ver el estado actual.`);
+    return false;
+  }
+  return true;
+}
+
 // Para valores que van dentro de atributos JS inline: onclick="fn('${escJs(x)}')"
 function escJs(v) {
   if (v === null || v === undefined) return '';
@@ -3506,7 +3627,7 @@ function mostrarSugerencias() {
     html += MENSAJES.slice(0,2).map((m,i)=>{
       window._busqAcciones = window._busqAcciones||[];
       const idx = window._busqAcciones.length;
-      window._busqAcciones.push(()=>{switchTab('mensajes');cerrarBuscador();});
+      window._busqAcciones.push(()=>{switchTab('mensajes');abrirTema(m.id);cerrarBuscador();});
       return `<div class="busq-item" onclick="window._busqAcciones[${idx}]()">
         <span class="busq-item-icon">📣</span>
         <div class="busq-item-info"><div class="busq-item-titulo">${esc(m.titulo)}</div><div class="busq-item-meta">${esc(m.fecha)}</div></div>
@@ -3576,15 +3697,16 @@ function mostrarResultados(q) {
   // ── Mensajes ──────────────────────────────────────────────────────────────
   const msgs = MENSAJES.filter(m =>
     norm(m.titulo).includes(ql) || norm(m.cuerpo).includes(ql) ||
-    norm(m.autor||'').includes(ql)
+    norm(m.autor||'').includes(ql) ||
+    (RESPUESTAS[m.id]||[]).some(r => norm(r.texto||'').includes(ql))
   ).slice(0,4);
   if(msgs.length) grupos.push({
     titulo:'Mensajes', items: msgs.map(m => ({
-      icon:'📣',
+      icon: m.tipo === 'debate' ? '💬' : '📣',
       titulo: hl(m.titulo, q),
-      meta: esc(m.autor) + ' · ' + esc(m.fecha),
+      meta: esc(m.autor) + ' · ' + esc(m.fecha) + (m.cantResp ? ' · ' + m.cantResp + ' resp.' : ''),
       tag:'mensaje', tagCls:'busq-tag-mensaje',
-      accion: () => { switchTab('mensajes'); cerrarBuscador(); }
+      accion: () => { switchTab('mensajes'); abrirTema(m.id); cerrarBuscador(); }
     }))
   });
 
@@ -4177,8 +4299,7 @@ async function toggleAviso(id, estadoActual) {
 async function archivarAviso(id, estadoActual) {
   if(estadoActual === 'archivado') {
     if(!confirm('¿Eliminar definitivamente este aviso? No se puede deshacer.')) return;
-    const { error } = await sb.from('avisos').delete().eq('id', id);
-    if(error) { console.error(error); return; }
+    if(!(await borrarRegistro('avisos', 'id', id, 'el aviso'))) return;
     await logAct('eliminar', 'avisos', `Eliminó aviso archivado (id: ${id})`);
   } else {
     if(!confirm('¿Archivar este aviso? Quedará inactivo pero se conservará el registro.')) return;
@@ -4619,45 +4740,107 @@ async function cargarDocs() {
   renderDocs();
 }
 
+// ── Foro: estado ─────────────────────────────────────────────────────────
+// MENSAJES = temas (comunicados + debates). RESPUESTAS = posts de cada hilo.
+let LECTURAS_TEMAS = {};      // { tema_id: ISO de la última vez que abrí el tema }
+let FAVORITOS = new Set();    // tema_ids marcados con ★
+let FORO_TEMA_ACTIVO = null;  // id del tema abierto (null = lista)
+let FORO_LECT_PREV = null;    // lectura anterior del tema abierto (para "nuevas")
+let FORO_FILTRO = 'todos';    // todos | novedades | favoritos | mios
+let FORO_CITA = null;         // id de la respuesta citada en el composer
+let FORO_EDITANDO = null;     // id de la respuesta en edición
+let FORO_VER_TODOS_COM = false;
+
+function _ts(iso) { const t = Date.parse(iso || ''); return isNaN(t) ? 0 : t; }
+
+function mapRespuesta(r) {
+  const d = new Date(r.created_at);
+  return {
+    id: r.id, autor: r.autor_nombre, autorId: r.autor_id || null, texto: r.texto,
+    createdAt: r.created_at, editado: r.editado_at || null, respuestaA: r.respuesta_a || null,
+    fecha: d.toLocaleDateString('es-AR'),
+    hora:  d.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit', hour12:false }),
+  };
+}
+
 async function cargarMensajes() {
-  // Traer mensajes + respuestas + lecturas en paralelo
-  const [{ data, error }, { data: lecturasData }] = await Promise.all([
+  const uid = usuarioActual?.id;
+  const vacio = Promise.resolve({ data: [] });
+  const [{ data, error }, { data: lecturasData }, { data: lectTemas }, { data: favs }] = await Promise.all([
     sb.from('mensajes').select('*, respuestas(*)').order('created_at', { ascending: false }),
     sb.from('lecturas_mensajes').select('mensaje_id, usuario_nombre'),
+    uid ? sb.from('temas_lecturas').select('tema_id, ultima_lectura_at').eq('usuario_id', uid) : vacio,
+    uid ? sb.from('temas_favoritos').select('tema_id').eq('usuario_id', uid) : vacio,
   ]);
   if(error || !data) return;
 
-  // Agrupar lecturas por mensaje_id
+  // "Visto por X de Y" (solo comunicados)
   const lecturasMap = {};
   (lecturasData || []).forEach(l => {
     if(!lecturasMap[l.mensaje_id]) lecturasMap[l.mensaje_id] = [];
     lecturasMap[l.mensaje_id].push({ nombre: l.usuario_nombre });
   });
+  LECTURAS_TEMAS = {};
+  (lectTemas || []).forEach(l => { LECTURAS_TEMAS[l.tema_id] = l.ultima_lectura_at; });
+  FAVORITOS = new Set((favs || []).map(f => f.tema_id));
 
-  MENSAJES = data.map(m => ({
-    id: m.id, autor: m.autor_nombre, cargo: m.cargo||'',
-    nivel: m.nivel, titulo: m.titulo, cuerpo: m.cuerpo,
-    fecha: new Date(m.created_at).toLocaleDateString('es-AR'),
-    lecturas: lecturasMap[m.id] || [],
-    total_usuarios: TOTAL_USUARIOS || 8,
-  }));
+  Object.keys(RESPUESTAS).forEach(k => delete RESPUESTAS[k]);
+  MENSAJES = data.map(m => {
+    const resp = (m.respuestas || []).slice().sort((a,b) => _ts(a.created_at) - _ts(b.created_at));
+    RESPUESTAS[m.id] = resp.map(mapRespuesta);
+    const ult = resp[resp.length - 1];
+    const tipo = m.tipo || 'comunicado';
+    return {
+      id: m.id, autor: m.autor_nombre, autorId: m.autor_id || null, cargo: m.cargo || '',
+      tipo, nivel: tipo === 'comunicado' ? (m.nivel || 'informativo') : null,
+      titulo: m.titulo, cuerpo: m.cuerpo,
+      createdAt: m.created_at, editado: m.editado_at || null,
+      fecha: new Date(m.created_at).toLocaleDateString('es-AR'),
+      fijado: !!m.fijado, cerrado: !!m.cerrado,
+      ultimoAt: ult ? ult.created_at : m.created_at,
+      ultimoAutor: ult ? ult.autor_nombre : m.autor_nombre,
+      cantResp: resp.length,
+      lecturas: lecturasMap[m.id] || [],
+      total_usuarios: TOTAL_USUARIOS || 8,
+    };
+  }).sort((a,b) => _ts(b.ultimoAt) - _ts(a.ultimoAt));
 
-  data.forEach(m => {
-    if(m.respuestas?.length) {
-      RESPUESTAS[m.id] = m.respuestas.map(r => ({
-        autor: r.autor_nombre, texto: r.texto,
-        fecha: new Date(r.created_at).toLocaleDateString('es-AR'),
-        hora:  new Date(r.created_at).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}),
-      }));
-    }
-  });
+  if(FORO_TEMA_ACTIVO && !MENSAJES.find(m => m.id === FORO_TEMA_ACTIVO)) FORO_TEMA_ACTIVO = null;
   renderMensajes();
   actualizarBadgeMensajes();
+  if(typeof renderWidgetsInicio === 'function') renderWidgetsInicio();
+}
+
+function esMio(m) {
+  if(!m) return false;
+  if(m.autorId && usuarioActual?.id) return m.autorId === usuarioActual.id;
+  return m.autor === getUserName();
+}
+function puedeGestionar(m) { return esAdmin() || esMio(m); }
+
+// Respuestas de otros posteriores a mi última lectura del tema
+function nuevasEnTema(m) {
+  const resp = RESPUESTAS[m.id] || [];
+  const lect = LECTURAS_TEMAS[m.id];
+  if(!lect) {
+    // Tema nunca abierto desde que existe el foro: los comunicados ya vistos
+    // no se marcan con "nuevas" (evita que todo lo viejo aparezca sin leer).
+    if(m.tipo === 'comunicado' && (m.lecturas || []).find(l => l.nombre === getUserName())) return 0;
+    return resp.filter(r => !esMio(r)).length;
+  }
+  return resp.filter(r => _ts(r.createdAt) > _ts(lect) && !esMio(r)).length;
+}
+
+function temaNoLeido(m) {
+  if(esMio(m) && !nuevasEnTema(m)) return false;
+  if(m.tipo === 'comunicado') {
+    if(!(m.lecturas || []).find(l => l.nombre === getUserName())) return true;
+  } else if(!LECTURAS_TEMAS[m.id]) return true;
+  return nuevasEnTema(m) > 0;
 }
 
 function contarNoLeidos() {
-  const yo = getUserName();
-  return MENSAJES.filter(m => !m.lecturas || !m.lecturas.find(l => l.nombre === yo)).length;
+  return MENSAJES.filter(temaNoLeido).length;
 }
 
 function actualizarBadgeMensajes() {
@@ -4712,7 +4895,7 @@ eliminarEvento = async function() {
   const ev = REUNIONES[eventoActivoIdx];
   if(!confirm(`¿Eliminás el evento "${esc(ev.asunto)}"?`)) return;
   if(SUPABASE_LISTO && ev.id) {
-    await sb.from('eventos').delete().eq('id', ev.id);
+    if(!(await borrarRegistro('eventos', 'id', ev.id, 'el evento'))) return;
     await logAct('eliminar', 'evento', `Eliminó: ${esc(ev.asunto)}`);
   }
   REUNIONES.splice(eventoActivoIdx, 1);
@@ -4874,7 +5057,7 @@ guardarActividadSede = async function() {
 eliminarDocSede = async function(idx) {
   if(!confirm('¿Eliminás?')) return;
   const doc = SEDE_DOCS[sedeActual][idx];
-  if(SUPABASE_LISTO && doc.id) await sb.from('sede_docs').delete().eq('id', doc.id);
+  if(SUPABASE_LISTO && doc.id && !(await borrarRegistro('sede_docs', 'id', doc.id, 'el documento'))) return;
   await borrarArchivoSiCorresponde(doc.link);
   SEDE_DOCS[sedeActual].splice(idx,1); renderDocsSedeR();
 };
@@ -4883,7 +5066,7 @@ eliminarActSede = async function(idx) {
   if(!confirm('¿Eliminás?')) return;
   const act = SEDE_ACT[sedeActual][idx];
   if(SUPABASE_LISTO && act.id) {
-    await sb.from('sede_actividad').delete().eq('id', act.id);
+    if(!(await borrarRegistro('sede_actividad', 'id', act.id, 'la actividad'))) return;
     if(act.eventoId) {
       await sb.from('eventos').delete().eq('id', act.eventoId);
       const evIdx = REUNIONES.findIndex(r => r.id === act.eventoId);
@@ -4946,7 +5129,7 @@ guardarDocDeleg = async function() {
 eliminarDocDeleg = async function(idx) {
   if(!confirm('¿Eliminás?')) return;
   const doc = DELEG_DOCS[delegActual][idx];
-  if(SUPABASE_LISTO && doc.id) await sb.from('delegacion_docs').delete().eq('id', doc.id);
+  if(SUPABASE_LISTO && doc.id && !(await borrarRegistro('delegacion_docs', 'id', doc.id, 'el documento'))) return;
   await borrarArchivoSiCorresponde(doc.link);
   DELEG_DOCS[delegActual].splice(idx,1); renderDocsDeleg();
 };
@@ -5045,7 +5228,7 @@ eliminarActDeleg = async function(idx) {
   if(!confirm('¿Eliminás?')) return;
   const act = DELEG_ACT[delegActual][idx];
   if(SUPABASE_LISTO && act.id) {
-    await sb.from('delegacion_actividad').delete().eq('id', act.id);
+    if(!(await borrarRegistro('delegacion_actividad', 'id', act.id, 'la actividad'))) return;
     if(act.eventoId) {
       await sb.from('eventos').delete().eq('id', act.eventoId);
       const evIdx = REUNIONES.findIndex(r => r.id === act.eventoId);
@@ -5081,7 +5264,7 @@ guardarPapel = async function() {
 eliminarPapel = async function(idx) {
   if(!confirm('¿Eliminás?')) return;
   const doc = PAPELES[idx];
-  if(SUPABASE_LISTO && doc.id) await sb.from('papeles').delete().eq('id', doc.id);
+  if(SUPABASE_LISTO && doc.id && !(await borrarRegistro('papeles', 'id', doc.id, 'el papel de trabajo'))) return;
   await borrarArchivoSiCorresponde(doc.link);
   PAPELES.splice(idx,1); renderPapeles();
 };
@@ -5111,7 +5294,7 @@ guardarNormativa = async function() {
 eliminarNormativa = async function(id) {
   if(!confirm('¿Eliminás esta normativa?')) return;
   const item = NORMATIVA.find(n => n.id === id);
-  if(SUPABASE_LISTO) await sb.from('normativa').delete().eq('id', id);
+  if(SUPABASE_LISTO && !(await borrarRegistro('normativa', 'id', id, 'la normativa'))) return;
   await borrarArchivoSiCorresponde(item?.link);
   NORMATIVA = NORMATIVA.filter(n => n.id !== id); renderNormativa();
 };
@@ -5204,7 +5387,7 @@ eliminarCap = async function(idx) {
     }
     MATERIAL = MATERIAL.filter(m => m.cap !== cap.id && m.cap_id !== cap.id);
     // Luego eliminar la capacitación
-    await sb.from('capacitaciones').delete().eq('id', cap.id);
+    if(!(await borrarRegistro('capacitaciones', 'id', cap.id, 'la capacitación'))) return;
     if(cap.eventoId) {
       await sb.from('eventos').delete().eq('id', cap.eventoId);
       const evIdx = REUNIONES.findIndex(r => r.id === cap.eventoId);
@@ -5280,8 +5463,7 @@ guardarMaterial = async function() {
 eliminarMaterial = async function(id) {
   if(!confirm('¿Eliminás este material?')) return;
   const item = MATERIAL.find(m => m.id === id);
-  const { error } = await sb.from('material_capacitaciones').delete().eq('id', id);
-  if(error){ alert('Error al eliminar: ' + error.message); return; }
+  if(!(await borrarRegistro('material_capacitaciones', 'id', id, 'el material'))) return;
   await borrarArchivoSiCorresponde(item?.link);
   MATERIAL = MATERIAL.filter(m => m.id !== id);
   await logAct('eliminar','material',`Material ${id} eliminado`);
@@ -5306,11 +5488,14 @@ function renderWidgetsInicio() {
   const nivelCfg = { urgente:{cls:'#C0392B',bg:'rgba(192,57,43,.1)',label:'Urgente'}, importante:{cls:'#C9963A',bg:'rgba(201,150,58,.1)',label:'Importante'}, informativo:{cls:'#4A9EE0',bg:'rgba(74,158,224,.1)',label:'Informativo'} };
   const wm = document.getElementById('widget-mensajes');
   if(wm) wm.innerHTML = MENSAJES.slice(0,3).map(m => {
-    const nv = nivelCfg[m.nivel]||nivelCfg.informativo;
-    return `<div style="padding:.42rem 0;border-bottom:1px solid var(--border);">
+    const nv = m.tipo === 'debate'
+      ? { cls:'#5A7A99', bg:'rgba(90,122,153,.12)', label:'Debate' }
+      : (nivelCfg[m.nivel]||nivelCfg.informativo);
+    const pie = m.cantResp ? `${esc(m.ultimoAutor)} · ${esc(foroFecha(m.ultimoAt))} · 💬 ${m.cantResp}` : esc(foroFecha(m.createdAt));
+    return `<div style="padding:.42rem 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="switchTab('mensajes');abrirTema('${escJs(m.id)}')">
       <span style="font-size:.55rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.1rem .32rem;border-radius:3px;background:${nv.bg};color:${nv.cls};display:inline-block;margin-bottom:.15rem;">${nv.label}</span>
-      <div style="font-size:.72rem;font-weight:600;color:var(--navy);line-height:1.35;">${esc(m.titulo)}</div>
-      <div style="font-size:.6rem;color:var(--muted);margin-top:.06rem;">${esc(m.fecha)}</div>
+      <div style="font-size:.72rem;font-weight:${temaNoLeido(m)?700:600};color:var(--navy);line-height:1.35;">${esc(m.titulo)}</div>
+      <div style="font-size:.6rem;color:var(--muted);margin-top:.06rem;">${pie}</div>
     </div>`;
   }).join('') || '<div style="font-size:.78rem;color:var(--muted);font-style:italic;padding:.5rem 0;">Sin mensajes.</div>';
 
@@ -5353,6 +5538,7 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('panel-'+tab).classList.add('active');
   document.getElementById('tab-'+tab).classList.add('active');
+  if(tab === 'inicio' && typeof renderWidgetsInicio === 'function') renderWidgetsInicio();
 }
 
 
@@ -5441,17 +5627,20 @@ function actualizarPuntoNotif() {
   }
 }
 
-function mostrarBannerNotif(texto) {
+function mostrarBannerNotif(texto, temaId) {
   let banner = document.getElementById('notif-banner-msg');
   if(!banner) {
     banner = document.createElement('div');
     banner.id = 'notif-banner-msg';
     banner.className = 'notif-banner';
-    banner.onclick = () => { banner.remove(); NOTIF_PENDIENTES = 0; actualizarPuntoNotif(); };
     const lista = document.getElementById('msg-list');
     if(lista) lista.parentNode.insertBefore(banner, lista);
   }
-  banner.innerHTML = `<span style="font-size:1rem;">🔔</span> <span><b>Nuevo mensaje</b> — ${esc(texto)}</span> <span style="margin-left:auto;font-size:.65rem;opacity:.7;">Click para ver →</span>`;
+  banner.onclick = () => {
+    banner.remove(); NOTIF_PENDIENTES = 0; actualizarPuntoNotif();
+    if(temaId) { switchTab('mensajes'); abrirTema(temaId); }
+  };
+  banner.innerHTML = `<span style="font-size:1rem;">🔔</span> <span>${esc(texto)}</span> <span style="margin-left:auto;font-size:.65rem;opacity:.7;">Ver →</span>`;
 }
 
 async function marcarLeido(msgId) {
@@ -5563,54 +5752,59 @@ function insertarMencion(taId, nombre) {
 }
 
 // ── Notificaciones reales ────────────────────────────────────────────────────
-// Se llama cuando otro usuario publica un mensaje nuevo (Supabase Realtime
-// o al recibir un INSERT en la tabla mensajes).
-function dispararNotifNuevoMensaje(autorNombre) {
+// Se llama cuando otro usuario abre un tema o responde (Supabase Realtime).
+function dispararNotifNuevoMensaje(texto, temaId) {
   NOTIF_PENDIENTES++;
   actualizarPuntoNotif();
-  mostrarBannerNotif(`${autorNombre} publicó un nuevo comunicado`);
+  mostrarBannerNotif(texto, temaId);
 }
 
-// Suscripción Supabase Realtime: escucha INSERT en mensajes
-// Se inicializa dentro de initSupabase() cuando la conexión está lista.
-// ── Realtime mensajes — se guarda referencia al canal para poder cancelarlo
+// ── Realtime foro — se guarda referencia al canal para poder cancelarlo
 // al cerrar sesión y evitar que eventos de un usuario lleguen al siguiente.
 let _canalMensajes = null;
+let _foroRecargaT = null;
 
 function suscribirMensajesRealtime() {
   if(!SUPABASE_LISTO || !sb) return;
-  // Cancelar suscripción previa si existe (evita duplicados)
-  if(_canalMensajes) {
-    sb.removeChannel(_canalMensajes);
-    _canalMensajes = null;
-  }
-  _canalMensajes = sb.channel('mensajes-nuevos')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensajes' }, payload => {
-      const nuevo = payload.new;
-      const yo = getUserName();
-      if(nuevo.autor_nombre && nuevo.autor_nombre !== yo) {
-        MENSAJES.unshift({
-          id: nuevo.id,
-          autor: nuevo.autor_nombre,
-          cargo: nuevo.cargo || '',
-          nivel: nuevo.nivel,
-          titulo: nuevo.titulo,
-          cuerpo: nuevo.cuerpo,
-          fecha: nuevo.fecha || hoy(),
-          lecturas: [],
-        });
-        renderMensajes();
-        dispararNotifNuevoMensaje(nuevo.autor_nombre);
-      }
-    })
+  if(_canalMensajes) { sb.removeChannel(_canalMensajes); _canalMensajes = null; }
+  _canalMensajes = sb.channel('foro-vocalia')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'mensajes' },   p => onCambioForo('tema', p))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'respuestas' }, p => onCambioForo('resp', p))
     .subscribe();
 }
 
-function cancelarSuscripcionesRealtime() {
-  if(_canalMensajes) {
-    sb.removeChannel(_canalMensajes);
-    _canalMensajes = null;
+function onCambioForo(origen, p) {
+  const nuevo = p.new || {};
+  const yo = getUserName();
+  if(p.eventType === 'INSERT' && nuevo.autor_nombre && nuevo.autor_nombre !== yo) {
+    if(origen === 'tema') {
+      const txt = nuevo.tipo === 'comunicado'
+        ? `${nuevo.autor_nombre} publicó un comunicado: «${nuevo.titulo}»`
+        : `${nuevo.autor_nombre} abrió el debate «${nuevo.titulo}»`;
+      dispararNotifNuevoMensaje(txt, nuevo.id);
+    } else if(FORO_TEMA_ACTIVO !== nuevo.mensaje_id) {
+      const t = MENSAJES.find(x => x.id === nuevo.mensaje_id);
+      dispararNotifNuevoMensaje(`${nuevo.autor_nombre} respondió en «${t ? t.titulo : 'un tema'}»`, nuevo.mensaje_id);
+    }
   }
+  // Varios eventos juntos (ej. respuesta + trigger que actualiza el tema) → una sola recarga
+  clearTimeout(_foroRecargaT);
+  _foroRecargaT = setTimeout(async () => {
+    await cargarMensajes();
+    // Si estoy mirando el tema, lo nuevo ya queda leído
+    const panel = document.getElementById('panel-mensajes');
+    const m = FORO_TEMA_ACTIVO && MENSAJES.find(x => x.id === FORO_TEMA_ACTIVO);
+    if(m && panel?.classList.contains('active') && !document.hidden) registrarLecturaTema(m);
+  }, 500);
+}
+
+function cancelarSuscripcionesRealtime() {
+  if(_canalMensajes) { sb.removeChannel(_canalMensajes); _canalMensajes = null; }
+  clearTimeout(_foroRecargaT);
+  // Limpiar estado del foro para que no pase al próximo usuario
+  LECTURAS_TEMAS = {}; FAVORITOS = new Set();
+  FORO_TEMA_ACTIVO = null; FORO_LECT_PREV = null; FORO_CITA = null; FORO_EDITANDO = null;
+  FORO_FILTRO = 'todos';
 }
 
 function getUserName() {
@@ -5619,194 +5813,477 @@ function getUserName() {
   return document.getElementById('topbar-username')?.textContent?.trim() || 'Usuario';
 }
 
-function renderRespuestas(msgId) {
-  const resp = RESPUESTAS[msgId] || [];
-  if(!resp.length) return '';
-  return `<div style="margin-top:.8rem;padding:.7rem .9rem;background:var(--cream);border-radius:6px;border-left:2px solid var(--gold);">
-    <div style="font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;">
-      💬 ${resp.length} respuesta${resp.length>1?'s':''}
+// ══ FORO: helpers de presentación ════════════════════════════════════════
+const FORO_NIVEL = {
+  urgente:     { cls:'nb-urgente',     badge:'🔴 Urgente' },
+  importante:  { cls:'nb-importante',  badge:'🟡 Importante' },
+  informativo: { cls:'nb-informativo', badge:'🔵 Informativo' },
+};
+
+function foroFecha(iso) {
+  const d = new Date(iso);
+  if(isNaN(d)) return '';
+  const hoyD = new Date(); hoyD.setHours(0,0,0,0);
+  const dia = new Date(d); dia.setHours(0,0,0,0);
+  const hora = d.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit', hour12:false });
+  const dif = Math.round((hoyD - dia) / 86400000);
+  if(dif === 0) return 'hoy ' + hora;
+  if(dif === 1) return 'ayer ' + hora;
+  const opts = { day:'numeric', month:'short' };
+  if(d.getFullYear() !== hoyD.getFullYear()) opts.year = 'numeric';
+  return d.toLocaleDateString('es-AR', opts).replace('.', '');
+}
+
+function foroInicial(n) { return esc(String(n || '?').trim().charAt(0).toUpperCase()); }
+
+function foroPersona(nombre, iso) {
+  return `<div class="foro-persona">
+    <div class="foro-av">${foroInicial(nombre)}</div>
+    <div class="foro-persona-txt">
+      <div class="foro-persona-nom" title="${esc(nombre)}">${esc(nombre)}</div>
+      <div class="foro-persona-fec">${esc(foroFecha(iso))}</div>
     </div>
-    ${resp.map((r,i)=>`
-      <div style="display:flex;gap:.6rem;margin-bottom:.55rem;align-items:flex-start;">
-        <div style="width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--gold);flex-shrink:0;">${esc(String(r.autor||'?').charAt(0).toUpperCase())}</div>
-        <div style="flex:1;background:var(--white);border:1px solid var(--border);border-radius:6px;padding:.5rem .7rem;">
-          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;">
-            <span style="font-size:.75rem;font-weight:700;color:var(--navy);">${esc(r.autor)}</span>
-            <span style="font-size:.6rem;color:var(--muted);">${esc(r.fecha)} ${esc(r.hora)}</span>
-          </div>
-          <div style="font-size:.8rem;color:var(--text);line-height:1.55;">${parsearMenciones(r.texto||'')}</div>
-        </div>
-      </div>`).join('')}
   </div>`;
 }
 
-function toggleRespuesta(msgId) {
-  const form = document.getElementById('resp-form-'+msgId);
-  if(!form) return;
-  const visible = form.style.display !== 'none';
-  form.style.display = visible ? 'none' : 'block';
-  if(!visible) {
-    const ta = document.getElementById('resp-text-'+msgId);
-    if(ta) { ta.focus(); ta.placeholder = `Respondé como ${getUserName()}…`; }
+function foroMenuTema(m) {
+  if(!puedeGestionar(m)) return '';
+  const id = escJs(m.id);
+  let items = `<button onclick="editarMensaje('${id}')">✏️ Editar</button>`;
+  if(esAdmin()) items += `<button onclick="toggleFijarTema('${id}')">📌 ${m.fijado ? 'Desfijar' : 'Fijar arriba'}</button>`;
+  items += `<button onclick="toggleCerrarTema('${id}')">${m.cerrado ? '🔓 Reabrir tema' : '🔒 Cerrar a respuestas'}</button>`;
+  items += `<button class="danger" onclick="eliminarMensaje('${id}')">🗑 Eliminar</button>`;
+  return `<div class="foro-menu-wrap" onclick="event.stopPropagation();if(event.target.closest('.foro-menu button'))this.querySelector('.foro-menu').classList.remove('open')">
+    <button class="foro-kebab" aria-label="Acciones del tema" onclick="toggleMenuTema('${id}')">⋮</button>
+    <div class="foro-menu" id="foro-menu-${esc(m.id)}">${items}</div>
+  </div>`;
+}
+
+function toggleMenuTema(id) {
+  const menu = document.getElementById('foro-menu-' + id);
+  const abrir = menu && !menu.classList.contains('open');
+  document.querySelectorAll('.foro-menu.open').forEach(x => x.classList.remove('open'));
+  if(abrir) menu.classList.add('open');
+}
+document.addEventListener('click', () => {
+  document.querySelectorAll('.foro-menu.open').forEach(x => x.classList.remove('open'));
+});
+
+// ══ RENDER PRINCIPAL ═════════════════════════════════════════════════════
+function renderMensajes() {
+  const cont = document.getElementById('msg-list');
+  if(!cont) return;
+  document.querySelectorAll('.foro-menu.open').forEach(x => x.classList.remove('open'));
+  const tema = FORO_TEMA_ACTIVO ? MENSAJES.find(m => m.id === FORO_TEMA_ACTIVO) : null;
+  if(tema) renderTema(cont, tema);
+  else { FORO_TEMA_ACTIVO = null; renderListaTemas(cont); }
+  actualizarBadgeMensajes();
+}
+
+// ── Lista: comunicados fijados arriba + tabla de debates ─────────────────
+function renderListaTemas(cont) {
+  const LIM_COM = 4;
+  const coms = MENSAJES.filter(m => m.tipo === 'comunicado').sort((a,b) =>
+    (b.fijado - a.fijado) || (temaNoLeido(b) - temaNoLeido(a)) || (_ts(b.createdAt) - _ts(a.createdAt)));
+  const comsVis = FORO_VER_TODOS_COM ? coms : coms.slice(0, LIM_COM);
+
+  let html = '';
+  if(coms.length) {
+    html += `<div class="foro-sec-label">📌 Comunicados oficiales <span class="foro-sec-count">· ${coms.length}</span></div>
+    <div class="foro-box">
+      ${comsVis.map(m => {
+        const nv = FORO_NIVEL[m.nivel] || FORO_NIVEL.informativo;
+        const noLeido = temaNoLeido(m);
+        const nuevas = nuevasEnTema(m);
+        const vistos = (m.lecturas || []).length;
+        const total = TOTAL_USUARIOS || m.total_usuarios || 8;
+        return `<div class="foro-com nv-${esc(m.nivel)}" onclick="abrirTema('${escJs(m.id)}')">
+          <span class="nivel-badge ${nv.cls}">${nv.badge}</span>
+          <div class="foro-com-main">
+            <div class="foro-com-tit ${noLeido ? 'foro-unread' : ''}">${esc(m.titulo)}${m.fijado ? '<span class="foro-pill fijado">Fijado</span>' : ''}${nuevas ? `<span class="foro-pill nuevas">${nuevas} nueva${nuevas > 1 ? 's' : ''}</span>` : ''}</div>
+            <div class="foro-com-meta">${esc(m.autor)} · ${esc(foroFecha(m.createdAt))}${m.cantResp ? ` · 💬 ${m.cantResp}` : ''}</div>
+          </div>
+          <div class="foro-com-side">Visto por <b>${vistos}</b> de <b>${total}</b></div>
+          ${foroMenuTema(m)}
+        </div>`;
+      }).join('')}
+      ${coms.length > LIM_COM ? `<button class="foro-mas" onclick="FORO_VER_TODOS_COM=!FORO_VER_TODOS_COM;renderMensajes()">${FORO_VER_TODOS_COM ? 'Mostrar menos' : `Ver comunicados anteriores (${coms.length - LIM_COM})`}</button>` : ''}
+    </div>`;
+  }
+
+  // Debates
+  const todos = MENSAJES.filter(m => m.tipo === 'debate');
+  const filtros = {
+    todos:     () => true,
+    novedades: m => temaNoLeido(m),
+    favoritos: m => FAVORITOS.has(m.id),
+    mios:      m => esMio(m),
+  };
+  const debates = todos.filter(filtros[FORO_FILTRO] || filtros.todos)
+    .sort((a,b) => (b.fijado - a.fijado) || (_ts(b.ultimoAt) - _ts(a.ultimoAt)));
+  const chip = (k, label) => `<button class="foro-chip ${FORO_FILTRO === k ? 'on' : ''}" onclick="FORO_FILTRO='${k}';renderMensajes()">${label}</button>`;
+  const nNov = todos.filter(temaNoLeido).length;
+
+  html += `<div class="foro-sec-label">💬 Debates <span class="foro-sec-count">· ${todos.length}</span></div>
+  <div class="foro-toolbar">
+    ${chip('todos','Todos')}${chip('novedades', 'Con novedades' + (nNov ? ` (${nNov})` : ''))}${chip('favoritos','★ Favoritos')}${chip('mios','Iniciados por mí')}
+  </div>
+  <div class="foro-box">
+    <div class="foro-grid foro-head">
+      <span></span><span>Tema</span><span class="foro-col-ini">Iniciado por</span><span class="foro-col-ult">Último mensaje ↓</span><span class="foro-num" style="font-size:.66rem;font-weight:700;color:var(--muted);"><span class="foro-lbl-larga">Respuestas</span><span class="foro-lbl-corta">💬</span></span><span></span>
+    </div>
+    ${debates.map(m => {
+      const fav = FAVORITOS.has(m.id);
+      const noLeido = temaNoLeido(m);
+      const nuevas = nuevasEnTema(m);
+      const esNuevo = !LECTURAS_TEMAS[m.id] && !esMio(m);
+      return `<div class="foro-grid foro-row ${m.fijado ? 'fijado' : ''}" onclick="abrirTema('${escJs(m.id)}')">
+        <button class="foro-star ${fav ? 'on' : ''}" aria-label="${fav ? 'Quitar de favoritos' : 'Marcar como favorito'}" title="${fav ? 'Quitar de favoritos' : 'Marcar como favorito'}" onclick="toggleFavorito('${escJs(m.id)}', event)">${fav ? '★' : '☆'}</button>
+        <div style="min-width:0;">
+          <div class="foro-tema-tit ${noLeido ? 'foro-unread' : ''}">${m.fijado ? '📌 ' : ''}${esc(m.titulo)}${esNuevo ? '<span class="foro-pill nuevas">Nuevo</span>' : (nuevas ? `<span class="foro-pill nuevas">${nuevas} nueva${nuevas > 1 ? 's' : ''}</span>` : '')}${m.cerrado ? '<span class="foro-pill cerrado">🔒 Cerrado</span>' : ''}</div>
+          <div class="foro-tema-sub">${esc(m.autor)} · último: ${esc(m.ultimoAutor)}, ${esc(foroFecha(m.ultimoAt))}</div>
+        </div>
+        <div class="foro-col-ini">${foroPersona(m.autor, m.createdAt)}</div>
+        <div class="foro-col-ult">${foroPersona(m.ultimoAutor, m.ultimoAt)}</div>
+        <div class="foro-num">${m.cantResp}</div>
+        <div>${foroMenuTema(m)}</div>
+      </div>`;
+    }).join('') || `<div class="foro-vacio">${FORO_FILTRO === 'todos'
+        ? 'Todavía no hay debates. Abrí el primero con “+ Nuevo tema”.'
+        : 'No hay temas en este filtro.'}</div>`}
+  </div>`;
+
+  cont.innerHTML = html;
+}
+
+// ── Vista de un tema: post original + hilo + caja de respuesta ───────────
+function renderTema(cont, m) {
+  // Conservar lo que el usuario esté escribiendo si la vista se refresca
+  const taPrev = document.getElementById('foro-resp-text');
+  const borrador = taPrev ? taPrev.value : '';
+  const teniaFoco = taPrev && document.activeElement === taPrev;
+  const edPrev = document.getElementById('foro-edit-text');
+  const borradorEd = edPrev && edPrev.dataset.id === String(FORO_EDITANDO) ? edPrev.value : null;
+
+  const resp = RESPUESTAS[m.id] || [];
+  const porId = {}; resp.forEach(r => porId[r.id] = r);
+  const nv = m.tipo === 'comunicado' ? (FORO_NIVEL[m.nivel] || FORO_NIVEL.informativo) : null;
+  const fav = FAVORITOS.has(m.id);
+  const puedeResponder = !m.cerrado || esAdmin();
+  const corte = FORO_LECT_PREV ? _ts(FORO_LECT_PREV) : null;
+  let sepPuesto = false;
+
+  const postsHtml = resp.map(r => {
+    let sep = '';
+    const esNueva = corte !== null && _ts(r.createdAt) > corte && !esMio(r);
+    if(esNueva && !sepPuesto) { sep = '<div class="foro-sep-nuevas">Nuevas desde tu última visita</div>'; sepPuesto = true; }
+    const citada = r.respuestaA ? porId[r.respuestaA] : null;
+    const cita = r.respuestaA ? `<div class="foro-cita">${citada
+        ? `<b>${esc(citada.autor)}</b> escribió: ${esc(recortar(citada.texto, 180))}`
+        : '<i>Mensaje citado eliminado</i>'}</div>` : '';
+    const editando = FORO_EDITANDO === r.id;
+    const cuerpo = editando
+      ? `<div class="foro-edit">
+          <textarea id="foro-edit-text" data-id="${esc(r.id)}" rows="3">${esc(borradorEd !== null ? borradorEd : r.texto)}</textarea>
+          <div class="foro-composer-foot">
+            <button class="btn-accion" style="font-size:.7rem;padding:.35rem .8rem;" onclick="guardarEdicionRespuesta('${escJs(r.id)}')">Guardar</button>
+            <button class="foro-volver" onclick="FORO_EDITANDO=null;renderMensajes()">Cancelar</button>
+          </div>
+        </div>`
+      : `<div class="foro-post-body">${parsearMenciones(r.texto || '')}</div>`;
+    const acciones = editando ? '' : `<div class="foro-post-acc">
+        ${puedeResponder ? `<button onclick="citarRespuesta('${escJs(r.id)}')">↩ Citar</button>` : ''}
+        ${puedeGestionar(r) ? `<button onclick="FORO_EDITANDO='${escJs(r.id)}';renderMensajes()">✏️ Editar</button>
+        <button class="danger" onclick="eliminarRespuesta('${escJs(r.id)}')">🗑 Eliminar</button>` : ''}
+      </div>`;
+    return `${sep}<div class="foro-post ${esNueva ? 'nueva' : ''}" id="foro-post-${esc(r.id)}">
+      <div class="foro-post-head">
+        <div class="foro-av sm">${foroInicial(r.autor)}</div>
+        <div><div class="foro-post-autor">${esc(r.autor)}</div>
+        <div class="foro-post-fecha">${esc(foroFecha(r.createdAt))}${r.editado ? ' · editado' : ''}</div></div>
+      </div>
+      ${cita}${cuerpo}${acciones}
+    </div>`;
+  }).join('');
+
+  const citaPrev = FORO_CITA && porId[FORO_CITA] ? `<div class="foro-cita-prev">
+      <div class="foro-cita"><b>${esc(porId[FORO_CITA].autor)}</b> escribió: ${esc(recortar(porId[FORO_CITA].texto, 180))}</div>
+      <button class="foro-cita-x" aria-label="Quitar cita" onclick="FORO_CITA=null;renderMensajes()">✕</button>
+    </div>` : '';
+
+  cont.innerHTML = `
+    <div class="foro-tema-bar">
+      <button class="foro-volver" onclick="volverATemas()">← Volver a temas</button>
+      <span style="flex:1;"></span>
+      <button class="foro-star ${fav ? 'on' : ''}" aria-label="Favorito" title="${fav ? 'Quitar de favoritos' : 'Marcar como favorito'}" onclick="toggleFavorito('${escJs(m.id)}', event)">${fav ? '★' : '☆'}</button>
+      ${foroMenuTema(m)}
+    </div>
+    <div>
+      ${nv ? `<span class="nivel-badge ${nv.cls}">${nv.badge}</span>` : '<span class="foro-pill debate" style="margin-left:0;">Debate</span>'}
+      ${m.fijado ? '<span class="foro-pill fijado">📌 Fijado</span>' : ''}
+      ${m.cerrado ? '<span class="foro-pill cerrado">🔒 Cerrado</span>' : ''}
+    </div>
+    <div class="foro-tema-h">${esc(m.titulo)}</div>
+
+    <div class="foro-post original ${nv ? 'nv-' + esc(m.nivel) : ''}">
+      <div class="foro-post-head">
+        <div class="foro-av">${foroInicial(m.autor)}</div>
+        <div><div class="foro-post-autor">${esc(m.autor)}</div>
+        <div class="foro-post-fecha">${m.cargo ? esc(m.cargo) + ' · ' : ''}${esc(foroFecha(m.createdAt))}${m.editado ? ' · editado' : ''}</div></div>
+      </div>
+      <div class="foro-post-body">${parsearMenciones(m.cuerpo || '')}</div>
+      ${m.tipo === 'comunicado' ? renderLecturas(m) : ''}
+    </div>
+
+    <div class="foro-resp-count">${resp.length ? `💬 ${resp.length} respuesta${resp.length > 1 ? 's' : ''}` : 'Sin respuestas todavía'}</div>
+    ${postsHtml}
+
+    ${puedeResponder ? `<div class="foro-composer" id="foro-composer">
+      ${m.cerrado ? '<div class="foro-err" style="margin-bottom:.4rem;">El tema está cerrado; respondés como administrador.</div>' : ''}
+      ${citaPrev}
+      <div id="foro-resp-wrap" style="position:relative;">
+        <textarea id="foro-resp-text" rows="3" placeholder="Escribí tu respuesta… Usá @nombre para mencionar a alguien"
+          onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter')enviarRespuestaForo()"
+          oninput="document.getElementById('foro-resp-err').textContent=''"></textarea>
+      </div>
+      <div class="foro-composer-foot">
+        <button class="btn-accion" id="foro-resp-btn" onclick="enviarRespuestaForo()">Responder</button>
+        <span class="foro-err" id="foro-resp-err"></span>
+        <span class="foro-hint">@ para mencionar · Ctrl+Enter para enviar</span>
+      </div>
+    </div>` : '<div class="foro-cerrado-aviso">🔒 Este tema está cerrado a nuevas respuestas.</div>'}
+  `;
+
+  const ta = document.getElementById('foro-resp-text');
+  if(ta) {
+    ta.value = borrador;
+    initMencionesTextarea('foro-resp-text', 'foro-resp-wrap');
+    if(teniaFoco) ta.focus();
   }
 }
 
-async function enviarRespuestaIdx(domIdx) {
-  const m = MENSAJES[domIdx];
+function recortar(t, n) { t = String(t || '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n) + '…' : t; }
+
+// ══ NAVEGACIÓN ═══════════════════════════════════════════════════════════
+function abrirTema(id) {
+  const m = MENSAJES.find(x => x.id === id);
   if(!m) return;
-  const msgId = m.id || domIdx;
-  const ta = document.getElementById('resp-text-'+domIdx);
-  if(!ta || !ta.value.trim()) return;
-  const texto = ta.value.trim();
-  if(!RESPUESTAS[msgId]) RESPUESTAS[msgId] = [];
-  if(SUPABASE_LISTO) {
-    const { error } = await sb.from('respuestas').insert({
-      mensaje_id: msgId, texto,
-      autor_nombre: getUserName(),
-      autor_id: usuarioActual?.id,
-    });
-    if(!error) {
-      RESPUESTAS[msgId].push({ autor: getUserName(), texto, fecha: hoy(), hora: new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) });
-    } else {
-      console.error('Error respuesta:', error);
-    }
-  } else {
-    RESPUESTAS[msgId].push({ autor: getUserName(), texto, fecha: hoy(), hora: new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) });
-  }
-  ta.value = '';
-  document.getElementById('resp-form-'+domIdx).style.display = 'none';
+  FORO_TEMA_ACTIVO = id;
+  FORO_LECT_PREV = LECTURAS_TEMAS[id] || null;
+  // Si nunca lo abrí pero ya lo había "visto" (comunicado viejo), no marcar todo como nuevo
+  if(!FORO_LECT_PREV && !nuevasEnTema(m)) FORO_LECT_PREV = m.ultimoAt;
+  FORO_CITA = null; FORO_EDITANDO = null;
+  renderMensajes();
+  const panel = document.getElementById('panel-mensajes');
+  if(panel) window.scrollTo({ top: Math.max(0, panel.getBoundingClientRect().top + window.scrollY - 90), behavior: 'smooth' });
+  registrarLecturaTema(m);
+  if(m.tipo === 'comunicado') marcarLeido(m.id);
+}
+
+function volverATemas() {
+  FORO_TEMA_ACTIVO = null; FORO_LECT_PREV = null; FORO_CITA = null; FORO_EDITANDO = null;
   renderMensajes();
 }
 
-async function enviarRespuesta(msgId) {
-  // Buscar el índice por id
-  const idx = MENSAJES.findIndex(m => (m.id||m) === msgId);
-  if(idx >= 0) enviarRespuestaIdx(idx);
+async function registrarLecturaTema(m) {
+  if(!m || !usuarioActual?.id) return;
+  const ts = new Date(Math.max(Date.now(), _ts(m.ultimoAt))).toISOString();
+  LECTURAS_TEMAS[m.id] = ts;
+  actualizarBadgeMensajes();
+  const { error } = await sb.from('temas_lecturas').upsert(
+    { usuario_id: usuarioActual.id, tema_id: m.id, ultima_lectura_at: ts },
+    { onConflict: 'usuario_id,tema_id' });
+  if(error) console.error('Error registrando lectura del tema:', error);
 }
 
-async function guardarMensaje() {
-  const autor  = document.getElementById('m-autor').value.trim();
-  const titulo = document.getElementById('m-titulo').value.trim();
-  const nivel  = document.getElementById('m-nivel').value;
-  const cuerpo = document.getElementById('m-cuerpo').value.trim();
-  if(!titulo||!cuerpo){ setMsg('m-msg','Completá título y contenido.','err'); return; }
-
-  const btn = document.querySelector('#modal-mensaje .btn-accion:not(.sec)');
-  if(btn) { btn.disabled = true; btn.textContent = 'Guardando…'; }
-
-  try {
-    const editIdx = document.getElementById('m-edit-idx').value;
-    if(editIdx !== '') {
-      const m = MENSAJES[parseInt(editIdx)];
-      if(m.id && SUPABASE_LISTO) {
-        const { error } = await sb.from('mensajes').update({ titulo, nivel, cuerpo }).eq('id', m.id);
-        if(error) throw error;
-      }
-      MENSAJES[parseInt(editIdx)] = { ...m, autor: autor||getUserName(), titulo, nivel, cuerpo };
-      setMsg('m-msg','✅ Mensaje actualizado.','ok');
-    } else {
-      if(SUPABASE_LISTO) {
-        const { data, error } = await sb.from('mensajes').insert({
-          autor_nombre: autor||getUserName(), cargo: perfilActual?.cargo || '',
-          nivel, titulo, cuerpo, autor_id: usuarioActual?.id,
-        }).select().single();
-        if(error) throw error;
-        if(data) MENSAJES.unshift({ id:data.id, autor:data.autor_nombre, cargo:data.cargo||'', nivel, titulo, cuerpo, fecha: hoy() });
-      } else {
-        MENSAJES.unshift({ id: Date.now(), autor: autor||'Autoridad', cargo:'Vocalía Municipalidades "B"', nivel, titulo, cuerpo, fecha: hoy() });
-      }
-      setMsg('m-msg','✅ Mensaje publicado.','ok');
-    }
-    setTimeout(()=>{ cerrarModal('modal-mensaje'); renderMensajes(); limpiar(['m-autor','m-titulo','m-cuerpo']); document.getElementById('m-edit-idx').value=''; setMsg('m-msg','',''); },1100);
-  } catch(e) {
-    console.error('Error guardando mensaje:', e);
-    setMsg('m-msg','No se pudo guardar el mensaje. Intentá de nuevo.','err');
-  } finally {
-    if(btn) { btn.disabled = false; btn.textContent = 'Publicar'; }
+// ══ ACCIONES SOBRE TEMAS ═════════════════════════════════════════════════
+async function toggleFavorito(id, ev) {
+  if(ev) ev.stopPropagation();
+  if(!usuarioActual?.id) return;
+  const era = FAVORITOS.has(id);
+  era ? FAVORITOS.delete(id) : FAVORITOS.add(id);
+  renderMensajes();
+  const q = era
+    ? sb.from('temas_favoritos').delete().eq('usuario_id', usuarioActual.id).eq('tema_id', id)
+    : sb.from('temas_favoritos').insert({ usuario_id: usuarioActual.id, tema_id: id });
+  const { error } = await q;
+  if(error && error.code !== '23505') {
+    console.error('Error favorito:', error);
+    era ? FAVORITOS.add(id) : FAVORITOS.delete(id);
+    renderMensajes();
   }
 }
 
-function renderMensajes() {
-  const nivelCfg = {
-    urgente:    { cls:'nb-urgente',    badge:'🔴 Urgente' },
-    importante: { cls:'nb-importante', badge:'🟡 Importante' },
-    informativo:{ cls:'nb-informativo',badge:'🔵 Informativo' }
-  };
-  document.getElementById('msg-list').innerHTML = MENSAJES.map((m,idx) => {
-    const nv = nivelCfg[m.nivel]||nivelCfg.informativo;
-    const msgId = m.id || idx;
-    const domId = idx; // usar índice numérico para el DOM
-    const nResp = (RESPUESTAS[msgId]||[]).length;
-    return `<div class="msg-card nv-${esc(m.nivel)}">
-      <div class="msg-header">
-        <div class="msg-avatar">🎙️</div>
-        <div class="msg-meta">
-          <div class="msg-autor">${esc(m.autor)}</div>
-          <div class="msg-cargo">${esc(m.cargo)}</div>
-        </div>
-        <span class="nivel-badge ${nv.cls}">${nv.badge}</span>
-        <div class="msg-fecha">${esc(m.fecha)}</div>
-      </div>
-      <div class="msg-titulo">${esc(m.titulo)}</div>
-      <div class="msg-cuerpo">${parsearMenciones(m.cuerpo||'')}</div>
-
-      ${renderRespuestas(msgId)}
-
-      <!-- Form de respuesta (oculto por defecto) -->
-      <div id="resp-form-${domId}" style="display:none;margin-top:.7rem;">
-        <div style="display:flex;gap:.5rem;align-items:flex-start;">
-          <div style="width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--gold);flex-shrink:0;">${esc(String(getUserName()||'?').charAt(0).toUpperCase())}</div>
-          <div id="resp-wrap-${domId}" style="flex:1;position:relative;">
-            <textarea id="resp-text-${domId}" rows="2"
-              placeholder="Escribí tu respuesta… Usá @nombre para mencionar a alguien"
-              style="width:100%;padding:.5rem .7rem;font-family:'Inter',sans-serif;font-size:.82rem;border:1.5px solid var(--gold);border-radius:6px;outline:none;resize:vertical;color:var(--text);"
-              onkeydown="if(event.ctrlKey&&event.key==='Enter')enviarRespuestaIdx(${domId})"></textarea>
-            <div style="display:flex;align-items:center;gap:.5rem;margin-top:.35rem;">
-              <button onclick="enviarRespuestaIdx(${domId})" class="btn-accion" style="font-size:.7rem;padding:.35rem .8rem;">Enviar</button>
-              <button onclick="toggleRespuesta(${domId})" style="background:none;border:none;font-size:.7rem;color:var(--muted);cursor:pointer;">Cancelar</button>
-              <span style="font-size:.62rem;color:var(--muted);margin-left:auto;">@ para mencionar · Ctrl+Enter para enviar</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Acciones del mensaje -->
-      <div style="display:flex;gap:.5rem;margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--border);align-items:center;flex-wrap:wrap;">
-        <button onclick="toggleRespuesta(${domId})" style="display:inline-flex;align-items:center;gap:.3rem;background:none;border:1px solid var(--border);border-radius:4px;padding:.22rem .6rem;font-size:.65rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:all .15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
-          💬 Responder${nResp>0?' ('+nResp+')':''}
-        </button>
-        <button onclick="editarMensaje(${idx})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.22rem .6rem;font-size:.65rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:all .15s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">✏️ Editar</button>
-        <button onclick="eliminarMensaje(${idx})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.22rem .6rem;font-size:.65rem;font-weight:600;color:var(--muted);cursor:pointer;letter-spacing:.04em;text-transform:uppercase;transition:all .15s;" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">🗑 Eliminar</button>
-      </div>
-      ${renderLecturas(m)}
-    </div>`;
-  }).join('') || '<div class="lista-empty">No hay mensajes publicados.</div>';
-  actualizarBadgeMensajes();
-  // Inicializar menciones en todos los textareas de respuesta
-  MENSAJES.forEach((m, idx) => {
-    initMencionesTextarea('resp-text-'+idx, 'resp-wrap-'+idx);
-  });
+async function toggleFijarTema(id) {
+  const m = MENSAJES.find(x => x.id === id);
+  if(!m || !esAdmin()) return;
+  const { error } = await sb.from('mensajes').update({ fijado: !m.fijado }).eq('id', id);
+  if(error) { alert('No se pudo actualizar el tema.'); console.error(error); return; }
+  await logAct(m.fijado ? 'desfijar' : 'fijar', 'mensajes', m.titulo);
+  await cargarMensajes();
 }
 
-function editarMensaje(idx) {
-  const m = MENSAJES[idx];
-  document.getElementById('m-autor').value  = m.autor;
-  document.getElementById('m-titulo').value = m.titulo;
-  document.getElementById('m-nivel').value  = m.nivel;
-  document.getElementById('m-cuerpo').value = m.cuerpo;
-  document.getElementById('m-edit-idx').value = idx;
-  document.querySelector('#modal-mensaje .modal-title').textContent = 'Editar comunicado';
+async function toggleCerrarTema(id) {
+  const m = MENSAJES.find(x => x.id === id);
+  if(!m || !puedeGestionar(m)) return;
+  const { error } = await sb.from('mensajes').update({ cerrado: !m.cerrado }).eq('id', id);
+  if(error) { alert('No se pudo actualizar el tema.'); console.error(error); return; }
+  await cargarMensajes();
+}
+
+function abrirNuevoTema() {
+  limpiar(['m-autor','m-titulo','m-cuerpo']);
+  document.getElementById('m-edit-id').value = '';
+  document.getElementById('m-tipo').value = 'debate';
+  document.getElementById('m-nivel').value = 'informativo';
+  document.querySelector('#modal-mensaje .modal-title').textContent = 'Nuevo tema';
+  document.querySelector('#modal-mensaje .modal-footer .btn-accion:not(.sec)').textContent = 'Publicar';
+  setMsg('m-msg','','');
+  actualizarCamposTema();
   abrirModal('modal-mensaje');
 }
 
-async function eliminarMensaje(idx) {
-  if(!confirm(`¿Eliminás "${MENSAJES[idx].titulo}"?`)) return;
-  if(SUPABASE_LISTO && MENSAJES[idx].id) {
-    await sb.from('mensajes').delete().eq('id', MENSAJES[idx].id);
-    await logAct('eliminar', 'mensajes', `Eliminó: ${MENSAJES[idx].titulo}`);
+// Muestra el selector de tipo solo al admin y el nivel solo para comunicados
+function actualizarCamposTema() {
+  const tipoWrap = document.getElementById('m-tipo-wrap');
+  const nivelWrap = document.getElementById('m-nivel-wrap');
+  const tipo = document.getElementById('m-tipo').value;
+  if(tipoWrap) tipoWrap.style.display = esAdmin() ? '' : 'none';
+  if(nivelWrap) nivelWrap.style.display = tipo === 'comunicado' ? '' : 'none';
+  const cuerpo = document.getElementById('m-cuerpo');
+  if(cuerpo) cuerpo.placeholder = tipo === 'comunicado'
+    ? 'Texto del comunicado… Usá @nombre para mencionar a alguien'
+    : 'Planteá el tema o la consulta… Usá @nombre para mencionar a alguien';
+}
+
+function editarMensaje(id) {
+  const m = MENSAJES.find(x => x.id === id);
+  if(!m || !puedeGestionar(m)) return;
+  document.getElementById('m-autor').value  = m.autor || '';
+  document.getElementById('m-titulo').value = m.titulo || '';
+  document.getElementById('m-tipo').value   = m.tipo;
+  document.getElementById('m-nivel').value  = m.nivel || 'informativo';
+  document.getElementById('m-cuerpo').value = m.cuerpo || '';
+  document.getElementById('m-edit-id').value = m.id;
+  document.querySelector('#modal-mensaje .modal-title').textContent = 'Editar tema';
+  document.querySelector('#modal-mensaje .modal-footer .btn-accion:not(.sec)').textContent = 'Guardar cambios';
+  setMsg('m-msg','','');
+  actualizarCamposTema();
+  abrirModal('modal-mensaje');
+}
+
+async function guardarMensaje() {
+  const titulo = document.getElementById('m-titulo').value.trim();
+  const cuerpo = document.getElementById('m-cuerpo').value.trim();
+  const editId = document.getElementById('m-edit-id').value;
+  const previo = editId ? MENSAJES.find(x => x.id === editId) : null;
+  const tipo   = esAdmin() ? document.getElementById('m-tipo').value : (previo?.tipo || 'debate');
+  const nivel  = tipo === 'comunicado' ? document.getElementById('m-nivel').value : null;
+  if(!titulo || !cuerpo) { setMsg('m-msg','Completá título y contenido.','err'); return; }
+
+  const btn = document.querySelector('#modal-mensaje .modal-footer .btn-accion:not(.sec)');
+  const txtBtn = btn ? btn.textContent : '';
+  if(btn) { btn.disabled = true; btn.textContent = 'Guardando…'; }
+  try {
+    let nuevoId = null;
+    if(editId) {
+      const { error } = await sb.from('mensajes')
+        .update({ titulo, cuerpo, tipo, nivel, editado_at: new Date().toISOString() }).eq('id', editId);
+      if(error) throw error;
+      setMsg('m-msg','✅ Tema actualizado.','ok');
+    } else {
+      const { data, error } = await sb.from('mensajes').insert({
+        autor_nombre: getUserName(), cargo: perfilActual?.cargo || '',
+        tipo, nivel, titulo, cuerpo, autor_id: usuarioActual?.id,
+      }).select().single();
+      if(error) throw error;
+      nuevoId = data?.id || null;
+      await logAct('crear', 'mensajes', `${tipo === 'comunicado' ? 'Comunicado' : 'Debate'}: ${titulo}`);
+      setMsg('m-msg', tipo === 'comunicado' ? '✅ Comunicado publicado.' : '✅ Tema publicado.', 'ok');
+    }
+    await cargarMensajes();
+    setTimeout(() => {
+      cerrarModal('modal-mensaje');
+      limpiar(['m-autor','m-titulo','m-cuerpo']);
+      document.getElementById('m-edit-id').value = '';
+      setMsg('m-msg','','');
+      if(nuevoId) abrirTema(nuevoId);
+    }, 700);
+  } catch(e) {
+    console.error('Error guardando tema:', e);
+    setMsg('m-msg','No se pudo guardar. Intentá de nuevo.','err');
+  } finally {
+    if(btn) { btn.disabled = false; btn.textContent = txtBtn || 'Publicar'; }
   }
-  MENSAJES.splice(idx,1);
+}
+
+async function eliminarMensaje(id) {
+  const m = MENSAJES.find(x => x.id === id);
+  if(!m || !puedeGestionar(m)) return;
+  const extra = m.cantResp ? ` y sus ${m.cantResp} respuesta${m.cantResp > 1 ? 's' : ''}` : '';
+  if(!confirm(`¿Eliminás "${m.titulo}"${extra}? No se puede deshacer.`)) return;
+  if(!(await borrarRegistro('mensajes', 'id', id, 'el tema'))) { await cargarMensajes(); return; }
+  await logAct('eliminar', 'mensajes', `Eliminó: ${m.titulo}`);
+  if(FORO_TEMA_ACTIVO === id) FORO_TEMA_ACTIVO = null;
+  await cargarMensajes();
+}
+
+// ══ ACCIONES SOBRE RESPUESTAS ════════════════════════════════════════════
+function citarRespuesta(id) {
+  FORO_CITA = id;
   renderMensajes();
+  const ta = document.getElementById('foro-resp-text');
+  if(ta) { ta.focus(); ta.scrollIntoView({ behavior:'smooth', block:'center' }); }
+}
+
+async function enviarRespuestaForo() {
+  const m = MENSAJES.find(x => x.id === FORO_TEMA_ACTIVO);
+  const ta = document.getElementById('foro-resp-text');
+  const err = document.getElementById('foro-resp-err');
+  if(!m || !ta) return;
+  const texto = ta.value.trim();
+  if(!texto) { if(err) err.textContent = 'Escribí una respuesta antes de enviar.'; ta.focus(); return; }
+  const btn = document.getElementById('foro-resp-btn');
+  if(btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
+
+  const payload = { mensaje_id: m.id, texto, autor_nombre: getUserName(), autor_id: usuarioActual?.id };
+  if(FORO_CITA) payload.respuesta_a = FORO_CITA;
+  const { data, error } = await sb.from('respuestas').insert(payload).select().single();
+  if(error) {
+    console.error('Error respuesta:', error);
+    if(btn) { btn.disabled = false; btn.textContent = 'Responder'; }
+    if(err) err.textContent = /cerrado/i.test(error.message || '') ? 'El tema se cerró a nuevas respuestas.' : 'No se pudo enviar. Intentá de nuevo.';
+    return;
+  }
+  ta.value = '';
+  FORO_CITA = null;
+  const r = mapRespuesta(data);
+  (RESPUESTAS[m.id] = RESPUESTAS[m.id] || []).push(r);
+  m.cantResp = RESPUESTAS[m.id].length; m.ultimoAt = r.createdAt; m.ultimoAutor = r.autor;
+  MENSAJES.sort((a,b) => _ts(b.ultimoAt) - _ts(a.ultimoAt));
+  FORO_LECT_PREV = r.createdAt;   // lo que ya viste no vuelve a figurar como nuevo
+  renderMensajes();
+  registrarLecturaTema(m);
+  const el = document.getElementById('foro-post-' + r.id);
+  if(el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+async function guardarEdicionRespuesta(id) {
+  const ta = document.getElementById('foro-edit-text');
+  const texto = ta ? ta.value.trim() : '';
+  if(!texto) { ta && ta.focus(); return; }
+  const { error } = await sb.from('respuestas')
+    .update({ texto, editado_at: new Date().toISOString() }).eq('id', id);
+  if(error) { alert('No se pudo guardar la edición.'); console.error(error); return; }
+  FORO_EDITANDO = null;
+  await cargarMensajes();
+}
+
+async function eliminarRespuesta(id) {
+  if(!confirm('¿Eliminás esta respuesta?')) return;
+  if(!(await borrarRegistro('respuestas', 'id', id, 'la respuesta'))) { await cargarMensajes(); return; }
+  if(FORO_CITA === id) FORO_CITA = null;
+  await cargarMensajes();
 }
 
 // ══ PANEL DETALLE / EDICIÓN / ELIMINACIÓN DE EVENTO ══════════════════════
@@ -6341,7 +6818,7 @@ function editarHerramienta(idx) {
 async function eliminarHerramienta(idx) {
   if(!confirm(`¿Eliminás "${HERRAMIENTAS[idx].nombre}"?`)) return;
   if(SUPABASE_LISTO && HERRAMIENTAS[idx].id) {
-    await sb.from('herramientas').delete().eq('id', HERRAMIENTAS[idx].id);
+    if(!(await borrarRegistro('herramientas', 'id', HERRAMIENTAS[idx].id, 'la herramienta'))) return;
     await logAct('eliminar', 'herramientas', `Eliminó: ${HERRAMIENTAS[idx].nombre}`);
   }
   HERRAMIENTAS.splice(idx,1); renderHerramientas();
@@ -6693,10 +7170,10 @@ async function eliminarDoc(idOrNombre, storagePath){
   const nombre = DOCS.find(d => (d.id||d.nombre) === idOrNombre)?.nombre || idOrNombre;
   if(SUPABASE_LISTO) {
     if(storagePath) {
-      await sb.from('documentos').delete().eq('link', storagePath);
+      if(!(await borrarRegistro('documentos', 'link', storagePath, 'el documento'))) return;
       await sb.storage.from('documentos Vocalia').remove([storagePath]);
     } else if(idOrNombre) {
-      await sb.from('documentos').delete().eq('id', idOrNombre);
+      if(!(await borrarRegistro('documentos', 'id', idOrNombre, 'el documento'))) return;
     }
     await logAct('eliminar', 'documentos', `Eliminó: ${nombre}`);
   }
@@ -7157,7 +7634,7 @@ async function eliminarNovedad(idx) {
   if(!confirm(`¿Eliminás "${NOVEDADES[idx].titulo}"?`)) return;
   const item = NOVEDADES[idx];
   if(SUPABASE_LISTO && item.id) {
-    await sb.from('novedades').delete().eq('id', item.id);
+    if(!(await borrarRegistro('novedades', 'id', item.id, 'la novedad'))) return;
     await logAct('eliminar', 'novedades', `Eliminó: ${item.titulo}`);
   }
   NOVEDADES.splice(idx,1); renderNovedades();
@@ -7321,6 +7798,20 @@ function initHeroDinamico() {
   const elC = document.getElementById('hero-ctx-line');
   if (elC) elC.textContent = `PORTAL INTERNO · EJERCICIO ${ahora.getFullYear()} · SEMANA ${semana}`;
 }
+// ══ ACTIVIDAD RECIENTE siempre al día ═════════════════════════════════════
+// Los widgets de Inicio se dibujaban solo al cargar la página: si se borraba o
+// agregaba un evento o una novedad, seguían mostrando lo viejo. Ahora se
+// redibujan cada vez que cambia cualquiera de las tres listas de origen.
+['renderMensajes', 'renderCalendario', 'renderNovedades'].forEach(nombre => {
+  const original = window[nombre];
+  if(typeof original !== 'function') return;
+  window[nombre] = function(...args) {
+    const r = original.apply(this, args);
+    try { renderWidgetsInicio(); } catch(e) { console.error('Widgets inicio:', e); }
+    return r;
+  };
+});
+
 // ══ INIT ══════════════════════════════════════════════════════════════════
 initMencionesTextarea('m-cuerpo', 'modal-cuerpo-wrap');
 renderMensajes();
