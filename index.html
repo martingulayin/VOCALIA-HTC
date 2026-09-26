@@ -3987,6 +3987,7 @@ function abrirModalNuevoUsuario() {
   document.getElementById('nu-edit-id').value = '';
   limpiar(['nu-nombre','nu-cargo','nu-email','nu-pass']);
   document.getElementById('nu-rol').value = 'usuario';
+  document.getElementById('nu-email').disabled = false;   // "Editar usuario" lo deja bloqueado; se reactiva al crear uno nuevo
   document.getElementById('nu-pass').style.display = 'block';
   document.querySelector('#modal-nuevo-usuario label[for="nu-pass"]') && (document.getElementById('nu-pass').parentElement.style.display = 'block');
   cerrarModal('modal-usuarios');
