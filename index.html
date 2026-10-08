@@ -4011,7 +4011,7 @@ async function cargarUsuarios() {
       <div style="display:flex;gap:.35rem;align-items:center;">
         <span style="font-size:.65rem;font-weight:700;padding:.15rem .45rem;border-radius:4px;${u.activo ? 'background:rgba(30,107,82,.12);color:#1E6B52;' : 'background:rgba(192,57,43,.12);color:#C0392B;'}">${u.activo ? 'Activo' : 'Inactivo'}</span>
         ${u.id !== usuarioActual?.id ? `
-          <button onclick="toggleActivoUsuario('${escJs(u.id)}',${!!u.activo})" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.18rem .45rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;">${u.activo ? 'Desactivar' : 'Activar'}</button>
+          <button onclick="toggleActivoUsuario('${escJs(u.id)}',${!!u.activo},'${escJs(u.nombre||u.id)}')" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.18rem .45rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;">${u.activo ? 'Desactivar' : 'Activar'}</button>
           <button onclick="editarUsuario('${escJs(u.id)}','${escJs(u.nombre||'')}','${escJs(u.cargo||'')}','${escJs(u.rol)}')" style="background:none;border:1px solid var(--border);border-radius:4px;padding:.18rem .45rem;font-size:.62rem;font-weight:600;color:var(--muted);cursor:pointer;">✏️</button>
         ` : '<span style="font-size:.65rem;color:var(--muted);">(tu cuenta)</span>'}
       </div>
@@ -4057,7 +4057,7 @@ async function guardarUsuario() {
     // Editar — nombre, cargo y rol
     const { error } = await sb.from('perfiles_vocalia').update({ nombre, cargo, rol }).eq('id', editId);
     if(error){ setMsg('nu-msg','Error al actualizar.','err'); return; }
-    await logAct('editar', 'usuarios', `Usuario ${nombre} actualizado`);
+    await logAct('editar', 'usuarios', `Actualizó a ${nombre} (rol: ${rol})`);
     setMsg('nu-msg','✅ Usuario actualizado.','ok');
   } else {
     // Crear via Edge Function
@@ -4085,10 +4085,10 @@ async function guardarUsuario() {
   setTimeout(()=>{ cerrarModal('modal-nuevo-usuario'); abrirModal('modal-usuarios'); cargarUsuarios(); document.getElementById('nu-email').disabled = false; setMsg('nu-msg','',''); },1200);
 }
 
-async function toggleActivoUsuario(uid, activo) {
+async function toggleActivoUsuario(uid, activo, nombre) {
   const { error } = await sb.from('perfiles_vocalia').update({ activo: !activo }).eq('id', uid);
   if(!error) {
-    await logAct(activo ? 'desactivar' : 'activar', 'usuarios', `Usuario ${uid}`);
+    await logAct(activo ? 'desactivar' : 'activar', 'usuarios', `${activo ? 'Desactivó' : 'Activó'} la cuenta de ${nombre || uid}`);
     await cargarUsuarios();
   }
 }
