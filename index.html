@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Portal · Vocalía Municipalidades "B"</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -1368,6 +1368,83 @@ table td, table th { font-size:.88rem !important; }
   html,body{max-width:100% !important;overflow-x:clip !important;}
   #portal-wrap{max-width:100vw !important;overflow-x:clip !important;}
 }
+
+/* ══ ATLAS DE DELEGACIONES Y RELATORÍAS ══ */
+.atl,.a-vars{--a-panel:#132B4E;--a-panel2:#17325A;--a-line:#27456F;--a-text:#E8EEF7;--a-mute:#8FA6C4;--a-acc:#7BBFE8;--a-disp:'Bricolage Grotesque','Inter',sans-serif;--a-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;color:var(--a-text);}
+.atl{background-color:var(--navy);background-image:linear-gradient(rgba(74,158,224,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(74,158,224,.07) 1px,transparent 1px);background-size:48px 48px;border-radius:10px;padding:clamp(14px,2.4vw,26px);margin-top:1.2rem;}
+:where(.atl,.a-vars) button{font:inherit;color:inherit;cursor:pointer}
+.atl :focus-visible,.a-vars :focus-visible{outline:2px solid var(--a-acc);outline-offset:3px}
+.a-mono{font-family:var(--a-mono);letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:var(--a-mute)}
+.a-stats{display:flex;flex-wrap:wrap;gap:6px 28px;margin-bottom:16px}
+.a-stats b{font-family:var(--a-disp);font-size:22px;color:var(--a-text);margin-right:6px}
+.a-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.a-card{position:relative;text-align:left;border:1px solid var(--a-line);background:var(--a-panel);padding:16px 16px 14px;min-height:250px;display:flex;flex-direction:column;overflow:hidden;border-radius:4px;transition:transform .25s ease,border-color .25s,background .25s}
+.a-card::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 78% 72%,color-mix(in srgb,var(--c) 22%,transparent),transparent 62%);opacity:0;transition:opacity .3s;pointer-events:none}
+.a-card:hover,.a-card:focus-visible{transform:translateY(-4px);border-color:var(--c);background:var(--a-panel2)}
+.a-card:hover::after,.a-card:focus-visible::after{opacity:1}
+.a-num{font-family:var(--a-disp);font-weight:800;font-size:clamp(46px,6vw,64px);line-height:.9;letter-spacing:-.03em;color:var(--c);position:relative;z-index:1}
+.a-meta{position:relative;z-index:1;margin-top:6px}
+.a-sede{font-family:var(--a-disp);font-weight:500;font-size:19px;margin-top:2px;position:relative;z-index:1}
+.a-sil{position:absolute;right:8px;bottom:46px;width:62%;height:48%;z-index:0}
+.a-sil svg{width:100%;height:100%;display:block}
+.a-sil use{fill:var(--c);fill-opacity:.55;stroke:var(--c);stroke-width:.6;vector-effect:non-scaling-stroke;transition:fill-opacity .3s}
+.a-card:hover .a-sil use{fill-opacity:.95}
+.a-foot{margin-top:auto;position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;padding-top:10px;border-top:1px solid var(--a-line)}
+.a-foot span{font-family:var(--a-mono);font-size:11px;color:var(--a-mute);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.a-foot b{color:var(--a-text);font-weight:500}
+.a-relb{position:absolute;top:14px;right:14px;z-index:1;font-family:var(--a-mono);font-size:10.5px;letter-spacing:.08em;color:var(--a-mute);border:1px solid var(--a-line);padding:2px 6px}
+/* relaciones */
+.a-hint{color:var(--a-mute);font-size:12.5px;margin:0 0 12px}
+.a-h-touch{display:none}
+@media (hover:none){.a-h-mouse{display:none}.a-h-touch{display:inline}}
+.a-relgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:22px;align-items:start}
+.a-mapbox{position:relative;border:1px solid var(--a-line);background:var(--a-panel);padding:12px;border-radius:4px}
+.a-mapbox svg.a-main{width:100%;height:auto;display:block;max-height:76vh}
+.a-terr{fill:var(--c);fill-opacity:.3;stroke:var(--c);stroke-opacity:.8;stroke-width:.8;vector-effect:non-scaling-stroke;transition:fill-opacity .25s,stroke-opacity .25s;cursor:pointer}
+.a-terr.on{fill-opacity:.95}
+.a-dim .a-terr:not(.on){fill-opacity:.1;stroke-opacity:.25}
+.a-inset{position:absolute;left:12px;top:12px;width:34%;aspect-ratio:214/226;border:1px solid var(--a-line);background:var(--navy);border-radius:50%;overflow:hidden}
+.a-inset svg{width:100%;height:100%;display:block}
+.a-insetlbl{position:absolute;left:14px;top:calc(12px + 34% * 1.056 + 10px)}
+.a-relist{display:flex;flex-direction:column;gap:10px}
+.a-rrow{border:1px solid var(--a-line);background:var(--a-panel);padding:14px 16px;border-radius:4px;transition:border-color .2s,background .2s}
+.a-rrow.hot{border-color:var(--a-acc);background:var(--a-panel2)}
+.a-rhead{display:flex;align-items:center;gap:16px;background:none;border:0;padding:0;text-align:left;width:100%}
+.a-rn{font-family:var(--a-disp);font-weight:800;font-size:40px;line-height:1;color:var(--a-acc)}
+.a-who{font-weight:600;color:var(--a-text)}
+.a-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.a-tag{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--a-line);padding:4px 10px 4px 6px;font-size:12.5px;background:var(--navy);border-radius:2px;color:var(--a-text)}
+.a-tag i{font-style:normal;font-family:var(--a-disp);font-weight:800;color:var(--c);font-size:15px}
+.a-tag:hover{border-color:var(--c)}
+/* encabezado de detalle */
+.a-hero{position:relative;overflow:hidden;padding:clamp(14px,2.4vw,24px);background:linear-gradient(110deg,color-mix(in srgb,var(--c) 30%,#0F2340),#0F2340 62%)}
+.a-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-bottom:16px}
+.a-back{background:none;border:1px solid var(--a-line);padding:6px 12px;font-family:var(--a-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--a-text);border-radius:2px}
+.a-back:hover{border-color:var(--a-acc);color:var(--a-acc)}
+.a-rail{display:flex;gap:6px;overflow-x:auto;max-width:100%;padding-bottom:4px}
+.a-rail button{flex:0 0 auto;border:1px solid var(--a-line);background:rgba(15,35,64,.6);padding:5px 10px;font-family:var(--a-disp);font-weight:800;font-size:14px;color:var(--a-mute);border-radius:2px}
+.a-rail button[aria-current="true"]{background:var(--c);color:#0F2340;border-color:var(--c)}
+.a-herobody{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.7fr);gap:16px;align-items:center;min-height:170px}
+.a-big{font-family:var(--a-disp);font-weight:800;font-size:clamp(64px,12vw,140px);line-height:.82;letter-spacing:-.04em;color:var(--c)}
+.a-h2{font-family:var(--a-disp);font-weight:800;font-size:clamp(24px,3.6vw,36px);margin:10px 0 2px;line-height:1.05;color:#fff}
+.a-sil2{height:min(240px,36vw);min-height:130px}
+.a-sil2 svg{width:100%;height:100%;display:block}
+.a-sil2 use{fill:var(--c);fill-opacity:.8;stroke:#fff;stroke-opacity:.5;stroke-width:.8;vector-effect:non-scaling-stroke}
+.a-locator{position:absolute;right:14px;bottom:10px;width:64px;opacity:.9}
+.a-locator .a-terr{pointer-events:none;fill-opacity:.2;stroke-opacity:.35;stroke-width:.4}
+.a-locator .a-terr.on{fill-opacity:1;stroke-opacity:1}
+.a-munis{display:flex;flex-wrap:wrap;gap:6px}
+.a-muni{border:1px solid var(--border);padding:3px 10px;border-radius:99px;background:#fff;font-size:.75rem;color:var(--navy)}
+@media (max-width:860px){.a-relgrid{grid-template-columns:1fr}.a-herobody{grid-template-columns:1fr}.a-sil2{order:-1;height:130px;min-height:0;width:55%}}
+@media (max-width:560px){
+  .a-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .a-card{min-height:255px;padding:12px}
+  .a-sede{font-size:16px}
+  .a-relb{display:none}
+  .a-sil{bottom:64px;width:60%;height:33%}
+  .a-foot span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+@media (prefers-reduced-motion:reduce){.a-card,.a-terr,.a-rrow{transition:none!important}}
 </style>
 <body>
 
@@ -2105,39 +2182,17 @@ table td, table th { font-size:.88rem !important; }
 
     <!-- Subtabs principales -->
     <div class="cap-subtabs">
-      <button class="cap-subtab active" id="deptab-zonales" onclick="switchDepTab('zonales')">📍 Delegaciones Zonales</button>
+      <button class="cap-subtab active" id="deptab-zonales" onclick="switchDepTab('zonales')">📍 Por territorio</button>
+      <button class="cap-subtab" id="deptab-sede" onclick="switchDepTab('sede')">🏢 Por relatoría</button>
       <button class="cap-subtab" id="deptab-mapa" onclick="switchDepTab('mapa')">🗺️ Mapa</button>
-      <button class="cap-subtab" id="deptab-sede" onclick="switchDepTab('sede')">🏢 Sede Central</button>
     </div>
 
     <!-- ── Delegaciones Zonales ── -->
     <div id="deppanel-zonales">
-      <div style="display:flex;gap:.8rem;flex-wrap:wrap;align-items:center;margin:1.2rem 0;">
-        <label style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);">Seleccioná la delegación</label>
-        <select id="deleg-selector" onchange="switchDelegacion(this.value)"
-          style="flex:1;max-width:320px;padding:.55rem .9rem;font-size:.85rem;border:1.5px solid var(--gold);border-radius:6px;outline:none;color:var(--navy);font-family:'Inter',sans-serif;font-weight:600;background:#fff;">
-          <option value="">— Elegí una delegación —</option>
-          <option value="I">Nº I · La Plata</option>
-          <option value="II">Nº II · Quilmes</option>
-          <option value="VI">Nº VI · Morón</option>
-          <option value="VII">Nº VII · Vicente López</option>
-          <option value="X">Nº X · Mar del Plata</option>
-          <option value="XII">Nº XII · Pigüé</option>
-          <option value="XIII">Nº XIII · Azul</option>
-          <option value="XVII">Nº XVII · Zárate</option>
-          <option value="XVIII">Nº XVIII · Chascomús</option>
-          <option value="XX">Nº XX · Ituzaingó</option>
-        </select>
-      </div>
+      <div id="atlas-wrap" class="atl"></div>
 
-      <div id="deleg-placeholder" style="text-align:center;padding:3rem 1rem;color:var(--muted);">
-        <div style="font-size:2.5rem;margin-bottom:.8rem;">📍</div>
-        <div style="font-size:.9rem;font-weight:600;color:var(--navy);margin-bottom:.3rem;">Seleccioná una delegación</div>
-        <div style="font-size:.8rem;">para ver su información, documentos y actividad.</div>
-      </div>
-
-      <div id="deleg-panel" style="display:none;">
-        <div style="background:var(--navy);border-radius:8px 8px 0 0;padding:1.1rem 1.4rem;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.8rem;" id="deleg-header"></div>
+      <div id="deleg-panel" style="display:none;margin-top:1.2rem;">
+        <div style="background:var(--navy);border-radius:8px 8px 0 0;overflow:hidden;" id="deleg-header"></div>
         <div style="display:flex;border-bottom:1px solid var(--border);background:#FAFAFA;">
           <button class="cap-subtab active" id="dltab-info" onclick="switchDelTab('info')">ℹ️ Información</button>
           <button class="cap-subtab" id="dltab-docs" onclick="switchDelTab('docs')">📁 Documentos</button>
@@ -2458,29 +2513,10 @@ table td, table th { font-size:.88rem !important; }
     
     <!-- ── Sede Central ── -->
     <div id="deppanel-sede" style="display:none;">
-      <div style="margin:1.2rem 0 1rem;">
-        <div style="display:flex;gap:.8rem;flex-wrap:wrap;align-items:center;">
-          <label style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);">Seleccioná la Relatoría</label>
-          <select id="sede-selector" onchange="switchRelatoria(this.value)"
-            style="flex:1;max-width:320px;padding:.55rem .9rem;font-size:.85rem;border:1.5px solid var(--gold);border-radius:6px;outline:none;color:var(--navy);font-family:'Inter',sans-serif;font-weight:600;background:#fff;">
-            <option value="">— Elegí una Relatoría —</option>
-            <option value="R1">Relatoría 1 — Cr. Santander</option>
-            <option value="R2">Relatoría 2 — Cr. Garbini</option>
-            <option value="R3">Relatoría 3 — Cra. Chiaraluce</option>
-            <option value="R4">Relatoría 4 — Cr. Dovigo</option>
-            <option value="R5">Relatoría 5 — Cra. Zapatel</option>
-          </select>
-        </div>
-      </div>
+      <div id="rel-wrap" class="atl"></div>
 
-      <div id="sede-placeholder" style="text-align:center;padding:3rem 1rem;color:var(--muted);">
-        <div style="font-size:2.5rem;margin-bottom:.8rem;">🏢</div>
-        <div style="font-size:.9rem;font-weight:600;color:var(--navy);margin-bottom:.3rem;">Seleccioná una Relatoría</div>
-        <div style="font-size:.8rem;">para ver su información, documentos y actividad.</div>
-      </div>
-
-      <div id="sede-panel" style="display:none;">
-        <div style="background:var(--navy);border-radius:8px 8px 0 0;padding:1.1rem 1.4rem;" id="sede-header"></div>
+      <div id="sede-panel" style="display:none;margin-top:1.2rem;">
+        <div style="background:var(--navy);border-radius:8px 8px 0 0;overflow:hidden;" id="sede-header"></div>
         <div style="display:flex;border-bottom:1px solid var(--border);background:#FAFAFA;">
           <button class="cap-subtab active" id="sltab-info" onclick="switchSedeTab('info')">ℹ️ Información</button>
           <button class="cap-subtab" id="sltab-docs" onclick="switchSedeTab('docs')">📁 Documentos</button>
@@ -4695,6 +4731,7 @@ async function cargarDelegDocs() {
     DELEG_DOCS[d.delegacion_nro].push({ id:d.id, titulo:d.titulo, tipo:d.tipo, link:d.link, desc:d.descripcion, fecha: new Date(d.created_at).toLocaleDateString('es-AR') });
   });
   if(delegActual) renderDocsDeleg();
+  atlasRefresh();
 }
 
 async function cargarDelegAct() {
@@ -4706,6 +4743,7 @@ async function cargarDelegAct() {
     DELEG_ACT[a.delegacion_nro].push({ id:a.id, fecha:a.fecha, desc:a.descripcion, tipo:a.tipo, municipio:a.municipio, eventoId:a.evento_id||null });
   });
   if(delegActual) renderActividadDeleg();
+  atlasRefresh();
 }
 
 async function cargarNormativaDB() {
@@ -6535,7 +6573,7 @@ function switchDepTab(tab) {
     if(p) p.style.display = t===tab ? 'block' : 'none';
     if(b) b.classList.toggle('active', t===tab);
   });
-  if(tab==='sede') { document.getElementById('sede-selector').value=''; document.getElementById('sede-placeholder').style.display='block'; document.getElementById('sede-panel').style.display='none'; }
+  if(tab==='sede') switchRelatoria('');
 }
 
 // ══ SEDE CENTRAL — RELATORÍAS ══════════════════════════════════════════════
@@ -6551,19 +6589,12 @@ const SEDE_ACT  = { R1:[], R2:[], R3:[], R4:[], R5:[] };
 let sedeActual = null;
 
 function switchRelatoria(nro) {
-  if(!nro){ document.getElementById('sede-placeholder').style.display='block'; document.getElementById('sede-panel').style.display='none'; return; }
+  if(!nro){ document.getElementById('rel-wrap').style.display='block'; document.getElementById('sede-panel').style.display='none'; return; }
   sedeActual = nro;
-  document.getElementById('sede-placeholder').style.display='none';
+  document.getElementById('rel-wrap').style.display='none';
   document.getElementById('sede-panel').style.display='block';
   const r = RELATORIAS[nro];
-  document.getElementById('sede-header').innerHTML = `
-    <div style="display:flex;align-items:center;gap:.8rem;">
-      <div style="font-size:1.8rem;">🏢</div>
-      <div>
-        <div style="font-size:.58rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:.2rem;">Sede Central · Vocalía Municipalidades "B"</div>
-        <div style="font-size:1.1rem;font-weight:700;color:#fff;">${r.nombre}</div>
-      </div>
-    </div>`;
+  document.getElementById('sede-header').innerHTML = atlHeroRel(nro);
   const delegNames = r.desc.replace('Delegaciones:','').split('·').map(s=>s.trim()).filter(Boolean);
   document.getElementById('sede-info-grid').innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
@@ -6574,7 +6605,7 @@ function switchRelatoria(nro) {
       <div style="background:var(--cream);border-radius:6px;padding:.8rem 1rem;">
         <div style="font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;">Delegaciones a cargo</div>
         <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
-          ${delegNames.map(d=>`<span style="background:rgba(74,158,224,.12);border:1px solid rgba(74,158,224,.25);color:var(--gold);font-size:.75rem;font-weight:600;border-radius:4px;padding:.2rem .6rem;">${esc(d)}</span>`).join('')}
+          ${ATL_REL[nro].map(n=>{const dd=DELEGACIONES_B.find(x=>x.nro===n);return `<button type="button" class="a-tag" style="--c:${ATL_COL[n]};background:#fff;color:var(--navy);cursor:pointer;border-color:${ATL_COL[n]};" onclick="atlGoDeleg('${n}')"><i style="color:var(--navy)">${n}</i>${esc(dd.sede)}</button>`;}).join('')}
         </div>
       </div>
     </div>`;
@@ -6825,6 +6856,129 @@ async function eliminarHerramienta(idx) {
   HERRAMIENTAS.splice(idx,1); renderHerramientas();
 }
 
+// ══ ATLAS DE DELEGACIONES Y RELATORÍAS (capa de presentación) ═══════════════
+// Dibuja las siluetas reutilizando los paths de #mapa-partidos. No toca Supabase.
+const ATL_BBOX = {
+  XVII:[437,8,699,221], VII:[678,139,743,254], VI:[682,216,716,263], XX:[642,193,701,260], II:[746,258,794,317],
+  I:[755,276,840,356], XVIII:[628,296,925,607], XIII:[295,434,732,914], XII:[8,540,376,1018], X:[505,681,972,1007]
+};
+const ATL_COL = { I:'#6FB0E8', II:'#6FD2D8', VI:'#AFA0E4', VII:'#EDB56B', X:'#6FD4A0', XII:'#E8D275', XIII:'#ED919F', XVII:'#8DBDFA', XVIII:'#D0A0E4', XX:'#6FE4FF' };
+const ATL_REL = { R1:['X','II'], R2:['VII','XVII'], R3:['XX','XVIII'], R4:['I','XII'], R5:['VI','XIII'] };
+const ATL_REL_DE = {};
+Object.entries(ATL_REL).forEach(([k,a]) => a.forEach(n => ATL_REL_DE[n] = k));
+
+function atlDefs() {
+  if(document.getElementById('atl-defs')) return;
+  let h = '';
+  Object.keys(ATL_BBOX).forEach(n => {
+    const ps = Array.from(document.querySelectorAll('#mapa-partidos path[data-del="'+n+'"]'))
+      .map(p => '<path d="'+(p.getAttribute('d')||'').replace(/"/g,'')+'"/>').join('');
+    h += '<g id="atl-g-'+n+'">'+ps+'</g>';
+  });
+  document.body.insertAdjacentHTML('beforeend','<svg id="atl-defs" width="0" height="0" style="position:absolute" aria-hidden="true"><defs>'+h+'</defs></svg>');
+}
+function atlVB(n) {
+  const b = ATL_BBOX[n], w = b[2]-b[0], h = b[3]-b[1], p = Math.max(w,h)*.06;
+  return `${b[0]-p} ${b[1]-p} ${w+2*p} ${h+2*p}`;
+}
+const atlSil = n => `<svg viewBox="${atlVB(n)}" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><use href="#atl-g-${n}"/></svg>`;
+const atlNMun = d => (d.municipios||'').split(',').filter(s=>s.trim()).length;
+const atlUses = (cls) => Object.keys(ATL_BBOX).map(k => `<use href="#atl-g-${k}" class="a-terr" data-t="${k}" style="--c:${ATL_COL[k]}" onclick="atlGoDeleg('${k}')"/>`).join('');
+
+function renderAtlas() {
+  const w = document.getElementById('atlas-wrap'); if(!w) return;
+  const totMun = DELEGACIONES_B.reduce((a,d)=>a+atlNMun(d),0);
+  w.innerHTML = `
+    <div class="a-stats a-mono"><span><b>${DELEGACIONES_B.length}</b>delegaciones</span><span><b>${totMun}</b>municipios</span><span><b>5</b>relatorías</span></div>
+    <div class="a-grid">${DELEGACIONES_B.map(d => {
+      const docs = (DELEG_DOCS[d.nro]||[]).length, act = (DELEG_ACT[d.nro]||[]).length;
+      return `<button type="button" class="a-card" style="--c:${ATL_COL[d.nro]}" onclick="switchDelegacion('${d.nro}')" aria-label="Delegación ${esc(d.nro)}, ${esc(d.sede)}">
+        <span class="a-relb">R${ATL_REL_DE[d.nro].slice(1)}</span>
+        <div class="a-num">${esc(d.nro)}</div>
+        <div class="a-meta a-mono">Delegación</div>
+        <div class="a-sede">${esc(d.sede)}</div>
+        <div class="a-sil">${atlSil(d.nro)}</div>
+        <div class="a-foot"><span><b>${atlNMun(d)}</b> municipios</span><span><b>${docs}</b> docs · <b>${act}</b> actividad</span></div>
+      </button>`;}).join('')}</div>`;
+}
+
+function renderRelaciones() {
+  const w = document.getElementById('rel-wrap'); if(!w) return;
+  const byN = n => DELEGACIONES_B.find(d => d.nro === n);
+  const rows = Object.keys(ATL_REL).map(k => {
+    const r = RELATORIAS[k];
+    return `<div class="a-rrow" data-rel="${k}">
+      <button type="button" class="a-rhead" onclick="switchRelatoria('${k}')">
+        <span class="a-rn">${k.slice(1)}</span>
+        <span><span class="a-mono" style="display:block">Relatoría</span><span class="a-who">${esc(r.responsable||'Sin asignar')}</span></span>
+      </button>
+      <div class="a-tags">${ATL_REL[k].map(n => `<button type="button" class="a-tag" style="--c:${ATL_COL[n]}" onclick="atlGoDeleg('${n}')"><i>${n}</i>${esc(byN(n).sede)}</button>`).join('')}</div>
+    </div>`;
+  }).join('');
+  w.innerHTML = `
+    <p class="a-hint"><span class="a-h-mouse">Pasá el cursor por una relatoría para ver qué territorios coordina. Tocá un territorio del mapa para abrir su delegación.</span><span class="a-h-touch">Cada relatoría coordina dos delegaciones. Tocá una relatoría o un territorio del mapa para abrirlo.</span></p>
+    <div class="a-relgrid">
+      <div class="a-mapbox" id="atl-mapbox">
+        <svg class="a-main" viewBox="0 0 980 1030" role="img" aria-label="Mapa de la provincia con las diez delegaciones">${atlUses()}</svg>
+        <div class="a-inset"><svg viewBox="636 136 214 226" aria-hidden="true">${atlUses()}</svg></div>
+        <div class="a-insetlbl a-mono">AMBA ampliado</div>
+      </div>
+      <div class="a-relist">${rows}</div>
+    </div>`;
+}
+
+function atlHot(k) {
+  const box = document.getElementById('atl-mapbox'); if(!box) return;
+  const on = k ? ATL_REL[k] : [];
+  box.classList.toggle('a-dim', !!k);
+  box.querySelectorAll('use[data-t]').forEach(u => u.classList.toggle('on', on.includes(u.dataset.t)));
+  document.querySelectorAll('#rel-wrap .a-rrow').forEach(x => x.classList.toggle('hot', x.dataset.rel === k));
+}
+
+function atlGoDeleg(n) { switchDepTab('zonales'); switchDelegacion(n); }
+
+function atlHeroDeleg(d) {
+  const c = ATL_COL[d.nro], rk = ATL_REL_DE[d.nro];
+  const rail = DELEGACIONES_B.map(x => `<button type="button" style="--c:${ATL_COL[x.nro]}" onclick="switchDelegacion('${x.nro}')" ${x.nro===d.nro?'aria-current="true"':''} aria-label="Delegación ${esc(x.nro)}, ${esc(x.sede)}">${esc(x.nro)}</button>`).join('');
+  const loc = Object.keys(ATL_BBOX).map(k => `<use href="#atl-g-${k}" class="a-terr ${k===d.nro?'on':''}" style="--c:${k===d.nro?c:'#8FA6C4'}"/>`).join('');
+  return `<div class="a-hero a-vars" style="--c:${c}">
+    <div class="a-bar"><button type="button" class="a-back" onclick="switchDelegacion('')">← Todas las delegaciones</button><div class="a-rail" role="group" aria-label="Cambiar de delegación">${rail}</div></div>
+    <div class="a-herobody">
+      <div><div class="a-mono">Delegación zonal</div><div class="a-big">${esc(d.nro)}</div><div class="a-h2">${esc(d.sede)}</div><div class="a-mono">${atlNMun(d)} municipios · Relatoría ${rk.slice(1)}</div></div>
+      <div class="a-sil2">${atlSil(d.nro)}</div>
+      <svg class="a-locator" viewBox="0 0 980 1030" aria-hidden="true">${loc}</svg>
+    </div>
+  </div>`;
+}
+
+function atlHeroRel(k) {
+  const r = RELATORIAS[k];
+  const rail = Object.keys(ATL_REL).map(x => `<button type="button" style="--c:#7BBFE8" onclick="switchRelatoria('${x}')" ${x===k?'aria-current="true"':''}>R${x.slice(1)}</button>`).join('');
+  const loc = Object.keys(ATL_BBOX).map(n => { const on = ATL_REL[k].includes(n); return `<use href="#atl-g-${n}" class="a-terr ${on?'on':''}" style="--c:${on?ATL_COL[n]:'#8FA6C4'}"/>`; }).join('');
+  return `<div class="a-hero a-vars" style="--c:#7BBFE8">
+    <div class="a-bar"><button type="button" class="a-back" onclick="switchRelatoria('')">← Todas las relatorías</button><div class="a-rail" role="group" aria-label="Cambiar de relatoría">${rail}</div></div>
+    <div class="a-herobody">
+      <div><div class="a-mono">Sede Central · Vocalía Municipalidades "B"</div><div class="a-big">${k.slice(1)}</div><div class="a-h2">${esc(r.nombre)}</div><div class="a-mono">${esc(r.responsable||'Sin asignar')}</div></div>
+      <svg viewBox="0 0 980 1030" style="width:100%;max-height:240px" aria-hidden="true">${loc}</svg>
+    </div>
+  </div>`;
+}
+
+function atlasRefresh() { try { renderAtlas(); } catch(e) { console.warn('Atlas', e); } }
+
+function atlasInit() {
+  atlDefs();
+  renderAtlas();
+  renderRelaciones();
+  const w = document.getElementById('rel-wrap');
+  if(w) {
+    w.addEventListener('pointerover', e => { const r = e.target.closest('.a-rrow'); if(r) return atlHot(r.dataset.rel); const t = e.target.closest('use[data-t]'); if(t) atlHot(ATL_REL_DE[t.dataset.t]); });
+    w.addEventListener('pointerout', e => { if(e.target.closest('.a-rrow, use[data-t]') && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.a-rrow, use[data-t]'))) atlHot(null); });
+    w.addEventListener('focusin', e => { const r = e.target.closest('.a-rrow'); if(r) atlHot(r.dataset.rel); });
+    w.addEventListener('focusout', () => atlHot(null));
+  }
+}
+
 // ══ DELEGACIONES — REPOSITORIO ════════════════════════════════════════════
 const DELEG_DOCS = {};
 const DELEG_ACT  = {};
@@ -6838,17 +6992,12 @@ function initDeleg() {
 }
 
 function switchDelegacion(nro) {
-  if(!nro){ document.getElementById('deleg-placeholder').style.display='block'; document.getElementById('deleg-panel').style.display='none'; return; }
+  if(!nro){ document.getElementById('atlas-wrap').style.display='block'; document.getElementById('deleg-panel').style.display='none'; return; }
   delegActual = nro;
-  document.getElementById('deleg-placeholder').style.display='none';
+  document.getElementById('atlas-wrap').style.display='none';
   document.getElementById('deleg-panel').style.display='block';
   const d = DELEGACIONES_B.find(x=>x.nro===nro);
-  document.getElementById('deleg-header').innerHTML = `
-    <div>
-      <div style="font-size:.58rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:.3rem;">Delegación Zonal Nº ${d.nro}</div>
-      <div style="font-size:1.1rem;font-weight:700;color:#fff;">📍 ${d.sede}</div>
-    </div>
-    <div style="font-size:.72rem;color:#4A6A8A;max-width:320px;line-height:1.5;">${d.municipios}</div>`;
+  document.getElementById('deleg-header').innerHTML = atlHeroDeleg(d);
   document.getElementById('deleg-info-grid').innerHTML = `
     <div style="background:var(--cream);border-radius:6px;padding:.8rem 1rem;">
       <div style="font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;">Auditor Jefe</div>
@@ -6865,6 +7014,10 @@ function switchDelegacion(nro) {
     <div style="background:var(--cream);border-radius:6px;padding:.8rem 1rem;">
       <div style="font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;">Dirección</div>
       <div style="font-size:.78rem;color:var(--navy);">${d.dir}</div>
+    </div>
+    <div style="background:var(--cream);border-radius:6px;padding:.8rem 1rem;grid-column:1/-1;">
+      <div style="font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;">Municipios (${atlNMun(d)})</div>
+      <div class="a-munis">${d.municipios.split(',').map(m=>`<span class="a-muni">${esc(m.trim())}</span>`).join('')}</div>
     </div>`;
   switchDelTab('info');
   renderDocsDeleg();
@@ -7823,6 +7976,7 @@ renderNovedades();
 renderDelegaciones();
 renderEstudios('');
 initDeleg();
+atlasInit();
 renderWidgetsInicio();
 renderHerramientas();
 initHeroDinamico();
