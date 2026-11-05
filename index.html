@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Portal · Vocalía Municipalidades "B"</title>
+<meta name="description" content="Intranet de la Vocalía Municipalidades B · H. Tribunal de Cuentas PBA">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Portal · Vocalía Municipalidades B">
+<meta property="og:description" content="Intranet de la Vocalía Municipalidades B · H. Tribunal de Cuentas PBA">
+<meta property="og:locale" content="es_AR">
+<meta property="og:image" content="https://martingulayin.github.io/og-htc.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -1445,6 +1453,12 @@ table td, table th { font-size:.88rem !important; }
   .a-foot span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
 @media (prefers-reduced-motion:reduce){.a-card,.a-terr,.a-rrow{transition:none!important}}
+
+/* ══ MODO INVITADO (solo lectura) ══ */
+#banner-invitado{display:none;background:#1f3a5f;color:#fff;font-size:.72rem;font-weight:600;padding:.4rem 1rem;text-align:center;justify-content:center;align-items:center;gap:.5rem;}
+body.modo-invitado #banner-invitado{display:flex;}
+#toast-invitado{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#1f3a5f;color:#fff;font-size:.8rem;font-weight:600;padding:.65rem 1.2rem;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:99999;max-width:90vw;text-align:center;}
+#toast-invitado.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 <body>
 
@@ -1536,6 +1550,8 @@ table td, table th { font-size:.88rem !important; }
     <button class="tb-btn-sec" onclick="cerrarMenuMobile();setTimeout(activarBuscador,100)">🔍 BUSCAR</button>
   </div>
 </div>
+
+<div id="banner-invitado">👁 Modo demostración · solo lectura</div>
 
 <!-- BANNER AVISO -->
 <div id="aviso-banner">
@@ -2631,6 +2647,7 @@ table td, table th { font-size:.88rem !important; }
         <select id="nu-rol">
           <option value="usuario">Usuario</option>
           <option value="admin">Administrador</option>
+          <option value="invitado">Invitado (solo lectura)</option>
         </select>
       </div>
       <div class="form-msg" id="nu-msg"></div>
@@ -3965,8 +3982,10 @@ let rolActual = 'usuario';
 let perfilActual = null;
 
 function esAdmin() { return rolActual === 'admin'; }
+function esInvitado() { return rolActual === 'invitado'; }
 
 function aplicarPermisos() {
+  document.body.classList.toggle('modo-invitado', esInvitado());
   // Botones restringidos a admin — DESKTOP Y MOBILE.
   // Antes sólo se cubrían los de desktop: en el menú mobile, ACTIVIDAD quedaba
   // visible para cualquier rol y USUARIOS estaba deshabilitado incluso para admin.
@@ -3979,6 +3998,7 @@ function aplicarPermisos() {
 
 // ══ LOG DE ACTIVIDAD ═══════════════════════════════════════════════════════
 async function logAct(accion, seccion, detalle) {
+  if(esInvitado()) return;
   if(!SUPABASE_LISTO || !usuarioActual) return;
   try {
     await sb.from('actividad_log').insert({
@@ -4095,6 +4115,7 @@ async function toggleActivoUsuario(uid, activo, nombre) {
 
 // ══ PERFIL PROPIO ══════════════════════════════════════════════════════════
 async function abrirPerfil() {
+  if(esInvitado()) return;
   if(!usuarioActual) return;
   const nombre = perfilActual?.nombre || usuarioActual.email.split('@')[0];
   const rol    = perfilActual?.rol || 'usuario';
@@ -4450,7 +4471,7 @@ async function cerrarSesion(motivo) {
   // Detener polling de actividad
   if(_intervalActividad) { clearInterval(_intervalActividad); _intervalActividad = null; }
   try { await logAct('logout', 'acceso', motivo || 'Cerró sesión'); } catch(e) {}
-  await sb.auth.signOut();
+  await sb.auth.signOut(esInvitado() ? { scope: 'local' } : undefined);
   document.getElementById('portal-wrap').style.display = 'none';
   document.getElementById('login-overlay').classList.remove('hidden');
   document.getElementById('login-email').value = '';
@@ -4859,6 +4880,7 @@ function puedeGestionar(m) { return esAdmin() || esMio(m); }
 
 // Respuestas de otros posteriores a mi última lectura del tema
 function nuevasEnTema(m) {
+  if(esInvitado()) return 0;
   const resp = RESPUESTAS[m.id] || [];
   const lect = LECTURAS_TEMAS[m.id];
   if(!lect) {
@@ -4871,6 +4893,7 @@ function nuevasEnTema(m) {
 }
 
 function temaNoLeido(m) {
+  if(esInvitado()) return false;
   if(esMio(m) && !nuevasEnTema(m)) return false;
   if(m.tipo === 'comunicado') {
     if(!(m.lecturas || []).find(l => l.nombre === getUserName())) return true;
@@ -5632,7 +5655,7 @@ let USUARIOS_EQUIPO = [];
 let TOTAL_USUARIOS = 0;
 
 async function cargarUsuariosEquipo() {
-  const { data, error } = await sb.from('perfiles_vocalia').select('nombre, cargo');
+  const { data, error } = await sb.from('perfiles_vocalia').select('nombre, cargo').neq('rol','invitado');
   if(error || !data) return;
   TOTAL_USUARIOS = data.length;
   USUARIOS_EQUIPO = data.map(u => ({
@@ -5683,6 +5706,7 @@ function mostrarBannerNotif(texto, temaId) {
 }
 
 async function marcarLeido(msgId) {
+  if(esInvitado()) return;
   const m = MENSAJES.find(x => x.id === msgId);
   if(!m) return;
   const yo = getUserName();
@@ -6125,7 +6149,7 @@ function volverATemas() {
 }
 
 async function registrarLecturaTema(m) {
-  if(!m || !usuarioActual?.id) return;
+  if(!m || !usuarioActual?.id || esInvitado()) return;
   const ts = new Date(Math.max(Date.now(), _ts(m.ultimoAt))).toISOString();
   LECTURAS_TEMAS[m.id] = ts;
   actualizarBadgeMensajes();
@@ -8133,6 +8157,34 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+
+// ══ MODO INVITADO: los botones de escritura no hacen nada y avisan ═══════
+(function(){
+  const PAT = /(abrirNuevoTema|abrirModalEvento|abrirModal\(\s*['"]modal-(papel|normativa|capacitacion|material|herramienta|novedad|actividad-deleg|actividad-sede)['"]|abrirSubirDoc|abrirEdicion|abrirPerfil|editar|eliminar|guardar|toggleFijarTema|toggleCerrarTema|archivarAviso|enviarRespuestaForo|toggleFavorito|marcarLeido|toggleActivoUsuario)/;
+  let tmr = null;
+  function aviso(){
+    let t = document.getElementById('toast-invitado');
+    if(!t){ t = document.createElement('div'); t.id = 'toast-invitado'; document.body.appendChild(t); }
+    t.textContent = '👁 Modo demostración: solo lectura, no se puede modificar nada';
+    t.classList.add('show'); clearTimeout(tmr);
+    tmr = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+  document.addEventListener('click', function(e){
+    if(typeof esInvitado !== 'function' || !esInvitado()) return;
+    const inp = e.target.closest && e.target.closest('input[type=file]');
+    if(inp){ e.preventDefault(); e.stopImmediatePropagation(); aviso(); return; }
+    let el = e.target.closest ? e.target.closest('[onclick]') : null;
+    while(el){
+      if(PAT.test(el.getAttribute('onclick') || '')){
+        e.preventDefault(); e.stopImmediatePropagation(); aviso(); return;
+      }
+      el = el.parentElement ? el.parentElement.closest('[onclick]') : null;
+    }
+  }, true);
+  document.addEventListener('submit', function(e){
+    if(typeof esInvitado === 'function' && esInvitado()){ e.preventDefault(); e.stopImmediatePropagation(); aviso(); }
+  }, true);
+})();
 </script>
 </body>
 </html>
