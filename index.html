@@ -1460,6 +1460,18 @@ table td, table th { font-size:.88rem !important; }
 body.modo-invitado #banner-invitado{display:flex;}
 #toast-invitado{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#1f3a5f;color:#fff;font-size:.8rem;font-weight:600;padding:.65rem 1.2rem;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:99999;max-width:90vw;text-align:center;}
 #toast-invitado.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ══ Visibilidad de documentos ══ */
+.vis-field input[type=radio],.vis-field input[type=checkbox]{width:auto;padding:0;margin:0 .45rem 0 0;accent-color:var(--gold);}
+.vis-field label.vis-opt{display:flex !important;align-items:center;font-size:.8rem !important;font-weight:500 !important;letter-spacing:0 !important;text-transform:none !important;color:var(--text);margin:0 0 .3rem;cursor:pointer;}
+.vis-lista{max-height:170px;overflow:auto;border:1px solid var(--border);border-radius:5px;margin-top:.4rem;background:#fff;}
+.vis-field label.vis-user{display:flex !important;align-items:center;gap:.3rem;padding:.38rem .6rem;font-size:.78rem !important;font-weight:500 !important;letter-spacing:0 !important;text-transform:none !important;color:var(--text);margin:0;border-bottom:1px solid var(--border);cursor:pointer;}
+.vis-field label.vis-user small{color:var(--muted);font-size:.66rem;margin-left:auto;padding-left:.6rem;}
+.vis-user:last-child{border-bottom:none;}
+.vis-hint{font-size:.66rem;color:var(--muted);margin-top:.35rem;text-transform:none;letter-spacing:0;font-weight:400;}
+.doc-vis-badge{color:#8A5A00;font-weight:600;}
+.doc-vis{background:none;border:none;color:#9AA9BC;cursor:pointer;font-size:.85rem;flex-shrink:0;transition:color .15s;}
+.doc-vis:hover{color:var(--gold);}
 </style>
 <body>
 
@@ -2978,6 +2990,34 @@ body.modo-invitado #banner-invitado{display:flex;}
 </div>
 
 <!-- ══ MODAL ACTIVIDAD SEDE CENTRAL ══ -->
+<!-- ══ MODAL QUIÉN PUEDE VER UN DOCUMENTO ══ -->
+<div class="modal-overlay" id="modal-vis-doc">
+  <div class="modal-box" style="max-width:460px;">
+    <div class="modal-head">
+      <div class="modal-title">Quién puede verlo</div>
+      <button class="modal-close" onclick="cerrarModal('modal-vis-doc')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:.82rem;font-weight:600;color:var(--navy);margin-bottom:.8rem;" id="vd-titulo"></div>
+      <div class="form-field vis-field">
+        <label>¿Quién puede verlo?</label>
+        <label class="vis-opt"><input type="radio" name="vd-vis" value="todos" checked onchange="visToggle('vd')"> Todos los usuarios del Portal</label>
+        <label class="vis-opt"><input type="radio" name="vd-vis" value="usuarios" onchange="visToggle('vd')"> Solo usuarios específicos</label>
+        <div id="vd-vis-box" style="display:none;">
+          <input type="text" id="vd-vis-buscar" placeholder="Buscar usuario…" oninput="visFiltrar('vd')" style="margin-top:.4rem;">
+          <div id="vd-vis-lista" class="vis-lista"></div>
+          <div class="vis-hint">Vos y los administradores siempre lo ven.</div>
+        </div>
+      </div>
+      <div class="form-msg" id="vd-msg"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-accion sec" onclick="cerrarModal('modal-vis-doc')">Cancelar</button>
+      <button class="btn-accion" onclick="guardarVisDoc()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-doc-sede">
   <div class="modal-box" style="max-width:460px;">
     <div class="modal-head">
@@ -3008,6 +3048,16 @@ body.modo-invitado #banner-invitado{display:flex;}
       </div>
       <div class="form-field"><label>O link externo <span style="font-weight:400;color:var(--muted);">(Drive, OneDrive, etc.)</span></label><input type="url" id="sd-link" placeholder="https://…"></div>
       <div class="form-field"><label>Descripción <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><textarea id="sd-desc" rows="2" placeholder="Breve descripción…"></textarea></div>
+      <div class="form-field vis-field">
+        <label>¿Quién puede verlo?</label>
+        <label class="vis-opt"><input type="radio" name="sd-vis" value="todos" checked onchange="visToggle('sd')"> Todos los usuarios del Portal</label>
+        <label class="vis-opt"><input type="radio" name="sd-vis" value="usuarios" onchange="visToggle('sd')"> Solo usuarios específicos</label>
+        <div id="sd-vis-box" style="display:none;">
+          <input type="text" id="sd-vis-buscar" placeholder="Buscar usuario…" oninput="visFiltrar('sd')" style="margin-top:.4rem;">
+          <div id="sd-vis-lista" class="vis-lista"></div>
+          <div class="vis-hint">Vos y los administradores siempre lo ven.</div>
+        </div>
+      </div>
       <div class="form-msg" id="sd-msg"></div>
     </div>
     <div class="modal-footer">
@@ -3080,6 +3130,16 @@ body.modo-invitado #banner-invitado{display:flex;}
       </div>
       <div class="form-field"><label>O link externo <span style="font-weight:400;color:var(--muted);">(Drive, OneDrive, etc.)</span></label><input type="url" id="dd-link" placeholder="https://…"></div>
       <div class="form-field"><label>Descripción <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><textarea id="dd-desc" rows="2" placeholder="Breve descripción…"></textarea></div>
+      <div class="form-field vis-field">
+        <label>¿Quién puede verlo?</label>
+        <label class="vis-opt"><input type="radio" name="dd-vis" value="todos" checked onchange="visToggle('dd')"> Todos los usuarios del Portal</label>
+        <label class="vis-opt"><input type="radio" name="dd-vis" value="usuarios" onchange="visToggle('dd')"> Solo usuarios específicos</label>
+        <div id="dd-vis-box" style="display:none;">
+          <input type="text" id="dd-vis-buscar" placeholder="Buscar usuario…" oninput="visFiltrar('dd')" style="margin-top:.4rem;">
+          <div id="dd-vis-lista" class="vis-lista"></div>
+          <div class="vis-hint">Vos y los administradores siempre lo ven.</div>
+        </div>
+      </div>
       <div class="form-msg" id="dd-msg"></div>
     </div>
     <div class="modal-footer">
@@ -3536,9 +3596,25 @@ async function doLogin() {
   // contra Supabase Auth. Si falla la Edge Function en sí (no desplegada,
   // red caída), se avisa con un mensaje distinto para no confundirlo con
   // "contraseña incorrecta".
-  const { data: resultado, error: fnError } = await sb.functions.invoke('hyper-processor', {
-    body: { email, password: pass }
-  });
+  // Cuenta de invitado (demostración): login directo contra Supabase Auth, sin
+  // pasar por la Edge Function. Con 40 personas entrando a la vez a la misma
+  // cuenta, el contador de intentos por email bloquearía a todos tras 5 errores,
+  // y Auth vería una única IP (la de la función). Directo, cada celular entra con
+  // su propia IP. Es una cuenta de solo lectura con clave pública, así que el
+  // límite de intentos no aporta nada para ella.
+  const EMAIL_INVITADO = '123456@gmail.com';
+  let resultado, fnError = null;
+  if(email.toLowerCase() === EMAIL_INVITADO) {
+    const r = await sb.auth.signInWithPassword({ email, password: pass });
+    resultado = (r.error || !r.data?.session)
+      ? { ok: false, mensaje: 'Email o contraseña incorrectos.' }
+      : { ok: true, access_token: r.data.session.access_token, refresh_token: r.data.session.refresh_token };
+  } else {
+    const resp = await sb.functions.invoke('hyper-processor', {
+      body: { email, password: pass }
+    });
+    resultado = resp.data; fnError = resp.error;
+  }
 
   if(fnError) {
     btn.disabled = false; btn.textContent = 'Ingresar al portal';
@@ -4727,7 +4803,7 @@ async function cargarSedeDocs() {
   Object.keys(SEDE_DOCS).forEach(k => SEDE_DOCS[k] = []);
   data.forEach(d => {
     if(!SEDE_DOCS[d.relatoria]) SEDE_DOCS[d.relatoria] = [];
-    SEDE_DOCS[d.relatoria].push({ id:d.id, titulo:d.titulo, tipo:d.tipo, link:d.link, desc:d.descripcion, fecha: new Date(d.created_at).toLocaleDateString('es-AR') });
+    SEDE_DOCS[d.relatoria].push({ id:d.id, titulo:d.titulo, tipo:d.tipo, link:d.link, desc:d.descripcion, fecha: new Date(d.created_at).toLocaleDateString('es-AR'), autor_id:d.autor_id, visibilidad:d.visibilidad||'todos', destinatarios:d.destinatarios||[] });
   });
   if(sedeActual) renderDocsSedeR();
 }
@@ -4750,7 +4826,7 @@ async function cargarDelegDocs() {
   if(error || !data) return;
   data.forEach(d => {
     if(!DELEG_DOCS[d.delegacion_nro]) DELEG_DOCS[d.delegacion_nro] = [];
-    DELEG_DOCS[d.delegacion_nro].push({ id:d.id, titulo:d.titulo, tipo:d.tipo, link:d.link, desc:d.descripcion, fecha: new Date(d.created_at).toLocaleDateString('es-AR') });
+    DELEG_DOCS[d.delegacion_nro].push({ id:d.id, titulo:d.titulo, tipo:d.tipo, link:d.link, desc:d.descripcion, fecha: new Date(d.created_at).toLocaleDateString('es-AR'), autor_id:d.autor_id, visibilidad:d.visibilidad||'todos', destinatarios:d.destinatarios||[] });
   });
   if(delegActual) renderDocsDeleg();
   atlasRefresh();
@@ -5149,6 +5225,8 @@ guardarDocDeleg = async function() {
 
   if(!titulo){ setMsg('dd-msg','Ingresá el título.','err'); return; }
   if(!archivo && !link){ setMsg('dd-msg','Subí un archivo o ingresá un link.','err'); return; }
+  const vis = leerVis('dd');
+  if(vis.error){ setMsg('dd-msg',vis.error,'err'); return; }
 
   if(archivo) {
     const prog = document.getElementById('dd-archivo-prog');
@@ -5172,10 +5250,12 @@ guardarDocDeleg = async function() {
   }
 
   if(SUPABASE_LISTO) {
-    const { data } = await sb.from('delegacion_docs').insert({
-      delegacion_nro: delegActual, titulo, tipo, link, descripcion: desc, autor_id: usuarioActual?.id
+    const { data, error: insErr } = await sb.from('delegacion_docs').insert({
+      delegacion_nro: delegActual, titulo, tipo, link, descripcion: desc, autor_id: usuarioActual?.id,
+      visibilidad: vis.visibilidad, destinatarios: vis.destinatarios
     }).select().single();
-    if(data) DELEG_DOCS[delegActual].unshift({ id:data.id, titulo, tipo, link, desc, fecha: hoy() });
+    if(insErr){ setMsg('dd-msg','❌ No se pudo guardar: ' + insErr.message,'err'); return; }
+    if(data) DELEG_DOCS[delegActual].unshift({ id:data.id, titulo, tipo, link, desc, fecha: hoy(), autor_id: usuarioActual?.id, visibilidad: vis.visibilidad, destinatarios: vis.destinatarios });
     await logAct('crear','delegacion_docs',`Delegación ${delegActual}: ${titulo}`);
   } else {
     DELEG_DOCS[delegActual].unshift({ titulo, tipo, link, desc, fecha: hoy() });
@@ -5184,7 +5264,7 @@ guardarDocDeleg = async function() {
   setTimeout(()=>{
     cerrarModal('modal-doc-deleg'); renderDocsDeleg();
     limpiar(['dd-titulo','dd-link','dd-desc']);
-    document.getElementById('dd-archivo').value='';
+    document.getElementById('dd-archivo').value=''; visUI('dd');
     setMsg('dd-msg','','');
   },1000);
 };
@@ -5656,10 +5736,12 @@ let USUARIOS_EQUIPO = [];
 let TOTAL_USUARIOS = 0;
 
 async function cargarUsuariosEquipo() {
-  const { data, error } = await sb.from('perfiles_vocalia').select('nombre, cargo').neq('rol','invitado');
+  const { data, error } = await sb.from('perfiles_vocalia').select('id, nombre, cargo, activo').neq('rol','invitado');
   if(error || !data) return;
   TOTAL_USUARIOS = data.length;
   USUARIOS_EQUIPO = data.map(u => ({
+    id:      u.id,
+    activo:  u.activo,
     nombre:  u.nombre,
     inicial: u.nombre.charAt(0).toUpperCase(),
     cargo:   u.cargo || '',
@@ -6653,8 +6735,9 @@ function renderDocsSedeR() {
   lista.innerHTML = docs.map((d,i)=>`
     <div class="doc-item">
       <span class="doc-icon">📄</span>
-      <div class="doc-info"><div class="doc-name">${esc(d.titulo)}</div><div class="doc-meta">${esc(d.fecha)}</div></div>
+      <div class="doc-info"><div class="doc-name">${esc(d.titulo)}</div><div class="doc-meta">${esc(d.fecha)}${docVisBadge(d)}</div></div>
       ${d.link?`<a href="${escUrl(d.link)}" target="_blank" class="doc-dl">↗ Abrir</a>`:''}
+      ${docVisBtn('sede_docs',d)}
       <button class="doc-del" onclick="eliminarDocSede(${i})">🗑</button>
     </div>`).join('');
 }
@@ -6675,6 +6758,7 @@ function abrirSubirDocSede() {
   const s = sedeActual ? ` · ${sedeActual}` : '';
   const el = document.getElementById('modal-doc-sede-titulo');
   if(el) el.textContent = `Subir documento${s}`;
+  visUI('sd');
   abrirModal('modal-doc-sede');
 }
 
@@ -6689,6 +6773,8 @@ async function guardarDocSede() {
 
   if(!titulo){ setMsg('sd-msg','Ingresá el título.','err'); return; }
   if(!archivo && !link){ setMsg('sd-msg','Subí un archivo o ingresá un link.','err'); return; }
+  const vis = leerVis('sd');
+  if(vis.error){ setMsg('sd-msg',vis.error,'err'); return; }
 
   if(archivo) {
     const prog = document.getElementById('sd-archivo-prog');
@@ -6712,10 +6798,12 @@ async function guardarDocSede() {
   }
 
   if(SUPABASE_LISTO) {
-    const { data } = await sb.from('sede_docs').insert({
-      relatoria: sedeActual, titulo, tipo, link, descripcion: desc, autor_id: usuarioActual?.id
+    const { data, error: insErr } = await sb.from('sede_docs').insert({
+      relatoria: sedeActual, titulo, tipo, link, descripcion: desc, autor_id: usuarioActual?.id,
+      visibilidad: vis.visibilidad, destinatarios: vis.destinatarios
     }).select().single();
-    if(data) SEDE_DOCS[sedeActual].unshift({ id:data.id, titulo, tipo, link, desc, fecha: hoy() });
+    if(insErr){ setMsg('sd-msg','❌ No se pudo guardar: ' + insErr.message,'err'); return; }
+    if(data) SEDE_DOCS[sedeActual].unshift({ id:data.id, titulo, tipo, link, desc, fecha: hoy(), autor_id: usuarioActual?.id, visibilidad: vis.visibilidad, destinatarios: vis.destinatarios });
     await logAct('crear','sede_docs',`Sede ${sedeActual}: ${titulo}`);
   } else {
     SEDE_DOCS[sedeActual].unshift({ titulo, tipo, link, desc, fecha: hoy() });
@@ -6724,7 +6812,7 @@ async function guardarDocSede() {
   setTimeout(()=>{
     cerrarModal('modal-doc-sede'); renderDocsSedeR();
     limpiar(['sd-titulo','sd-link','sd-desc']);
-    document.getElementById('sd-archivo').value='';
+    document.getElementById('sd-archivo').value=''; visUI('sd');
     setMsg('sd-msg','','');
   },1000);
 }
@@ -7065,9 +7153,10 @@ function renderDocsDeleg() {
       <span class="doc-icon">${TIPO_DOC_DELEG[d.tipo]?.split(' ')[0]||'📎'}</span>
       <div class="doc-info">
         <div class="doc-name">${esc(d.titulo)}</div>
-        <div class="doc-meta">${TIPO_DOC_DELEG[d.tipo]||'Otro'} · ${esc(d.fecha)}${d.desc?' · '+d.desc:''}</div>
+        <div class="doc-meta">${TIPO_DOC_DELEG[d.tipo]||'Otro'} · ${esc(d.fecha)}${d.desc?' · '+esc(d.desc):''}${docVisBadge(d)}</div>
       </div>
       ${d.link?`<a href="${escUrl(d.link)}" target="_blank" class="doc-dl">↗ Abrir</a>`:''}
+      ${docVisBtn('delegacion_docs',d)}
       <button class="doc-del" onclick="eliminarDocDeleg(${i})">🗑</button>
     </div>`).join('');
 }
@@ -7091,6 +7180,7 @@ function abrirSubirDocDeleg() {
   const d = DELEGACIONES_B.find(x=>x.nro===delegActual);
   document.getElementById('modal-doc-deleg-titulo').textContent = `Subir documento · ${d.sede}`;
   document.getElementById('da-fecha').value = new Date().toISOString().split('T')[0];
+  visUI('dd');
   abrirModal('modal-doc-deleg');
 }
 
@@ -8186,6 +8276,86 @@ document.addEventListener('DOMContentLoaded', () => {
     if(typeof esInvitado === 'function' && esInvitado()){ e.preventDefault(); e.stopImmediatePropagation(); aviso(); }
   }, true);
 })();
+
+// ══ VISIBILIDAD DE DOCUMENTOS (sede central y delegaciones) ═══════════════
+function puedeGestionarDoc(d){ return esAdmin() || (!!d.autor_id && d.autor_id === usuarioActual?.id); }
+
+function docVisBadge(d){
+  if(d.visibilidad !== 'usuarios') return '';
+  const ids = d.destinatarios || [];
+  if(puedeGestionarDoc(d)){
+    const nombres = ids.map(id => (USUARIOS_EQUIPO.find(u => u.id === id) || {}).nombre).filter(Boolean);
+    const txt = nombres.length ? nombres.join(', ') : ids.length + ' usuario' + (ids.length === 1 ? '' : 's');
+    return ' · <span class="doc-vis-badge">🔒 Restringido: ' + esc(txt) + '</span>';
+  }
+  return ' · <span class="doc-vis-badge">🔒 Compartido con vos</span>';
+}
+function docVisBtn(tabla, d){
+  if(!d.id || !puedeGestionarDoc(d)) return '';
+  return `<button class="doc-vis" title="Quién puede verlo" onclick="editarVisDoc('${tabla}','${esc(String(d.id))}')">👥</button>`;
+}
+
+async function visUI(p, sel){
+  if(!USUARIOS_EQUIPO.length) await cargarUsuariosEquipo();
+  const lista = document.getElementById(p + '-vis-lista');
+  if(!lista) return;
+  const marcados = new Set((sel && sel.destinatarios) || []);
+  const yo = usuarioActual?.id;
+  lista.innerHTML = USUARIOS_EQUIPO
+    .filter(u => u.id && u.id !== yo && u.activo !== false)
+    .map(u => `<label class="vis-user" data-n="${esc((u.nombre + ' ' + u.cargo).toLowerCase())}"><input type="checkbox" value="${esc(u.id)}" ${marcados.has(u.id) ? 'checked' : ''}><span>${esc(u.nombre)}</span><small>${esc(u.cargo)}</small></label>`)
+    .join('') || '<div class="vis-hint" style="padding:.5rem .6rem;">No hay otros usuarios.</div>';
+  const modo = (sel && sel.visibilidad === 'usuarios') ? 'usuarios' : 'todos';
+  const r = document.querySelector(`input[name="${p}-vis"][value="${modo}"]`); if(r) r.checked = true;
+  const b = document.getElementById(p + '-vis-buscar'); if(b) b.value = '';
+  visToggle(p);
+}
+function visToggle(p){
+  const v = document.querySelector(`input[name="${p}-vis"]:checked`)?.value;
+  const box = document.getElementById(p + '-vis-box');
+  if(box) box.style.display = (v === 'usuarios') ? 'block' : 'none';
+}
+function visFiltrar(p){
+  const q = (document.getElementById(p + '-vis-buscar').value || '').toLowerCase().trim();
+  document.querySelectorAll(`#${p}-vis-lista .vis-user`).forEach(l => { l.style.display = (!q || l.dataset.n.includes(q)) ? '' : 'none'; });
+}
+function leerVis(p){
+  const v = document.querySelector(`input[name="${p}-vis"]:checked`)?.value || 'todos';
+  if(v !== 'usuarios') return { visibilidad:'todos', destinatarios:[] };
+  const ids = [...document.querySelectorAll(`#${p}-vis-lista input:checked`)].map(i => i.value);
+  if(!ids.length) return { error:'Elegí al menos un usuario o cambiá a "Todos los usuarios del Portal".' };
+  return { visibilidad:'usuarios', destinatarios:ids };
+}
+
+let _visDoc = null;
+async function editarVisDoc(tabla, id){
+  const arr = tabla === 'sede_docs' ? (SEDE_DOCS[sedeActual] || []) : (DELEG_DOCS[delegActual] || []);
+  const d = arr.find(x => String(x.id) === String(id));
+  if(!d) return;
+  _visDoc = { tabla, d };
+  document.getElementById('vd-titulo').textContent = d.titulo;
+  setMsg('vd-msg','','');
+  await visUI('vd', d);
+  abrirModal('modal-vis-doc');
+}
+async function guardarVisDoc(){
+  if(!_visDoc) return;
+  const vis = leerVis('vd');
+  if(vis.error){ setMsg('vd-msg', vis.error, 'err'); return; }
+  const { data, error } = await sb.from(_visDoc.tabla)
+    .update({ visibilidad: vis.visibilidad, destinatarios: vis.destinatarios })
+    .eq('id', _visDoc.d.id).select();
+  if(error || !data || !data.length){
+    setMsg('vd-msg', '❌ No se pudo guardar' + (error ? ': ' + error.message : ' (sin permiso para modificarlo).'), 'err');
+    return;
+  }
+  _visDoc.d.visibilidad = vis.visibilidad;
+  _visDoc.d.destinatarios = vis.destinatarios;
+  await logAct('editar', _visDoc.tabla, 'Visibilidad: ' + _visDoc.d.titulo);
+  cerrarModal('modal-vis-doc');
+  if(_visDoc.tabla === 'sede_docs') renderDocsSedeR(); else renderDocsDeleg();
+  _visDoc = null;
+}
 </script>
 </body>
 </html>
