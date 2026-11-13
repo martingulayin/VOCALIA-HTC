@@ -3602,7 +3602,7 @@ async function doLogin() {
   // y Auth vería una única IP (la de la función). Directo, cada celular entra con
   // su propia IP. Es una cuenta de solo lectura con clave pública, así que el
   // límite de intentos no aporta nada para ella.
-  const EMAIL_INVITADO = '123456@gmail.com';
+  const EMAIL_INVITADO = 'invitado@htc.gba.gov.ar';
   let resultado, fnError = null;
   if(email.toLowerCase() === EMAIL_INVITADO) {
     const r = await sb.auth.signInWithPassword({ email, password: pass });
@@ -8356,6 +8356,34 @@ async function guardarVisDoc(){
   if(_visDoc.tabla === 'sede_docs') renderDocsSedeR(); else renderDocsDeleg();
   _visDoc = null;
 }
+
+// ══ ACCESO POR QR (solo si el link trae #acceso=...) ═════════════════════
+// El QR de la jornada lleva el usuario invitado codificado en el fragmento (#),
+// que el navegador no envía al servidor. Se completa el login, se destilda
+// "Recordarme" y se borra el fragmento de la barra de direcciones.
+(function(){
+  document.addEventListener('DOMContentLoaded', function(){
+    const m = /[#&]acceso=([^&]+)/.exec(location.hash || '');
+    if(!m) return;
+    let cred = null;
+    try {
+      const raw = atob(m[1].replace(/-/g,'+').replace(/_/g,'/'));
+      const txt = decodeURIComponent(escape(raw));
+      const i = txt.indexOf('|');
+      if(i > 0) cred = { email: txt.slice(0,i), pass: txt.slice(i+1) };
+    } catch(e) {}
+    try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
+    if(!cred) return;
+    setTimeout(function(){
+      const ov = document.getElementById('login-overlay');
+      if(!ov || ov.classList.contains('hidden')) return;   // ya hay sesión abierta
+      document.getElementById('login-email').value = cred.email;
+      document.getElementById('login-pass').value  = cred.pass;
+      const rem = document.getElementById('login-remember'); if(rem) rem.checked = false;
+      doLogin();
+    }, 700);
+  });
+})();
 </script>
 </body>
 </html>
