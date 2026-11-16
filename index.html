@@ -2501,7 +2501,7 @@ table td, table th { font-size:.88rem !important; }
 </main>
 
 <!-- ══ BOTÓN FLOTANTE ASISTENTE ══ -->
-<a href="https://notebook.google.com/notebook/62c30537-996d-47b7-933b-0b960f071c6d" target="_blank" class="asistente-btn" title="Asistente Virtual HTC">
+<a id="asistente-flotante" href="https://notebook.google.com/notebook/62c30537-996d-47b7-933b-0b960f071c6d" target="_blank" rel="noopener" class="asistente-btn" title="Asistente Virtual HTC">
   <span class="asistente-icon">🤖</span>
   <span class="asistente-label">Asistente HTC</span>
 </a>
@@ -6314,6 +6314,15 @@ let HERRAMIENTAS = [
   },
 ];
 
+// El botón flotante "Asistente HTC" toma el link de la tarjeta "HTC - Doctrina y Legislación" (Herramientas Digitales).
+// Si la tarjeta no existe o no tiene link, queda el link por defecto del HTML.
+function actualizarBotonAsistente() {
+  const a = document.getElementById('asistente-flotante');
+  if(!a || typeof HERRAMIENTAS === 'undefined') return;
+  const h = HERRAMIENTAS.find(x => /doctrina\s+y\s+legislaci[oó]n/i.test(x.nombre || '') && x.link);
+  if(h && /^https?:\/\//i.test(h.link)) a.href = h.link;
+}
+
 function renderHerramientas() {
   const cont = document.getElementById('herramientas-lista');
   if(!cont) return;
@@ -6347,6 +6356,7 @@ function renderHerramientas() {
       </div>
     </div>`;
   }).join('');
+  actualizarBotonAsistente();
 }
 
 async function guardarHerramienta() {
