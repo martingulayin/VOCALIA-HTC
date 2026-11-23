@@ -2949,6 +2949,7 @@ body.modo-invitado #banner-invitado{display:flex;}
       <div class="form-field"><label>Edición</label><input type="text" id="jd-edicion" maxlength="80" placeholder="Ej: 15ª Edición"></div>
       <div class="form-field"><label>Fechas</label><input type="text" id="jd-fechas" maxlength="120" placeholder="Ej: 12, 13 y 14 de noviembre de 2026"></div>
       <div class="form-field"><label>Lugar</label><input type="text" id="jd-lugar" maxlength="160" placeholder="Ej: Mar del Plata"></div>
+      <div class="form-field"><label>Cantidad de trabajos <span style="font-weight:400;color:var(--muted);">(se muestra en el recuadro "Trabajos")</span></label><input type="text" id="jd-trabajos" maxlength="20" placeholder="Ej: 12"></div>
       <div class="form-field"><label>Descripción</label><textarea id="jd-desc" rows="4" maxlength="2000" placeholder="Descripción general de la jornada…"></textarea></div>
       <div class="form-field">
         <label style="display:flex;align-items:center;gap:.5rem;text-transform:none;letter-spacing:0;font-size:.78rem;cursor:pointer;">
@@ -8211,7 +8212,7 @@ function renderJornadas() {
   document.getElementById('ji-edicion').textContent   = cfg.edicion || '—';
   document.getElementById('ji-fechas').textContent    = cfg.fechas || '—';
   document.getElementById('ji-lugar').textContent     = cfg.lugar || '—';
-  document.getElementById('ji-ntrabajos').textContent = jornadaAdjuntosDe('trabajos').length || '—';
+  document.getElementById('ji-ntrabajos').textContent = cfg.trabajos_total || '—';   // carga manual (Editar datos)
   document.getElementById('ji-desc').textContent      = cfg.descripcion || '—';
 
   // ── Programa ──
@@ -8363,6 +8364,7 @@ function abrirJornadaDatos() {
   document.getElementById('jd-edicion').value = c.edicion || '';
   document.getElementById('jd-fechas').value  = c.fechas || '';
   document.getElementById('jd-lugar').value   = c.lugar || '';
+  document.getElementById('jd-trabajos').value = c.trabajos_total || '';
   document.getElementById('jd-desc').value    = c.descripcion || '';
   document.getElementById('jd-activa').checked = !!c.activa;
   setMsg('jd-msg', '', '');
@@ -8377,6 +8379,7 @@ async function guardarJornadaDatos(btn) {
     edicion:     document.getElementById('jd-edicion').value.trim() || null,
     fechas:      document.getElementById('jd-fechas').value.trim() || null,
     lugar:       document.getElementById('jd-lugar').value.trim() || null,
+    trabajos_total: document.getElementById('jd-trabajos').value.trim() || null,
     descripcion: document.getElementById('jd-desc').value.trim() || null,
     activa:      document.getElementById('jd-activa').checked,
     updated_at:  new Date().toISOString(),
