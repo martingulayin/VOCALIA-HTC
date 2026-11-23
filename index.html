@@ -712,6 +712,32 @@ main{flex:1;}
 .trabajo-autor{font-size:.72rem;color:var(--muted);}
 .trabajo-comision{font-size:.62rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:.13rem .38rem;border-radius:3px;background:rgba(74,158,224,.1);color:var(--gold);margin-top:.3rem;display:inline-block;}
 
+/* Jornadas — administración de contenido (datos en Supabase) */
+.jsubtabs{display:flex;border-bottom:1px solid var(--border);background:#F8FAFC;overflow-x:auto;scrollbar-width:none;}
+.jsubtabs::-webkit-scrollbar{display:none;}
+.jsubtabs .jornada-subtab{flex:1 0 auto;padding:.6rem .9rem;}
+.jadmin{display:none !important;}
+#modal-jornadas.es-admin .jadmin{display:flex !important;}
+.jbar{gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;}
+.javiso{margin:1rem 1.5rem 0;padding:.6rem .85rem;border-radius:6px;font-size:.75rem;line-height:1.5;background:#FDECEA;color:#8E2A1F;border:1px solid #F5C6C0;}
+.jborrador{margin-bottom:1rem;padding:.6rem .85rem;border-radius:6px;font-size:.75rem;line-height:1.5;background:#FFF7E0;color:#7A5B0E;border:1px solid #F0DFA6;}
+.jsec-titulo{font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:1.4rem 0 .6rem;display:flex;align-items:center;gap:.5rem;}
+.jsec-titulo::after{content:'';flex:1;height:1px;background:rgba(74,158,224,.2);}
+.jlista{display:flex;flex-direction:column;gap:.5rem;}
+.jadj{display:flex;align-items:center;gap:.8rem;padding:.7rem .9rem;background:var(--white);border:1px solid var(--border);border-radius:7px;}
+.jadj-ic{font-size:1.2rem;flex-shrink:0;}
+.jadj-info{flex:1;min-width:0;}
+.jadj-tit{font-size:.84rem;font-weight:600;color:var(--navy);overflow-wrap:anywhere;}
+.jadj-meta{font-size:.68rem;color:var(--muted);margin-top:.15rem;overflow-wrap:anywhere;}
+.jacc{display:flex;align-items:center;gap:.35rem;flex-shrink:0;margin-left:auto;}
+.jedit{background:none;border:none;cursor:pointer;color:#A0AEC0;font-size:.85rem;padding:.1rem .25rem;}
+.jedit:hover{color:var(--gold);}
+.jedit.on-dark{color:rgba(255,255,255,.55);}
+.jedit.on-dark:hover{color:#fff;}
+.jornada-bloque .jacc{align-self:center;}
+.jint-row{display:grid;grid-template-columns:1.4fr 1fr .95fr auto;gap:.4rem;margin-bottom:.4rem;align-items:center;}
+@media(max-width:520px){.jint-row{grid-template-columns:1fr 1fr;}.jint-row .jedit{justify-self:end;}}
+
 /* ══ BIBLIOTECA NORMATIVA ══ */
 .norm-filtro{font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .75rem;border-radius:20px;border:1px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .15s;}
 .norm-filtro:hover{border-color:var(--gold);color:var(--gold);}
@@ -2173,7 +2199,7 @@ body.modo-invitado #banner-invitado{display:flex;}
       <div class="seccion-header" style="margin-top:1.2rem;">
         <div class="seccion-title">Próximas capacitaciones</div>
         <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
-          <button class="btn-accion sec" onclick="abrirModal('modal-jornadas')">🏛️ Jornada Mar del Plata</button>
+          <button class="btn-accion sec" onclick="abrirJornadas()">🏛️ Jornada Mar del Plata</button>
           <button class="btn-accion" onclick="abrirModal('modal-capacitacion')">+ Agregar</button>
         </div>
       </div>
@@ -2806,7 +2832,7 @@ body.modo-invitado #banner-invitado{display:flex;}
     </div>
 
     <!-- Subtabs internos -->
-    <div style="display:flex;border-bottom:1px solid var(--border);background:#F8FAFC;">
+    <div class="jsubtabs">
       <button class="jornada-subtab active" id="jstab-info"     onclick="switchJornadaTab('info')">📋 Información general</button>
       <button class="jornada-subtab"        id="jstab-programa" onclick="switchJornadaTab('programa')">🗓️ Programa</button>
       <button class="jornada-subtab"        id="jstab-comisiones" onclick="switchJornadaTab('comisiones')">👥 Comisiones</button>
@@ -2815,13 +2841,19 @@ body.modo-invitado #banner-invitado{display:flex;}
 
     <div class="modal-body" style="padding:0;min-height:300px;">
 
+      <!-- Avisos generales (error de carga, estado) -->
+      <div id="jornada-aviso" class="javiso" style="display:none;"></div>
+
       <!-- ── Info general ── -->
       <div id="jpanel-info" style="padding:1.4rem 1.5rem;">
+        <div id="jornada-borrador" class="jborrador" style="display:none;">
+          <strong>Borrador.</strong> Los demás usuarios ven "Próximamente" hasta que marques la jornada como publicada en <em>Editar datos</em>.
+        </div>
         <div id="jornada-pendiente" style="text-align:center;padding:2rem 1rem;">
           <div style="font-size:2.5rem;margin-bottom:.8rem;">🗓️</div>
           <div style="font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.4rem;">Jornadas <span id="jp-anio">2026</span> — Próximamente</div>
           <div style="font-size:.82rem;color:var(--muted);max-width:420px;margin:0 auto;line-height:1.65;">
-            Las fechas, lugar y programa de la edición 2026 serán publicados aquí en cuanto estén confirmados.
+            Las fechas, lugar y programa de la edición <span id="jp-anio2">2026</span> serán publicados aquí en cuanto estén confirmados.
           </div>
         </div>
         <div id="jornada-info-datos" style="display:none;">
@@ -2845,29 +2877,51 @@ body.modo-invitado #banner-invitado{display:flex;}
           </div>
           <div style="background:var(--cream);border-radius:7px;padding:1rem 1.2rem;">
             <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;">Descripción</div>
-            <div style="font-size:.84rem;color:var(--text);line-height:1.7;" id="ji-desc">—</div>
+            <div style="font-size:.84rem;color:var(--text);line-height:1.7;white-space:pre-line;" id="ji-desc">—</div>
           </div>
+        </div>
+        <div class="jbar jadmin" style="margin-top:1rem;">
+          <button class="btn-accion sec" onclick="abrirJornadaDatos()">✏️ Editar datos</button>
         </div>
       </div>
 
       <!-- ── Programa ── -->
       <div id="jpanel-programa" style="padding:1.4rem 1.5rem;display:none;">
+        <div class="jbar jadmin">
+          <button class="btn-accion" onclick="abrirJornadaBloque()">+ Bloque del programa</button>
+          <button class="btn-accion sec" onclick="abrirJornadaAdjunto('programa')">📎 Adjuntar archivo o link</button>
+        </div>
         <div id="jp-pendiente" style="text-align:center;padding:2rem 1rem;color:var(--muted);font-size:.85rem;font-style:italic;">
           El programa de la jornada será publicado aquí cuando esté disponible.
         </div>
         <div id="jp-dias" style="display:none;flex-direction:column;gap:1.1rem;"></div>
+        <div id="jp-adjuntos-wrap" style="display:none;">
+          <div class="jsec-titulo">Material del programa</div>
+          <div id="jp-adjuntos" class="jlista"></div>
+        </div>
       </div>
 
       <!-- ── Comisiones ── -->
       <div id="jpanel-comisiones" style="padding:1.4rem 1.5rem;display:none;">
+        <div class="jbar jadmin">
+          <button class="btn-accion" onclick="abrirJornadaComision()">+ Agregar comisión</button>
+          <button class="btn-accion sec" onclick="abrirJornadaAdjunto('comisiones')">📎 Adjuntar archivo o link</button>
+        </div>
         <div id="jc-pendiente" style="text-align:center;padding:2rem 1rem;color:var(--muted);font-size:.85rem;font-style:italic;">
           La composición de las comisiones será publicada aquí cuando esté disponible.
         </div>
         <div id="jc-lista" style="display:none;flex-direction:column;gap:.9rem;"></div>
+        <div id="jc-adjuntos-wrap" style="display:none;">
+          <div class="jsec-titulo">Material de las comisiones</div>
+          <div id="jc-adjuntos" class="jlista"></div>
+        </div>
       </div>
 
       <!-- ── Trabajos ── -->
       <div id="jpanel-trabajos" style="padding:1.4rem 1.5rem;display:none;">
+        <div class="jbar jadmin">
+          <button class="btn-accion" onclick="abrirJornadaAdjunto('trabajos')">+ Agregar trabajo</button>
+        </div>
         <div id="jt-pendiente" style="text-align:center;padding:2rem 1rem;color:var(--muted);font-size:.85rem;font-style:italic;">
           Los trabajos presentados serán publicados aquí una vez finalizada la jornada.
         </div>
@@ -2879,6 +2933,121 @@ body.modo-invitado #banner-invitado{display:flex;}
     <div class="modal-footer">
       <button class="btn-accion sec" onclick="cerrarModal('modal-jornadas')">Cerrar</button>
       <button class="btn-accion" onclick="switchTab('capacitaciones');cerrarModal('modal-jornadas')">Ver capacitaciones →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Jornadas: editar datos generales ── -->
+<div class="modal-overlay" id="modal-jornada-datos">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-head">
+      <div class="modal-title">Datos generales de la jornada</div>
+      <button class="modal-close" onclick="cerrarModal('modal-jornada-datos')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field"><label>Año de la edición</label><input type="text" id="jd-anio" maxlength="9" placeholder="2026"></div>
+      <div class="form-field"><label>Edición</label><input type="text" id="jd-edicion" maxlength="80" placeholder="Ej: 15ª Edición"></div>
+      <div class="form-field"><label>Fechas</label><input type="text" id="jd-fechas" maxlength="120" placeholder="Ej: 12, 13 y 14 de noviembre de 2026"></div>
+      <div class="form-field"><label>Lugar</label><input type="text" id="jd-lugar" maxlength="160" placeholder="Ej: Mar del Plata"></div>
+      <div class="form-field"><label>Descripción</label><textarea id="jd-desc" rows="4" maxlength="2000" placeholder="Descripción general de la jornada…"></textarea></div>
+      <div class="form-field">
+        <label style="display:flex;align-items:center;gap:.5rem;text-transform:none;letter-spacing:0;font-size:.78rem;cursor:pointer;">
+          <input type="checkbox" id="jd-activa" style="width:auto;margin:0;"> Publicar (visible para todos los usuarios)
+        </label>
+      </div>
+      <div class="form-msg" id="jd-msg"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-accion sec" onclick="cerrarModal('modal-jornada-datos')">Cancelar</button>
+      <button class="btn-accion" onclick="guardarJornadaDatos(this)">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Jornadas: bloque del programa ── -->
+<div class="modal-overlay" id="modal-jornada-bloque">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-head">
+      <div class="modal-title" id="jb-titulo-modal">Bloque del programa</div>
+      <button class="modal-close" onclick="cerrarModal('modal-jornada-bloque')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="jb-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;">
+        <div class="form-field"><label>N.º de día</label><input type="number" id="jb-dia" min="1" max="30" placeholder="1"></div>
+        <div class="form-field"><label>Hora</label><input type="time" id="jb-hora"></div>
+      </div>
+      <div class="form-field"><label>Fecha del día <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><input type="text" id="jb-fecha" maxlength="60" placeholder="Ej: Miércoles 12/11"></div>
+      <div class="form-field"><label>Título del día <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><input type="text" id="jb-dia-titulo" maxlength="100" placeholder="Ej: Acto de apertura y exposiciones"></div>
+      <div class="form-field"><label>Actividad</label><input type="text" id="jb-actividad" maxlength="200" placeholder="Ej: Acreditaciones"></div>
+      <div class="form-field"><label>Detalle <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><textarea id="jb-detalle" rows="2" maxlength="500" placeholder="Ej: Palabras del Vocal"></textarea></div>
+      <div class="form-msg" id="jb-msg"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-accion sec" onclick="cerrarModal('modal-jornada-bloque')">Cancelar</button>
+      <button class="btn-accion" onclick="guardarJornadaBloque(this)">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Jornadas: comisión ── -->
+<div class="modal-overlay" id="modal-jornada-comision">
+  <div class="modal-box" style="max-width:560px;">
+    <div class="modal-head">
+      <div class="modal-title" id="jcm-titulo-modal">Comisión</div>
+      <button class="modal-close" onclick="cerrarModal('modal-jornada-comision')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="jcm-id">
+      <div class="form-field"><label>Nombre de la comisión</label><input type="text" id="jcm-titulo" maxlength="160" placeholder="Ej: Presupuesto y control"></div>
+      <div class="form-field">
+        <label>Integrantes</label>
+        <div id="jcm-integrantes"></div>
+        <button type="button" class="btn-accion sec" style="margin-top:.4rem;" onclick="jornadaAgregarIntegrante()">+ Agregar integrante</button>
+      </div>
+      <div class="form-msg" id="jcm-msg"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-accion sec" onclick="cerrarModal('modal-jornada-comision')">Cancelar</button>
+      <button class="btn-accion" onclick="guardarJornadaComision(this)">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Jornadas: archivo o link (programa / comisiones / trabajos) ── -->
+<div class="modal-overlay" id="modal-jornada-adjunto">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-head">
+      <div class="modal-title" id="ja-titulo-modal">Agregar archivo o link</div>
+      <button class="modal-close" onclick="cerrarModal('modal-jornada-adjunto')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="ja-seccion">
+      <div class="form-field"><label>Título</label><input type="text" id="ja-titulo" maxlength="200" placeholder="Nombre descriptivo…"></div>
+      <div class="ja-trabajo">
+        <div class="form-field"><label>Autor/es</label><input type="text" id="ja-autor" maxlength="200" placeholder="Ej: Cr. García"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;">
+          <div class="form-field"><label>Delegación</label><input type="text" id="ja-deleg" maxlength="100" placeholder="Ej: La Plata"></div>
+          <div class="form-field"><label>Comisión</label><input type="text" id="ja-comision" maxlength="160" placeholder="Ej: Comisión 1"></div>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Subir archivo <span style="font-weight:400;color:var(--muted);">(PDF, Word, Excel, PPT, imágenes · máx. 20 MB)</span></label>
+        <input type="file" id="ja-archivo" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.gif,.webp,.txt,.csv,.zip" style="font-size:.78rem;padding:.35rem 0;color:var(--text);">
+        <div id="ja-prog" style="display:none;margin-top:.4rem;">
+          <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+            <div id="ja-bar" style="height:100%;width:0%;background:var(--gold);transition:width .3s;"></div>
+          </div>
+          <div id="ja-stat" style="font-size:.68rem;color:var(--muted);margin-top:.3rem;"></div>
+        </div>
+      </div>
+      <div class="form-field"><label>O link externo <span style="font-weight:400;color:var(--muted);">(Drive, YouTube, etc.)</span></label><input type="url" id="ja-link" placeholder="https://…"></div>
+      <div class="form-field"><label>Descripción <span style="font-weight:400;color:var(--muted);">(opcional)</span></label><textarea id="ja-desc" rows="2" maxlength="500" placeholder="Breve descripción…"></textarea></div>
+      <div class="form-msg" id="ja-msg"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-accion sec" onclick="cerrarModal('modal-jornada-adjunto')">Cancelar</button>
+      <button class="btn-accion" onclick="guardarJornadaAdjunto(this)">Guardar</button>
     </div>
   </div>
 </div>
@@ -7925,126 +8094,470 @@ dz.addEventListener('dragover',e=>{ e.preventDefault(); dz.classList.add('dragov
 dz.addEventListener('dragleave',()=>dz.classList.remove('dragover'));
 dz.addEventListener('drop',e=>{ e.preventDefault(); dz.classList.remove('dragover'); const f=e.dataTransfer.files[0]; if(f) simularUpload(f); });
 
-// ══ JORNADAS DE CAPACITACIÓN — CONGRESO INTERNO ═══════════════════════════
-// Cuando tengas los datos, completá los campos marcados con TODO:
-const JORNADA_DATA = {
-  activa: false,           // ← cambiá a true cuando tengas datos
-  anio: '2026',
-  edicion: null,           // TODO: ej. '15ª Edición'
-  fechas: null,            // TODO: ej. '12, 13 y 14 de noviembre de 2026'
-  lugar: null,             // TODO: ej. 'Salón principal HTC · La Plata'
-  descripcion: null,       // TODO: descripción general de la jornada
-
-  // Programa: array de días, cada uno con bloques horarios
-  programa: [
-    // TODO — ejemplo de estructura:
-    // { dia:'Día 1', fecha:'Miércoles 12/11', bloques:[
-    //   { hora:'09:00', actividad:'Acto de apertura', detalle:'Palabras del Vocal' },
-    //   { hora:'10:00', actividad:'Exposición en comisiones — 1er. turno', detalle:'' },
-    //   { hora:'13:00', actividad:'Almuerzo', detalle:'' },
-    //   { hora:'15:00', actividad:'Exposición en comisiones — 2do. turno', detalle:'' },
-    // ]},
-  ],
-
-  // Comisiones: array con nombre y lista de integrantes
-  comisiones: [
-    // TODO — ejemplo de estructura:
-    // { titulo:'Comisión I — Presupuesto y control', integrantes:[
-    //   { nombre:'Cr. García', delegacion:'La Plata', rol:'coordinador' },
-    //   { nombre:'Lic. Martínez', delegacion:'Quilmes', rol:'relator' },
-    //   { nombre:'Cr. López', delegacion:'Zárate', rol:'expositor' },
-    // ]},
-  ],
-
-  // Trabajos: array de trabajos presentados
-  trabajos: [
-    // TODO — ejemplo de estructura:
-    // { titulo:'El control previo en municipios de la Vocalía B', autor:'Cr. García', delegacion:'La Plata', comision:'Comisión I' },
-  ],
-};
+// ══ JORNADAS DE CAPACITACIÓN — datos en Supabase ══════════════════════════
+// Tablas: jornada_config (1 fila), jornada_programa, jornada_comisiones, jornada_adjuntos.
+// Archivos: bucket 'documentos Vocalia', carpeta jornadas/<año>/<sección>/.
+// Lectura: cualquier usuario autenticado. Escritura: la decide la RLS (jornada_puede_editar());
+// los botones de administración se muestran con esAdmin() pero la seguridad real es la RLS.
+const JORNADA = { cfg:{ activa:false, anio:'2026' }, programa:[], comisiones:[], adjuntos:[], cargando:false, error:null };
+const JORNADA_BUCKET = 'documentos Vocalia';
+const JORNADA_ROLES_INT = ['coordinador','relator','expositor'];
+const JORNADA_TITULOS_ADJ = { programa:'Adjuntar al programa', comisiones:'Adjuntar a comisiones', trabajos:'Agregar trabajo' };
 
 function switchJornadaTab(tab) {
   ['info','programa','comisiones','trabajos'].forEach(t => {
     document.getElementById('jpanel-'+t).style.display = t===tab ? 'block' : 'none';
     document.getElementById('jstab-'+t).classList.toggle('active', t===tab);
   });
+  const act = document.getElementById('jstab-'+tab);
+  if(act && act.scrollIntoView) act.scrollIntoView({ block:'nearest', inline:'center' });
+}
+
+async function abrirJornadas() {
+  abrirModal('modal-jornadas');
+  JORNADA.cargando = true;
+  renderJornadas();
+  await cargarJornadas();
+}
+
+function jornadaAviso(msg, ms) {
+  const el = document.getElementById('jornada-aviso');
+  if(!el) return;
+  el.textContent = msg || '';
+  el.style.display = msg ? 'block' : 'none';
+  if(msg && ms) setTimeout(()=>{ if(el.textContent === msg) { el.style.display = 'none'; } }, ms);
+}
+
+async function cargarJornadas() {
+  JORNADA.error = null;
+  try {
+    if(!SUPABASE_LISTO || typeof sb === 'undefined' || !sb) throw new Error('Sin conexión con la base de datos');
+    const rc = await sb.from('jornada_config').select('*').eq('id', 1).maybeSingle();
+    if(rc.error) throw rc.error;
+    if(rc.data) JORNADA.cfg = rc.data;
+    const anio = JORNADA.cfg.anio;
+    const [rp, rm, ra] = await Promise.all([
+      sb.from('jornada_programa').select('*').eq('anio', anio),
+      sb.from('jornada_comisiones').select('*').eq('anio', anio).order('orden').order('created_at'),
+      sb.from('jornada_adjuntos').select('*').eq('anio', anio).order('created_at', { ascending:false }),
+    ]);
+    const err = rp.error || rm.error || ra.error;
+    if(err) throw err;
+    JORNADA.programa    = rp.data || [];
+    JORNADA.comisiones  = rm.data || [];
+    JORNADA.adjuntos    = ra.data || [];
+  } catch(e) {
+    console.error('Jornadas — error de carga:', e);
+    JORNADA.error = e;
+  }
+  JORNADA.cargando = false;
+  renderJornadas();
+}
+
+// ── helpers de render ──
+function jornadaDiaNum(s) { const n = parseInt(String(s||'').replace(/\D/g,''), 10); return isNaN(n) ? 0 : n; }
+function jornadaHost(url) { try { return new URL(url).hostname.replace(/^www\./,''); } catch(e) { return ''; } }
+function jornadaAdjuntosDe(seccion) { return JORNADA.adjuntos.filter(a => a.seccion === seccion); }
+
+function jornadaBtnAbrir(a) {
+  return `<button class="doc-dl" onclick="abrirAdjuntoJornada('${escJs(a.id)}')">${a.storage_path ? '↓ Abrir' : '↗ Abrir'}</button>`;
+}
+function jornadaBtnBorrar(onclick) {
+  return esAdmin() ? `<button class="doc-del" onclick="${onclick}" title="Eliminar">🗑</button>` : '';
+}
+
+function jornadaHtmlAdjunto(a) {
+  const origen = a.storage_path ? (a.nombre_archivo || 'Archivo') : jornadaHost(a.link);
+  const meta = [origen, a.descripcion].filter(Boolean).map(esc).join(' · ');
+  const icono = a.storage_path ? iconDoc(a.nombre_archivo || a.storage_path) : '🔗';
+  return `
+    <div class="jadj">
+      <span class="jadj-ic">${icono}</span>
+      <div class="jadj-info">
+        <div class="jadj-tit">${esc(a.titulo)}</div>
+        ${meta ? `<div class="jadj-meta">${meta}</div>` : ''}
+      </div>
+      <div class="jacc">${jornadaBtnAbrir(a)}${jornadaBtnBorrar(`eliminarAdjuntoJornada('${escJs(a.id)}')`)}</div>
+    </div>`;
 }
 
 function renderJornadas() {
-  const d = JORNADA_DATA;
+  const cfg = JORNADA.cfg || {};
+  const admin = esAdmin();
+  const visible = !!cfg.activa || admin;
+  const modal = document.getElementById('modal-jornadas');
+  if(!modal) return;
+  modal.classList.toggle('es-admin', admin);
 
-  // Info general
-  if(d.activa) {
-    document.getElementById('jornada-pendiente').style.display = 'none';
-    document.getElementById('jornada-info-datos').style.display = 'block';
-    document.getElementById('ji-edicion').textContent  = d.edicion || '—';
-    document.getElementById('ji-fechas').textContent   = d.fechas  || '—';
-    document.getElementById('ji-lugar').textContent    = d.lugar   || '—';
-    document.getElementById('ji-ntrabajos').textContent = d.trabajos.length || '—';
-    document.getElementById('ji-desc').textContent     = d.descripcion || '—';
-    document.getElementById('jp-anio').textContent     = d.anio;
+  // Año en encabezado y textos
+  ['jornada-anio','jp-anio','jp-anio2'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = cfg.anio || ''; });
+
+  // Avisos
+  if(JORNADA.error) {
+    jornadaAviso(admin
+      ? 'No se pudieron cargar los datos de la jornada. ¿Se ejecutó el SQL de Jornadas en Supabase? (detalle en la consola del navegador)'
+      : 'No se pudieron cargar los datos de la jornada. Intentá de nuevo más tarde.');
+  } else if(JORNADA.cargando) {
+    jornadaAviso('Cargando…');
+  } else {
+    jornadaAviso('');
   }
+  document.getElementById('jornada-borrador').style.display = (admin && !cfg.activa && !JORNADA.error) ? 'block' : 'none';
 
-  // Programa
-  if(d.activa && d.programa.length) {
-    document.getElementById('jp-pendiente').style.display = 'none';
-    const cont = document.getElementById('jp-dias');
-    cont.style.display = 'flex';
-    cont.innerHTML = d.programa.map(dia => `
+  // ── Info general ──
+  const hayDatos = visible && !JORNADA.error;
+  document.getElementById('jornada-pendiente').style.display   = hayDatos ? 'none' : 'block';
+  document.getElementById('jornada-info-datos').style.display  = hayDatos ? 'block' : 'none';
+  document.getElementById('ji-edicion').textContent   = cfg.edicion || '—';
+  document.getElementById('ji-fechas').textContent    = cfg.fechas || '—';
+  document.getElementById('ji-lugar').textContent     = cfg.lugar || '—';
+  document.getElementById('ji-ntrabajos').textContent = jornadaAdjuntosDe('trabajos').length || '—';
+  document.getElementById('ji-desc').textContent      = cfg.descripcion || '—';
+
+  // ── Programa ──
+  const bloques = hayDatos ? JORNADA.programa.slice() : [];
+  const contDias = document.getElementById('jp-dias');
+  document.getElementById('jp-pendiente').style.display = bloques.length ? 'none' : 'block';
+  contDias.style.display = bloques.length ? 'flex' : 'none';
+  if(bloques.length) {
+    const porDia = {};
+    bloques.forEach(b => { (porDia[b.dia] = porDia[b.dia] || []).push(b); });
+    const dias = Object.keys(porDia).sort((a,b) => jornadaDiaNum(a) - jornadaDiaNum(b) || a.localeCompare(b));
+    contDias.innerHTML = dias.map(d => {
+      const lista = porDia[d].sort((a,b) => String(a.hora).localeCompare(String(b.hora)) || (a.orden||0) - (b.orden||0));
+      const titulo = (lista.find(x => x.dia_titulo) || {}).dia_titulo || '';
+      const fecha  = (lista.find(x => x.fecha) || {}).fecha || '';
+      return `
       <div class="jornada-dia">
         <div class="jornada-dia-head">
-          <span class="jornada-dia-num">${dia.dia}</span>
-          <span class="jornada-dia-titulo">${dia.titulo||''}</span>
-          <span class="jornada-dia-fecha">${dia.fecha}</span>
+          <span class="jornada-dia-num">${esc(d)}</span>
+          <span class="jornada-dia-titulo">${esc(titulo)}</span>
+          <span class="jornada-dia-fecha">${esc(fecha)}</span>
         </div>
-        ${dia.bloques.map(b => `
+        ${lista.map(b => `
           <div class="jornada-bloque">
-            <div class="jornada-hora">${b.hora} hs.</div>
-            <div>
-              <div class="jornada-actividad">${b.actividad}</div>
-              ${b.detalle?`<div class="jornada-actividad-sub">${b.detalle}</div>`:''}
+            <div class="jornada-hora">${esc(String(b.hora).slice(0,5))} hs.</div>
+            <div style="flex:1;min-width:0;">
+              <div class="jornada-actividad">${esc(b.actividad)}</div>
+              ${b.detalle ? `<div class="jornada-actividad-sub">${esc(b.detalle)}</div>` : ''}
             </div>
+            ${admin ? `<div class="jacc">
+              <button class="jedit" onclick="abrirJornadaBloque('${escJs(b.id)}')" title="Editar">✏️</button>
+              ${jornadaBtnBorrar(`eliminarJornadaItem('jornada_programa','${escJs(b.id)}','el bloque')`)}
+            </div>` : ''}
           </div>`).join('')}
-      </div>`).join('');
+      </div>`;
+    }).join('');
+  }
+  const adjProg = hayDatos ? jornadaAdjuntosDe('programa') : [];
+  document.getElementById('jp-adjuntos-wrap').style.display = adjProg.length ? 'block' : 'none';
+  document.getElementById('jp-adjuntos').innerHTML = adjProg.map(jornadaHtmlAdjunto).join('');
+
+  // ── Comisiones ──
+  const coms = hayDatos ? JORNADA.comisiones : [];
+  const contCom = document.getElementById('jc-lista');
+  document.getElementById('jc-pendiente').style.display = coms.length ? 'none' : 'block';
+  contCom.style.display = coms.length ? 'flex' : 'none';
+  contCom.innerHTML = coms.map((c, i) => `
+    <div class="comision-card">
+      <div class="comision-head">
+        <span class="comision-num">Comisión ${i+1}</span>
+        <span class="comision-titulo">${esc(c.titulo)}</span>
+        ${admin ? `<div class="jacc">
+          <button class="jedit on-dark" onclick="abrirJornadaComision('${escJs(c.id)}')" title="Editar">✏️</button>
+          <button class="jedit on-dark" onclick="eliminarJornadaItem('jornada_comisiones','${escJs(c.id)}','la comisión')" title="Eliminar">🗑</button>
+        </div>` : ''}
+      </div>
+      <div class="comision-body">
+        ${(Array.isArray(c.integrantes) && c.integrantes.length) ? c.integrantes.map(p => {
+          const rol = JORNADA_ROLES_INT.includes(p.rol) ? p.rol : 'expositor';
+          return `
+          <div class="comision-integrante">
+            <span class="comision-rol rol-${rol}">${rol.charAt(0).toUpperCase()+rol.slice(1)}</span>
+            <span>${esc(p.nombre)}</span>
+            ${p.delegacion ? `<span style="font-size:.65rem;color:var(--muted);">· ${esc(p.delegacion)}</span>` : ''}
+          </div>`;
+        }).join('') : '<div style="font-size:.75rem;color:var(--muted);font-style:italic;">Integrantes a confirmar.</div>'}
+      </div>
+    </div>`).join('');
+  const adjCom = hayDatos ? jornadaAdjuntosDe('comisiones') : [];
+  document.getElementById('jc-adjuntos-wrap').style.display = adjCom.length ? 'block' : 'none';
+  document.getElementById('jc-adjuntos').innerHTML = adjCom.map(jornadaHtmlAdjunto).join('');
+
+  // ── Trabajos ──
+  const trab = hayDatos ? jornadaAdjuntosDe('trabajos').slice().reverse() : [];   // más viejo primero → numeración estable
+  const contTrab = document.getElementById('jt-lista');
+  document.getElementById('jt-pendiente').style.display = trab.length ? 'none' : 'block';
+  contTrab.style.display = trab.length ? 'flex' : 'none';
+  contTrab.innerHTML = trab.map((t, i) => {
+    const autor = [t.autor_trabajo, t.delegacion].filter(Boolean).join(' · ');
+    return `
+    <div class="trabajo-item">
+      <div class="trabajo-num">${i+1}</div>
+      <div class="trabajo-info" style="min-width:0;">
+        <div class="trabajo-titulo" style="overflow-wrap:anywhere;">${esc(t.titulo)}</div>
+        ${autor ? `<div class="trabajo-autor">${esc(autor)}</div>` : ''}
+        ${t.descripcion ? `<div class="trabajo-autor" style="margin-top:.2rem;">${esc(t.descripcion)}</div>` : ''}
+        ${t.comision ? `<span class="trabajo-comision">${esc(t.comision)}</span>` : ''}
+      </div>
+      <div class="jacc">${jornadaBtnAbrir(t)}${jornadaBtnBorrar(`eliminarAdjuntoJornada('${escJs(t.id)}')`)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── abrir archivo / link ──
+async function abrirAdjuntoJornada(id) {
+  const a = JORNADA.adjuntos.find(x => x.id === id);
+  if(!a) return;
+  if(a.link && !a.storage_path) {
+    if(/^https?:\/\//i.test(a.link)) window.open(a.link, '_blank', 'noopener');
+    return;
+  }
+  // Se abre una pestaña en el clic (evita el bloqueo de ventanas emergentes) y después se le asigna la URL firmada.
+  const w = window.open('', '_blank');
+  try {
+    const { data, error } = await sb.storage.from(JORNADA_BUCKET).createSignedUrl(a.storage_path, 300);
+    if(error || !data?.signedUrl) throw (error || new Error('Sin URL firmada'));
+    if(w) { w.opener = null; w.location.href = data.signedUrl; }
+    else {
+      const l = document.createElement('a'); l.href = data.signedUrl; l.target = '_blank'; l.rel = 'noopener';
+      document.body.appendChild(l); l.click(); l.remove();
+    }
+    logAct('descargar', 'jornadas', `Abrió: ${a.titulo}`);
+  } catch(e) {
+    console.error('Jornadas — abrir archivo:', e);
+    if(w) w.close();
+    jornadaAviso('No se pudo abrir el archivo. Intentá de nuevo.', 5000);
+  }
+}
+
+// ── eliminar ──
+async function eliminarJornadaItem(tabla, id, etiqueta) {
+  if(!esAdmin()) return;
+  if(!['jornada_programa','jornada_comisiones'].includes(tabla)) return;
+  if(!confirm(`¿Eliminás ${etiqueta}?`)) return;
+  const { data, error } = await sb.from(tabla).delete().eq('id', id).select();
+  if(error || !data?.length) { console.error('Jornadas — eliminar:', error); jornadaAviso('No se pudo eliminar. Verificá tus permisos.', 5000); return; }
+  await logAct('eliminar', 'jornadas', `Eliminó ${etiqueta}`);
+  await cargarJornadas();
+}
+
+async function eliminarAdjuntoJornada(id) {
+  if(!esAdmin()) return;
+  const a = JORNADA.adjuntos.find(x => x.id === id);
+  if(!a || !confirm(`¿Eliminás "${a.titulo}"?`)) return;
+  const { data, error } = await sb.from('jornada_adjuntos').delete().eq('id', id).select();
+  if(error || !data?.length) { console.error('Jornadas — eliminar adjunto:', error); jornadaAviso('No se pudo eliminar. Verificá tus permisos.', 5000); return; }
+  if(a.storage_path) {
+    const r = await sb.storage.from(JORNADA_BUCKET).remove([a.storage_path]);
+    if(r.error) console.error('Jornadas — el registro se borró pero el archivo quedó en Storage:', a.storage_path, r.error);
+  }
+  await logAct('eliminar', 'jornadas', `Eliminó: ${a.titulo}`);
+  await cargarJornadas();
+}
+
+// ── datos generales ──
+function abrirJornadaDatos() {
+  const c = JORNADA.cfg || {};
+  document.getElementById('jd-anio').value    = c.anio || '';
+  document.getElementById('jd-edicion').value = c.edicion || '';
+  document.getElementById('jd-fechas').value  = c.fechas || '';
+  document.getElementById('jd-lugar').value   = c.lugar || '';
+  document.getElementById('jd-desc').value    = c.descripcion || '';
+  document.getElementById('jd-activa').checked = !!c.activa;
+  setMsg('jd-msg', '', '');
+  abrirModal('modal-jornada-datos');
+}
+
+async function guardarJornadaDatos(btn) {
+  const anio = document.getElementById('jd-anio').value.trim();
+  if(!/^[0-9A-Za-z_-]{1,9}$/.test(anio)) { setMsg('jd-msg', 'Ingresá el año (por ejemplo 2026).', 'err'); return; }
+  const payload = {
+    anio,
+    edicion:     document.getElementById('jd-edicion').value.trim() || null,
+    fechas:      document.getElementById('jd-fechas').value.trim() || null,
+    lugar:       document.getElementById('jd-lugar').value.trim() || null,
+    descripcion: document.getElementById('jd-desc').value.trim() || null,
+    activa:      document.getElementById('jd-activa').checked,
+    updated_at:  new Date().toISOString(),
+  };
+  btn.disabled = true;
+  try {
+    const { data, error } = await sb.from('jornada_config').update(payload).eq('id', 1).select().single();
+    if(error || !data) throw (error || new Error('Sin permisos'));
+    await logAct('editar', 'jornadas', 'Datos generales de la jornada');
+    cerrarModal('modal-jornada-datos');
+    await cargarJornadas();
+  } catch(e) {
+    console.error('Jornadas — guardar datos:', e);
+    setMsg('jd-msg', '❌ No se pudo guardar. Verificá tus permisos.', 'err');
+  } finally { btn.disabled = false; }
+}
+
+// ── programa ──
+function abrirJornadaBloque(id) {
+  const b = id ? JORNADA.programa.find(x => x.id === id) : null;
+  document.getElementById('jb-id').value          = b ? b.id : '';
+  document.getElementById('jb-titulo-modal').textContent = b ? 'Editar bloque del programa' : 'Bloque del programa';
+  document.getElementById('jb-dia').value         = b ? (jornadaDiaNum(b.dia) || '') : '';
+  document.getElementById('jb-hora').value        = b ? String(b.hora).slice(0,5) : '';
+  document.getElementById('jb-fecha').value       = b?.fecha || '';
+  document.getElementById('jb-dia-titulo').value  = b?.dia_titulo || '';
+  document.getElementById('jb-actividad').value   = b?.actividad || '';
+  document.getElementById('jb-detalle').value     = b?.detalle || '';
+  setMsg('jb-msg', '', '');
+  abrirModal('modal-jornada-bloque');
+}
+
+async function guardarJornadaBloque(btn) {
+  const id   = document.getElementById('jb-id').value;
+  const dia  = parseInt(document.getElementById('jb-dia').value, 10);
+  const hora = document.getElementById('jb-hora').value;
+  const actividad = document.getElementById('jb-actividad').value.trim();
+  if(!dia || dia < 1) { setMsg('jb-msg', 'Ingresá el número de día.', 'err'); return; }
+  if(!hora)           { setMsg('jb-msg', 'Ingresá la hora.', 'err'); return; }
+  if(!actividad)      { setMsg('jb-msg', 'Ingresá la actividad.', 'err'); return; }
+  const payload = {
+    dia: 'Día ' + dia,
+    dia_titulo: document.getElementById('jb-dia-titulo').value.trim() || null,
+    fecha:      document.getElementById('jb-fecha').value.trim() || null,
+    hora, actividad,
+    detalle:    document.getElementById('jb-detalle').value.trim() || null,
+  };
+  btn.disabled = true;
+  try {
+    let r;
+    if(id) r = await sb.from('jornada_programa').update(payload).eq('id', id).select().single();
+    else   r = await sb.from('jornada_programa').insert({ ...payload, anio: JORNADA.cfg.anio }).select().single();
+    if(r.error || !r.data) throw (r.error || new Error('Sin permisos'));
+    await logAct(id ? 'editar' : 'crear', 'jornadas', `Programa: ${payload.dia} ${hora} ${actividad}`);
+    cerrarModal('modal-jornada-bloque');
+    await cargarJornadas();
+  } catch(e) {
+    console.error('Jornadas — guardar bloque:', e);
+    setMsg('jb-msg', '❌ No se pudo guardar. Verificá tus permisos.', 'err');
+  } finally { btn.disabled = false; }
+}
+
+// ── comisiones ──
+function jornadaAgregarIntegrante(p) {
+  const row = document.createElement('div');
+  row.className = 'jint-row';
+  row.innerHTML = `
+    <input type="text" class="ji-nombre" placeholder="Nombre y apellido" maxlength="120">
+    <input type="text" class="ji-deleg" placeholder="Delegación" maxlength="80">
+    <select class="ji-rol">${JORNADA_ROLES_INT.map(r => `<option value="${r}">${r.charAt(0).toUpperCase()+r.slice(1)}</option>`).join('')}</select>
+    <button type="button" class="jedit" title="Quitar" onclick="this.parentNode.remove()">✕</button>`;
+  document.getElementById('jcm-integrantes').appendChild(row);
+  if(p) {
+    row.querySelector('.ji-nombre').value = p.nombre || '';
+    row.querySelector('.ji-deleg').value  = p.delegacion || '';
+    row.querySelector('.ji-rol').value    = JORNADA_ROLES_INT.includes(p.rol) ? p.rol : 'expositor';
+  }
+}
+
+function abrirJornadaComision(id) {
+  const c = id ? JORNADA.comisiones.find(x => x.id === id) : null;
+  document.getElementById('jcm-id').value = c ? c.id : '';
+  document.getElementById('jcm-titulo-modal').textContent = c ? 'Editar comisión' : 'Agregar comisión';
+  document.getElementById('jcm-titulo').value = c?.titulo || '';
+  document.getElementById('jcm-integrantes').innerHTML = '';
+  const ints = (c && Array.isArray(c.integrantes)) ? c.integrantes : [];
+  if(ints.length) ints.forEach(p => jornadaAgregarIntegrante(p)); else jornadaAgregarIntegrante();
+  setMsg('jcm-msg', '', '');
+  abrirModal('modal-jornada-comision');
+}
+
+async function guardarJornadaComision(btn) {
+  const id = document.getElementById('jcm-id').value;
+  const titulo = document.getElementById('jcm-titulo').value.trim();
+  if(!titulo) { setMsg('jcm-msg', 'Ingresá el nombre de la comisión.', 'err'); return; }
+  const integrantes = [...document.querySelectorAll('#jcm-integrantes .jint-row')].map(r => ({
+    nombre:     r.querySelector('.ji-nombre').value.trim(),
+    delegacion: r.querySelector('.ji-deleg').value.trim(),
+    rol:        r.querySelector('.ji-rol').value,
+  })).filter(p => p.nombre);
+  btn.disabled = true;
+  try {
+    let r;
+    if(id) r = await sb.from('jornada_comisiones').update({ titulo, integrantes }).eq('id', id).select().single();
+    else   r = await sb.from('jornada_comisiones').insert({ titulo, integrantes, anio: JORNADA.cfg.anio, orden: JORNADA.comisiones.length + 1 }).select().single();
+    if(r.error || !r.data) throw (r.error || new Error('Sin permisos'));
+    await logAct(id ? 'editar' : 'crear', 'jornadas', `Comisión: ${titulo}`);
+    cerrarModal('modal-jornada-comision');
+    await cargarJornadas();
+  } catch(e) {
+    console.error('Jornadas — guardar comisión:', e);
+    setMsg('jcm-msg', '❌ No se pudo guardar. Verificá tus permisos.', 'err');
+  } finally { btn.disabled = false; }
+}
+
+// ── archivos y links (programa / comisiones / trabajos) ──
+function abrirJornadaAdjunto(seccion) {
+  document.getElementById('ja-seccion').value = seccion;
+  document.getElementById('ja-titulo-modal').textContent = JORNADA_TITULOS_ADJ[seccion] || 'Agregar archivo o link';
+  document.querySelectorAll('#modal-jornada-adjunto .ja-trabajo').forEach(el => { el.style.display = seccion === 'trabajos' ? 'block' : 'none'; });
+  ['ja-titulo','ja-autor','ja-deleg','ja-comision','ja-link','ja-desc'].forEach(i => document.getElementById(i).value = '');
+  document.getElementById('ja-archivo').value = '';
+  document.getElementById('ja-prog').style.display = 'none';
+  setMsg('ja-msg', '', '');
+  abrirModal('modal-jornada-adjunto');
+}
+
+async function guardarJornadaAdjunto(btn) {
+  const seccion = document.getElementById('ja-seccion').value;
+  if(!['programa','comisiones','trabajos'].includes(seccion)) return;
+  const titulo  = document.getElementById('ja-titulo').value.trim();
+  const link    = document.getElementById('ja-link').value.trim();
+  const archivo = document.getElementById('ja-archivo').files[0];
+
+  if(!titulo)           { setMsg('ja-msg', 'Ingresá el título.', 'err'); return; }
+  if(!archivo && !link) { setMsg('ja-msg', 'Subí un archivo o ingresá un link.', 'err'); return; }
+  if(link && !/^https?:\/\//i.test(link)) { setMsg('ja-msg', 'El link debe empezar con http:// o https://', 'err'); return; }
+  if(archivo) {
+    const ext = archivo.name.split('.').pop().toLowerCase();
+    if(!UPLOAD_EXTS_OK.includes(ext)) { setMsg('ja-msg', `Tipo de archivo no permitido (.${ext}).`, 'err'); return; }
+    if(archivo.size > UPLOAD_MAX_MB * 1024 * 1024) { setMsg('ja-msg', `El archivo supera el máximo de ${UPLOAD_MAX_MB} MB.`, 'err'); return; }
   }
 
-  // Comisiones
-  if(d.activa && d.comisiones.length) {
-    document.getElementById('jc-pendiente').style.display = 'none';
-    const cont = document.getElementById('jc-lista');
-    cont.style.display = 'flex';
-    cont.innerHTML = d.comisiones.map((c,i) => `
-      <div class="comision-card">
-        <div class="comision-head">
-          <span class="comision-num">Comisión ${i+1}</span>
-          <span class="comision-titulo">${esc(c.titulo)}</span>
-        </div>
-        <div class="comision-body">
-          ${c.integrantes.map(p => `
-            <div class="comision-integrante">
-              <span class="comision-rol rol-${p.rol}">${p.rol.charAt(0).toUpperCase()+p.rol.slice(1)}</span>
-              <span>${p.nombre}</span>
-              <span style="font-size:.65rem;color:var(--muted);">· ${p.delegacion}</span>
-            </div>`).join('')}
-        </div>
-      </div>`).join('');
-  }
-
-  // Trabajos
-  if(d.activa && d.trabajos.length) {
-    document.getElementById('jt-pendiente').style.display = 'none';
-    const cont = document.getElementById('jt-lista');
-    cont.style.display = 'flex';
-    cont.innerHTML = d.trabajos.map((t,i) => `
-      <div class="trabajo-item">
-        <div class="trabajo-num">${i+1}</div>
-        <div class="trabajo-info">
-          <div class="trabajo-titulo">${esc(t.titulo)}</div>
-          <div class="trabajo-autor">${esc(t.autor)} · ${esc(t.delegacion)}</div>
-          <span class="trabajo-comision">${esc(t.comision)}</span>
-        </div>
-      </div>`).join('');
-  }
+  btn.disabled = true;
+  setMsg('ja-msg', '', '');
+  const prog = document.getElementById('ja-prog'), bar = document.getElementById('ja-bar'), stat = document.getElementById('ja-stat');
+  let storagePath = null;
+  try {
+    if(archivo) {
+      prog.style.display = 'block'; bar.style.width = '30%'; stat.textContent = 'Subiendo archivo…';
+      const anioSeguro = String(JORNADA.cfg.anio).replace(/[^0-9A-Za-z_-]/g, '') || 'sin-anio';
+      storagePath = `jornadas/${anioSeguro}/${seccion}/${Date.now()}_${nombreArchivoSeguro(archivo.name)}`;
+      const up = await sb.storage.from(JORNADA_BUCKET).upload(storagePath, archivo, { cacheControl:'3600', upsert:false });
+      if(up.error) { storagePath = null; throw up.error; }
+      bar.style.width = '75%';
+    }
+    const esTrab = seccion === 'trabajos';
+    const { data, error } = await sb.from('jornada_adjuntos').insert({
+      anio: JORNADA.cfg.anio, seccion, titulo,
+      descripcion:    document.getElementById('ja-desc').value.trim() || null,
+      link:           link || null,
+      storage_path:   storagePath,
+      nombre_archivo: archivo ? archivo.name : null,
+      autor_trabajo:  esTrab ? (document.getElementById('ja-autor').value.trim() || null) : null,
+      delegacion:     esTrab ? (document.getElementById('ja-deleg').value.trim() || null) : null,
+      comision:       esTrab ? (document.getElementById('ja-comision').value.trim() || null) : null,
+    }).select().single();
+    if(error || !data) {
+      // si falló el registro, no dejar el archivo huérfano en Storage
+      if(storagePath) await sb.storage.from(JORNADA_BUCKET).remove([storagePath]);
+      throw (error || new Error('Sin permisos'));
+    }
+    bar.style.width = '100%'; stat.textContent = '✅ Listo.';
+    await logAct('crear', 'jornadas', `${seccion}: ${titulo}`);
+    cerrarModal('modal-jornada-adjunto');
+    await cargarJornadas();
+  } catch(e) {
+    console.error('Jornadas — guardar adjunto:', e);
+    prog.style.display = 'none'; bar.style.width = '0%';
+    setMsg('ja-msg', '❌ No se pudo guardar. Verificá tus permisos y el archivo.', 'err');
+  } finally { btn.disabled = false; }
 }
 
 // ══ HERO DINÁMICO ══════════════════════════════════════════════════════════
